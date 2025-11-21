@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, RefreshCw } from 'lucide-react'
 import StreamCard from '@/components/StreamCard'
 import AddStreamModal from '@/components/AddStreamModal'
+import { formatDistanceToNow } from 'date-fns'
 
 interface Stream {
     id: string
@@ -26,9 +27,37 @@ interface StreamsClientProps {
 }
 
 export default function StreamsClient({ initialStreams }: StreamsClientProps) {
-    const [streams] = useState(initialStreams)
+    const [streams, setStreams] = useState(initialStreams)
     const [addModalOpen, setAddModalOpen] = useState(false)
     const [editStream, setEditStream] = useState<{ id: string; name: string; url: string } | null>(null)
+    const [isRefreshing, setIsRefreshing] = useState(false)
+    const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+
+    // Auto-refresh streams every 30 seconds
+    useEffect(() => {
+        const checkStreamHealth = async () => {
+            try {
+                const response = await fetch('/api/streams/health')
+                if (response.ok) {
+                    const data = await response.json()
+                    if (data.success && data.streams) {
+                        setStreams(data.streams)
+                        setLastUpdate(new Date())
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to check stream health:', error)
+            }
+        }
+
+        // Check immediately on mount
+        checkStreamHealth()
+
+        // Then check every 30 seconds
+        const interval = setInterval(checkStreamHealth, 30000)
+
+        return () => clearInterval(interval)
+    }, [])
 
     const handleEdit = (stream: Stream) => {
         setEditStream({
@@ -44,6 +73,24 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
         setEditStream(null)
     }
 
+    const handleManualRefresh = async () => {
+        setIsRefreshing(true)
+        try {
+            const response = await fetch('/api/streams/health')
+            if (response.ok) {
+                const data = await response.json()
+                if (data.success && data.streams) {
+                    setStreams(data.streams)
+                    setLastUpdate(new Date())
+                }
+            }
+        } catch (error) {
+            console.error('Failed to refresh streams:', error)
+        } finally {
+            setIsRefreshing(false)
+        }
+    }
+
     return (
         <>
             <div className="space-y-6">
@@ -55,14 +102,27 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
                         <p className="text-gray-400">
                             Manage your radio streams with real-time monitoring and health checks
                         </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                            Last updated: {formatDistanceToNow(lastUpdate, { addSuffix: true })}
+                        </p>
                     </div>
-                    <button
-                        onClick={() => setAddModalOpen(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium"
-                    >
-                        <Plus className="w-5 h-5" />
-                        Add Stream
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleManualRefresh}
+                            disabled={isRefreshing}
+                            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium disabled:opacity-50"
+                        >
+                            <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                            Refresh
+                        </button>
+                        <button
+                            onClick={() => setAddModalOpen(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Add Stream
+                        </button>
+                    </div>
                 </div>
 
                 {/* Streams Grid */}

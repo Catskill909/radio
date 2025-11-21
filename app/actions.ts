@@ -511,12 +511,12 @@ export async function updateStreamStatus(id: string, testResult: any) {
 
 export async function refreshStream(id: string) {
     const stream = await prisma.icecastStream.findUnique({ where: { id } });
-    if (!stream) return;
+    if (!stream) return null;
 
     const { testStream } = await import("@/lib/stream-tester");
     const testResult = await testStream(stream.url);
 
-    await prisma.icecastStream.update({
+    const updatedStream = await prisma.icecastStream.update({
         where: { id },
         data: {
             status: testResult.status,
@@ -531,6 +531,7 @@ export async function refreshStream(id: string) {
         },
     });
     revalidatePath("/streams");
+    return updatedStream;
 }
 
 export async function deleteStream(id: string) {

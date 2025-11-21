@@ -45,9 +45,15 @@ export default function StreamCard({ stream, onEdit }: StreamCardProps) {
 
     const handleRefresh = async () => {
         setIsRefreshing(true)
-        await refreshStream(stream.id)
-        setIsRefreshing(false)
-        window.location.reload()
+        try {
+            const updatedStream = await refreshStream(stream.id)
+            // The parent component will update via the auto-refresh mechanism
+            // No need to reload the page
+        } catch (error) {
+            console.error('Failed to refresh stream:', error)
+        } finally {
+            setIsRefreshing(false)
+        }
     }
 
     const handleDelete = async () => {
@@ -153,9 +159,17 @@ export default function StreamCard({ stream, onEdit }: StreamCardProps) {
 
                         {/* Last Checked - Inline with status */}
                         {stream.lastChecked && (
-                            <span className="text-xs text-gray-500 border-l border-gray-700 pl-2 ml-1">
-                                Checked {formatDistanceToNow(new Date(stream.lastChecked), { addSuffix: true })}
-                            </span>
+                            <>
+                                <span className="text-xs text-gray-500 border-l border-gray-700 pl-2 ml-1">
+                                    Checked {formatDistanceToNow(new Date(stream.lastChecked), { addSuffix: true })}
+                                </span>
+                                {/* Stale check warning */}
+                                {isEnabled && new Date().getTime() - new Date(stream.lastChecked).getTime() > 5 * 60 * 1000 && (
+                                    <Tooltip content="Data may be stale - click Refresh to update">
+                                        <Clock className="w-4 h-4 text-yellow-500" />
+                                    </Tooltip>
+                                )}
+                            </>
                         )}
                     </div>
 
