@@ -41,3 +41,15 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# Prisma - STANDARD SETUP
+# Database files should NEVER be committed to git
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+prisma/*.db*
+dev.db*
+
+# Keep backups local only
+*.SAFE_BACKUP_*

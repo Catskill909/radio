@@ -7,7 +7,11 @@
     "recorder": "npx tsx recorder-service.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:backup": "cp prisma/dev.db prisma/dev.db.backup_$(date +%Y%m%d_%H%M%S) && echo 'Backup created in prisma/'",
+    "db:studio": "npx prisma studio",
+    "db:migrate": "npx prisma migrate dev",
+    "db:reset": "npx prisma migrate reset"
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.8",
