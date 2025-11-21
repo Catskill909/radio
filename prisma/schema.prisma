@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Show {
+  id               String   @id @default(uuid())
+  title            String
+  description      String?
+  type             String   // "Local Podcast", "Syndicated Music", etc.
+  host             String?  // Show host name
+  image            String?
+  recordingEnabled Boolean  @default(false)  // Enable/disable recording
+  recordingSource  String?                   // Stream URL or source identifier
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  slots            ScheduleSlot[]
+}
+
+model ScheduleSlot {
+  id        String   @id @default(uuid())
+  showId    String
+  show      Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  startTime DateTime
+  endTime   DateTime
+  sourceUrl String?  // Optional override for stream source
+  isRecurring Boolean @default(false)
+  recordings Recording[]
+}
+
+model Recording {
+  id             String   @id @default(uuid())
+  scheduleSlotId String?
+  scheduleSlot   ScheduleSlot? @relation(fields: [scheduleSlotId], references: [id])
+  filePath       String
+  startTime      DateTime
+  endTime        DateTime?
+  status         String   // "PENDING", "RECORDING", "COMPLETED", "FAILED"
+  createdAt      DateTime @default(now())
+  episode        Episode?
+}
+
+model Episode {
+  id          String   @id @default(uuid())
+  recordingId String   @unique
+  recording   Recording @relation(fields: [recordingId], references: [id])
+  title       String
+  description String?
+  publishedAt DateTime?
+  episodeNumber Int?
+  seasonNumber  Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
