@@ -1,4 +1,4 @@
-import { getShow, updateShow } from "@/app/actions";
+import { getShow, updateShow, getStreams } from "@/app/actions";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
@@ -8,6 +8,7 @@ import EditShowForm from "@/components/EditShowForm";
 export default async function EditShowPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const show = await getShow(id);
+    const streams = await getStreams();
 
     if (!show) {
         redirect("/shows");
@@ -26,7 +27,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
             </div>
 
             <div className="flex-1 overflow-y-auto bg-gray-800 p-8 rounded-xl border border-gray-700 shadow-lg">
-                <EditShowForm show={show} />
+                <EditShowForm show={show} streams={streams} />
             </div>
         </div>
     );

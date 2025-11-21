@@ -252,8 +252,8 @@ export async function createStream(name: string, url: string) {
             maxListeners: testResult.maxListeners,
             genre: testResult.genre,
             description: testResult.description,
-            errorMessage: testResult.errorMessage,
             lastChecked: new Date(),
+            errorMessage: testResult.errorMessage,
         },
     });
 
@@ -266,10 +266,10 @@ export async function testStreamUrl(url: string) {
     return await testStream(url);
 }
 
-export async function toggleStream(id: string, enabled: boolean) {
+export async function toggleStream(id: string, isEnabled: boolean) {
     await prisma.icecastStream.update({
         where: { id },
-        data: { isEnabled: enabled },
+        data: { isEnabled },
     });
     revalidatePath("/streams");
 }
@@ -285,25 +285,35 @@ export async function updateStreamStatus(id: string, testResult: any) {
             maxListeners: testResult.maxListeners,
             genre: testResult.genre,
             description: testResult.description,
-            errorMessage: testResult.errorMessage,
             lastChecked: new Date(),
+            errorMessage: testResult.errorMessage,
         },
     });
     revalidatePath("/streams");
 }
 
 export async function refreshStream(id: string) {
-    const stream = await prisma.icecastStream.findUnique({
-        where: { id },
-    });
-
-    if (!stream) return null;
+    const stream = await prisma.icecastStream.findUnique({ where: { id } });
+    if (!stream) return;
 
     const { testStream } = await import("@/lib/stream-tester");
     const testResult = await testStream(stream.url);
 
-    await updateStreamStatus(id, testResult);
-    return testResult;
+    await prisma.icecastStream.update({
+        where: { id },
+        data: {
+            status: testResult.status,
+            bitrate: testResult.bitrate,
+            format: testResult.format,
+            listeners: testResult.listeners,
+            maxListeners: testResult.maxListeners,
+            genre: testResult.genre,
+            description: testResult.description,
+            lastChecked: new Date(),
+            errorMessage: testResult.errorMessage,
+        },
+    });
+    revalidatePath("/streams");
 }
 
 export async function deleteStream(id: string) {
@@ -331,8 +341,8 @@ export async function updateStream(id: string, name: string, url: string) {
             maxListeners: testResult.maxListeners,
             genre: testResult.genre,
             description: testResult.description,
-            errorMessage: testResult.errorMessage,
             lastChecked: new Date(),
+            errorMessage: testResult.errorMessage,
         },
     });
 

@@ -138,8 +138,8 @@ export default function AddStreamModal({ isOpen, onClose, editStream }: AddStrea
                     {/* Test Results */}
                     {testResult && (
                         <div className={`rounded-lg p-4 border ${testResult.isValid
-                                ? 'bg-green-900/20 border-green-800'
-                                : 'bg-red-900/20 border-red-800'
+                            ? 'bg-green-900/20 border-green-800'
+                            : 'bg-red-900/20 border-red-800'
                             }`}>
                             <div className="flex items-start gap-3">
                                 {testResult.isValid ? (

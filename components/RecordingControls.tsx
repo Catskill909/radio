@@ -8,21 +8,15 @@ interface RecordingControlsProps {
     onRecordingEnabledChange: (enabled: boolean) => void
     recordingSource: string
     onRecordingSourceChange: (source: string) => void
+    streams: { id: string; name: string; url: string }[]
 }
-
-const PLACEHOLDER_SOURCES = [
-    { value: '', label: 'Select a source...' },
-    { value: 'stream-1', label: 'Stream Source 1' },
-    { value: 'stream-2', label: 'Stream Source 2' },
-    { value: 'stream-3', label: 'Stream Source 3' },
-    { value: 'custom', label: 'Custom URL (Coming Soon)' },
-]
 
 export default function RecordingControls({
     recordingEnabled,
     onRecordingEnabledChange,
     recordingSource,
     onRecordingSourceChange,
+    streams,
 }: RecordingControlsProps) {
     return (
         <div className="space-y-4 p-6 bg-gray-900 rounded-xl border border-gray-700">
@@ -66,14 +60,16 @@ export default function RecordingControls({
                         onChange={(e) => onRecordingSourceChange(e.target.value)}
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-200"
                     >
-                        {PLACEHOLDER_SOURCES.map((source) => (
-                            <option key={source.value} value={source.value}>
-                                {source.label}
+                        <option value="">Select a source...</option>
+                        {streams.map((stream) => (
+                            <option key={stream.id} value={stream.url}>
+                                {stream.name}
                             </option>
                         ))}
+                        <option value="custom">Custom URL (Coming Soon)</option>
                     </select>
                     <p className="text-xs text-gray-500">
-                        Stream sources will be configured in settings
+                        Select an Icecast stream to record from. Manage streams in the Streams section.
                     </p>
                 </div>
             )}

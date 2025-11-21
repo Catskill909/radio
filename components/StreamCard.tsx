@@ -118,7 +118,7 @@ export default function StreamCard({ stream, onEdit }: StreamCardProps) {
 
                 {/* Status and Metadata */}
                 <div className="space-y-3 mb-4">
-                    {/* Status */}
+                    {/* Status Line */}
                     <div className="flex items-center gap-2">
                         {stream.status === 'online' && isEnabled && (
                             <CheckCircle className={`w-4 h-4 ${getStatusColor()}`} />
@@ -129,40 +129,58 @@ export default function StreamCard({ stream, onEdit }: StreamCardProps) {
                         <span className={`text-sm font-medium ${getStatusColor()}`}>
                             {isEnabled ? stream.status.charAt(0).toUpperCase() + stream.status.slice(1) : 'Disabled'}
                         </span>
+
+                        {/* Last Checked - Inline with status */}
+                        {stream.lastChecked && (
+                            <span className="text-xs text-gray-500 border-l border-gray-700 pl-2 ml-1">
+                                Checked {formatDistanceToNow(new Date(stream.lastChecked), { addSuffix: true })}
+                            </span>
+                        )}
                     </div>
 
-                    {/* Metadata */}
-                    {isEnabled && stream.status === 'online' && (
-                        <div className="flex flex-wrap gap-3 text-sm text-gray-400">
-                            {stream.format && (
-                                <span className="bg-gray-700 px-2 py-1 rounded">{stream.format}</span>
-                            )}
-                            {stream.bitrate && (
-                                <span className="bg-gray-700 px-2 py-1 rounded">{stream.bitrate} kbps</span>
-                            )}
-                            {stream.listeners !== null && stream.listeners !== undefined && (
-                                <span className="bg-gray-700 px-2 py-1 rounded">
-                                    {stream.listeners} {stream.maxListeners ? `/ ${stream.maxListeners}` : ''} listeners
+                    {/* Stream Details - Always visible if data exists */}
+                    <div className="grid grid-cols-2 gap-y-1 gap-x-4 text-xs text-gray-400 bg-gray-900/30 p-3 rounded-lg">
+                        {(stream.format || stream.bitrate) && (
+                            <div className="col-span-2 sm:col-span-1">
+                                <span className="text-gray-500 uppercase tracking-wider text-[10px] block mb-0.5">Quality</span>
+                                <span className="font-mono text-gray-300">
+                                    {stream.bitrate ? `${stream.bitrate}kbps` : ''}
+                                    {stream.bitrate && stream.format ? ' • ' : ''}
+                                    {stream.format}
                                 </span>
-                            )}
-                            {stream.genre && (
-                                <span className="bg-gray-700 px-2 py-1 rounded">{stream.genre}</span>
-                            )}
-                        </div>
-                    )}
+                            </div>
+                        )}
+
+                        {stream.genre && (
+                            <div className="col-span-2 sm:col-span-1">
+                                <span className="text-gray-500 uppercase tracking-wider text-[10px] block mb-0.5">Genre</span>
+                                <span className="text-gray-300">{stream.genre}</span>
+                            </div>
+                        )}
+
+                        {/* Listeners - Only relevant when online/testing */}
+                        {(stream.status === 'online' || stream.status === 'testing') && stream.listeners !== null && stream.listeners !== undefined && (
+                            <div className="col-span-2 sm:col-span-1">
+                                <span className="text-gray-500 uppercase tracking-wider text-[10px] block mb-0.5">Listeners</span>
+                                <span className="text-gray-300">
+                                    {stream.listeners} {stream.maxListeners ? `/ ${stream.maxListeners}` : ''}
+                                </span>
+                            </div>
+                        )}
+
+                        {stream.description && (
+                            <div className="col-span-2 mt-1 pt-1 border-t border-gray-800/50">
+                                <span className="text-gray-500 uppercase tracking-wider text-[10px] block mb-0.5">Description</span>
+                                <p className="text-gray-300 line-clamp-2">{stream.description}</p>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Error Message */}
                     {isEnabled && stream.errorMessage && (
-                        <div className="bg-red-900/20 border border-red-800 rounded-lg p-3">
-                            <p className="text-sm text-red-400">{stream.errorMessage}</p>
-                        </div>
-                    )}
-
-                    {/* Last Checked */}
-                    {stream.lastChecked && (
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                            <Clock className="w-3 h-3" />
-                            Last checked {formatDistanceToNow(new Date(stream.lastChecked), { addSuffix: true })}
+                        <div className="bg-red-900/20 border border-red-800/50 rounded-lg p-2.5 flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-xs text-red-300">{stream.errorMessage}</p>
                         </div>
                     )}
                 </div>

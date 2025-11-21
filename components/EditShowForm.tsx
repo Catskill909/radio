@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { Show } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
-export default function EditShowForm({ show }: { show: Show }) {
+export default function EditShowForm({ show, streams }: { show: Show; streams: { id: string; name: string; url: string }[] }) {
     const [imageUrl, setImageUrl] = useState(show.image || "");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [recordingEnabled, setRecordingEnabled] = useState(show.recordingEnabled || false);
@@ -99,6 +99,7 @@ export default function EditShowForm({ show }: { show: Show }) {
                     onRecordingEnabledChange={setRecordingEnabled}
                     recordingSource={recordingSource}
                     onRecordingSourceChange={setRecordingSource}
+                    streams={streams}
                 />
 
                 <div className="space-y-2">

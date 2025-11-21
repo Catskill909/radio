@@ -23,9 +23,10 @@ interface Show {
 
 interface ShowsClientProps {
     initialShows: Show[]
+    streams: { id: string; name: string; url: string }[]
 }
 
-export default function ShowsClient({ initialShows }: ShowsClientProps) {
+export default function ShowsClient({ initialShows, streams }: ShowsClientProps) {
     const [shows, setShows] = useState(initialShows)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [editModalOpen, setEditModalOpen] = useState(false)
@@ -129,7 +130,7 @@ export default function ShowsClient({ initialShows }: ShowsClientProps) {
                 }}
                 title="Edit Show"
             >
-                {selectedShow && <EditShowForm show={selectedShow} />}
+                {selectedShow && <EditShowForm show={selectedShow} streams={streams} />}
             </EditShowModal>
         </>
     )

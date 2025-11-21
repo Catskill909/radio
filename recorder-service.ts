@@ -68,7 +68,7 @@ async function checkSchedule() {
 }
 
 async function startRecording(slot: any) {
-    const sourceUrl = slot.sourceUrl || 'http://stream.example.com/stream' // Fallback or default
+    const sourceUrl = slot.sourceUrl || slot.show.recordingSource || 'http://stream.example.com/stream' // Fallback or default
     const filename = `show-${slot.show.id}-${Date.now()}.mp3`
     const filePath = path.join(RECORDINGS_DIR, filename)
 
