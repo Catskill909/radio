@@ -39,7 +39,7 @@ export default function CreateShowModal({
             />
 
             {/* Modal - Full Screen */}
-            <div className="relative bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full h-full max-w-7xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="relative bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full h-full max-w-6xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
                 {/* Fixed Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-800 flex-shrink-0">
                     <h2 className="text-3xl font-bold text-white">Create New Show</h2>

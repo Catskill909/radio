@@ -12,33 +12,74 @@ interface ImageUploadProps {
 
 export default function ImageUpload({ value, onChange }: ImageUploadProps) {
     const [uploading, setUploading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
+        setError(null)
         const file = acceptedFiles[0]
         if (!file) return
 
-        setUploading(true)
-        const formData = new FormData()
-        formData.append('file', file)
+        console.log("File dropped:", file.name, file.type, file.size)
 
-        try {
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            })
+        // Validate image dimensions
+        const img = new window.Image()
+        const objectUrl = URL.createObjectURL(file)
 
-            if (!response.ok) {
-                throw new Error('Upload failed')
+        img.onload = async () => {
+            URL.revokeObjectURL(objectUrl)
+            const { width, height } = img
+            console.log("Image dimensions:", width, "x", height)
+
+            // 1. Check if square
+            if (width !== height) {
+                const msg = `Image must be square (1:1 aspect ratio). Current: ${width}x${height}`
+                console.error(msg)
+                setError(msg)
+                return
             }
 
-            const data = await response.json()
-            onChange(data.url)
-        } catch (error) {
-            console.error('Error uploading file:', error)
-            alert('Failed to upload image')
-        } finally {
-            setUploading(false)
+            // 2. Check dimensions (1400x1400 - 3000x3000)
+            // User mentioned 3000 in prompt, code had 2800. Relaxing to 3000 to be safe.
+            if (width < 1400 || width > 3000) {
+                const msg = `Image dimensions must be between 1400x1400 and 3000x3000 pixels. Current: ${width}x${height}`
+                console.error(msg)
+                setError(msg)
+                return
+            }
+
+            // Proceed with upload if valid
+            setUploading(true)
+            const formData = new FormData()
+            formData.append('file', file)
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                })
+
+                if (!response.ok) {
+                    throw new Error('Upload failed')
+                }
+
+                const data = await response.json()
+                console.log("Upload success:", data.url)
+                onChange(data.url)
+            } catch (error) {
+                console.error('Error uploading file:', error)
+                setError('Failed to upload image. Please try again.')
+            } finally {
+                setUploading(false)
+            }
         }
+
+        img.onerror = () => {
+            URL.revokeObjectURL(objectUrl)
+            console.error("Failed to load image for validation")
+            setError("Failed to load image. Is it a valid image file?")
+        }
+
+        img.src = objectUrl
     }, [onChange])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -70,27 +111,37 @@ export default function ImageUpload({ value, onChange }: ImageUploadProps) {
     }
 
     return (
-        <div
-            {...getRootProps()}
-            className={`
-        border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-        ${isDragActive ? 'border-blue-500 bg-blue-500/10' : 'border-gray-600 hover:border-gray-500 hover:bg-gray-800'}
-      `}
-        >
-            <input {...getInputProps()} />
-            <div className="flex flex-col items-center gap-2 text-gray-400">
-                <Upload className="w-8 h-8 mb-2" />
-                {uploading ? (
-                    <p>Uploading...</p>
-                ) : isDragActive ? (
-                    <p className="text-blue-400">Drop the image here</p>
-                ) : (
-                    <>
-                        <p className="font-medium text-gray-300">Drag & drop an image here</p>
-                        <p className="text-sm">or click to select file</p>
-                    </>
-                )}
+        <div className="space-y-2">
+            <div
+                {...getRootProps()}
+                className={`
+            border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+            ${isDragActive ? 'border-blue-500 bg-blue-500/10' : 'border-gray-600 hover:border-gray-500 hover:bg-gray-800'}
+            ${error ? 'border-red-500 bg-red-500/10' : ''}
+          `}
+            >
+                <input {...getInputProps()} />
+                <div className="flex flex-col items-center gap-2 text-gray-400">
+                    <Upload className={`w-8 h-8 mb-2 ${error ? 'text-red-500' : ''}`} />
+                    {uploading ? (
+                        <p>Uploading...</p>
+                    ) : isDragActive ? (
+                        <p className="text-blue-400">Drop the image here</p>
+                    ) : (
+                        <>
+                            <p className="font-medium text-gray-300">Drag & drop an image here</p>
+                            <p className="text-xs text-gray-500">
+                                Requirements: Square, 1400x1400 to 3000x3000px
+                            </p>
+                        </>
+                    )}
+                </div>
             </div>
+            {error && (
+                <p className="text-xs text-red-400 text-center px-2">
+                    {error}
+                </p>
+            )}
         </div>
     )
 }

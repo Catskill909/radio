@@ -44,6 +44,17 @@ export async function GET(
     });
 
     // Create RSS feed
+    // Helper to ensure absolute URLs
+    const getAbsoluteUrl = (path: string | null) => {
+        if (!path) return undefined;
+        if (path.startsWith("http")) return path;
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+        return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+    };
+
+    const showImage = getAbsoluteUrl(show.image);
+
+    // Create RSS feed
     const feed = new RSS({
         title: show.title,
         description: show.description || `Episodes from ${show.title}`,
@@ -52,21 +63,30 @@ export async function GET(
         language: "en",
         pubDate: new Date(),
         ttl: 60,
-        image_url: show.image || undefined,
+        image_url: showImage,
         custom_namespaces: {
             itunes: "http://www.itunes.com/dtds/podcast-1.0.dtd",
         },
         custom_elements: [
-            { "itunes:author": show.host || "Radio Suite" },
+            { "itunes:author": show.author || show.host || "Radio Suite" },
             { "itunes:summary": show.description || "" },
-            { "itunes:category": { _attr: { text: show.type } } },
-            ...(show.image ? [{ "itunes:image": { _attr: { href: show.image } } }] : []),
+            { "itunes:category": { _attr: { text: show.category || show.type } } },
+            {
+                "itunes:owner": [
+                    { "itunes:name": show.author || show.host || "Radio Suite" },
+                    { "itunes:email": show.email || "podcasts@radiosuite.com" }
+                ]
+            },
+            { "itunes:explicit": show.explicit ? "yes" : "no" },
+            ...(show.tags ? [{ "itunes:keywords": show.tags }] : []),
+            ...(showImage ? [{ "itunes:image": { _attr: { href: showImage } } }] : []),
         ],
     });
 
     // Add episodes to feed
     episodes.forEach((episode) => {
         const audioUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/audio/${episode.recording.filePath}`;
+        const episodeImage = getAbsoluteUrl((episode as any).imageUrl) || showImage;
 
         feed.item({
             title: episode.title,
@@ -82,11 +102,8 @@ export async function GET(
             custom_elements: [
                 { "itunes:author": (episode as any).host || show.host || "Radio Suite" },
                 { "itunes:duration": (episode as any).duration || 0 },
-                ...((episode as any).imageUrl
-                    ? [{ "itunes:image": { _attr: { href: (episode as any).imageUrl } } }]
-                    : show.image
-                        ? [{ "itunes:image": { _attr: { href: show.image } } }]
-                        : []),
+                { "itunes:explicit": "no" },
+                ...(episodeImage ? [{ "itunes:image": { _attr: { href: episodeImage } } }] : []),
             ],
         });
     });

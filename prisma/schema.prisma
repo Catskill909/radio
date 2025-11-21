@@ -13,6 +13,11 @@ model Show {
   description      String?
   type             String
   host             String?
+  email            String?
+  author           String?
+  explicit         Boolean        @default(false)
+  category         String?
+  tags             String?
   image            String?
   recordingEnabled Boolean        @default(false)
   recordingSource  String?

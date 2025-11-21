@@ -8,10 +8,15 @@ export async function createShow(formData: FormData) {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const type = formData.get("type") as string;
-    const host = formData.get("host") as string;
-    const image = formData.get("image") as string;
+    const host = (formData.get("host") as string) || null;
+    const email = (formData.get("email") as string) || null;
+    const author = (formData.get("author") as string) || null;
+    const category = (formData.get("category") as string) || null;
+    const tags = (formData.get("tags") as string) || null;
+    const explicit = formData.get("explicit") === "true";
+    const image = (formData.get("image") as string) || null;
     const recordingEnabled = formData.get("recordingEnabled") === "true";
-    const recordingSource = formData.get("recordingSource") as string;
+    const recordingSource = (formData.get("recordingSource") as string) || null;
 
     const startDateStr = formData.get("startDate") as string;
     const startTimeStr = formData.get("startTime") as string;
@@ -24,6 +29,11 @@ export async function createShow(formData: FormData) {
             description,
             type,
             host,
+            email,
+            author,
+            category,
+            tags,
+            explicit,
             image,
             recordingEnabled,
             recordingSource,
@@ -103,10 +113,15 @@ export async function updateShow(id: string, formData: FormData) {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const type = formData.get("type") as string;
-    const host = formData.get("host") as string;
-    const image = formData.get("image") as string;
+    const host = (formData.get("host") as string) || null;
+    const email = (formData.get("email") as string) || null;
+    const author = (formData.get("author") as string) || null;
+    const category = (formData.get("category") as string) || null;
+    const tags = (formData.get("tags") as string) || null;
+    const explicit = formData.get("explicit") === "true";
+    const image = (formData.get("image") as string) || null;
     const recordingEnabled = formData.get("recordingEnabled") === "true";
-    const recordingSource = formData.get("recordingSource") as string;
+    const recordingSource = (formData.get("recordingSource") as string) || null;
 
     await prisma.show.update({
         where: { id },
@@ -115,6 +130,11 @@ export async function updateShow(id: string, formData: FormData) {
             description,
             type,
             host,
+            email,
+            author,
+            category,
+            tags,
+            explicit,
             image,
             recordingEnabled,
             recordingSource,
@@ -361,6 +381,19 @@ export async function publishRecording(recordingId: string, formData: FormData) 
 }
 
 export async function deleteShow(id: string) {
+    // Check if show exists first
+    const show = await prisma.show.findUnique({
+        where: { id },
+    });
+
+    if (!show) {
+        // Show already deleted or doesn't exist - just revalidate and redirect
+        revalidatePath("/shows");
+        revalidatePath("/schedule");
+        redirect("/shows");
+        return;
+    }
+
     await prisma.show.delete({
         where: { id },
     });

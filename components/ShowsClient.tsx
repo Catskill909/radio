@@ -58,60 +58,74 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {shows.map((show) => (
                         <div
                             key={show.id}
-                            className="bg-gray-800 border border-gray-700 rounded-xl p-6 hover:border-gray-600 transition-all hover:shadow-lg"
+                            className="bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden hover:border-[#444] transition-all shadow-md flex flex-col"
                         >
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="flex-1">
-                                    <h2 className="text-xl font-semibold mb-2">{show.title}</h2>
-                                    {show.host && (
-                                        <p className="text-sm text-gray-400 mb-2">Host: {show.host}</p>
+                            <div className="flex flex-row h-full">
+                                {show.image && (
+                                    <div className="w-1/3 relative shrink-0">
+                                        <img
+                                            src={show.image}
+                                            alt={show.title}
+                                            className="w-full h-full object-cover absolute inset-0"
+                                        />
+                                    </div>
+                                )}
+                                <div className={`flex-1 p-5 flex flex-col ${show.image ? 'w-2/3' : 'w-full'}`}>
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h2 className="text-lg font-medium text-gray-100 leading-tight mb-1">{show.title}</h2>
+                                            {show.host && (
+                                                <p className="text-xs text-gray-400">Host: {show.host}</p>
+                                            )}
+                                        </div>
+                                        <span className="text-xs font-medium text-gray-400 bg-[#2a2a2a] px-2 py-0.5 rounded border border-[#333]">
+                                            {show.type}
+                                        </span>
+                                    </div>
+
+                                    {show.description && (
+                                        <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-grow">{show.description}</p>
                                     )}
-                                    <span className="text-sm text-gray-400 bg-gray-700 px-3 py-1 rounded-full inline-block">
-                                        {show.type}
-                                    </span>
+
+                                    <div className="flex items-center gap-2 mt-auto pt-2">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedShow(show)
+                                                setRssModalOpen(true)
+                                            }}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors"
+                                        >
+                                            <Rss className="w-3 h-3" />
+                                            Feed
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedShow(show)
+                                                setEditModalOpen(true)
+                                            }}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors"
+                                        >
+                                            <Edit className="w-3 h-3" />
+                                            Edit
+                                        </button>
+                                        <div className="flex-grow"></div>
+                                        <Tooltip content="Delete Show">
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedShow(show)
+                                                    setDeleteModalOpen(true)
+                                                }}
+                                                className="flex items-center justify-center p-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded transition-colors"
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                            </button>
+                                        </Tooltip>
+                                    </div>
                                 </div>
-                            </div>
-
-                            {show.description && (
-                                <p className="text-gray-400 line-clamp-3 mb-4">{show.description}</p>
-                            )}
-
-                            <div className="flex gap-2 mt-4">
-                                <button
-                                    onClick={() => {
-                                        setSelectedShow(show)
-                                        setRssModalOpen(true)
-                                    }}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all"
-                                >
-                                    <Rss className="w-4 h-4" />
-                                    Podcast Feed
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setSelectedShow(show)
-                                        setEditModalOpen(true)
-                                    }}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                                >
-                                    <Edit className="w-4 h-4" />
-                                    Edit
-                                </button>
-                                <Tooltip content="Delete Show">
-                                    <button
-                                        onClick={() => {
-                                            setSelectedShow(show)
-                                            setDeleteModalOpen(true)
-                                        }}
-                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </Tooltip>
                             </div>
                         </div>
                     ))}
