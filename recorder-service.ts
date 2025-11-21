@@ -130,7 +130,6 @@ async function startRecording(slot: any) {
                 }
             }
 
-            // @ts-expect-error - Prisma types will update on next generation
             const updatedRecording = await prisma.recording.update({
                 where: { id: recording.id },
                 data: {
@@ -150,7 +149,6 @@ async function startRecording(slot: any) {
                 year: 'numeric'
             })
 
-            // @ts-expect-error - Prisma types will update on next generation
             await prisma.episode.create({
                 data: {
                     recordingId: recording.id,

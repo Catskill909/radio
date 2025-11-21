@@ -11,6 +11,13 @@ interface Show {
     description?: string | null
     image?: string | null
     host?: string | null
+    email?: string | null
+    author?: string | null
+    explicit?: boolean
+    category?: string | null
+    tags?: string | null
+    recordingEnabled?: boolean
+    recordingSource?: string | null
     createdAt: Date
     updatedAt: Date
 }
