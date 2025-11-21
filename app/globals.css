@@ -97,11 +97,35 @@ body {
   /* Subtle blue tint */
 }
 
-.rbc-event {
+/* NUCLEAR OVERRIDE for event heights to fix visual overlap bug */
+.rbc-event,
+.rbc-day-slot .rbc-event,
+.rbc-time-slot .rbc-event {
   background-color: var(--primary) !important;
   border: none !important;
   border-radius: 4px !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  max-height: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: hidden !important;
+  padding: 2px 4px !important;
+}
+
+.rbc-event-content {
+  max-height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+
+.rbc-event-label {
+  max-height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  line-height: 1.2 !important;
 }
 
 .rbc-current-time-indicator {

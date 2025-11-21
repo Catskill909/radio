@@ -24,20 +24,29 @@ A comprehensive radio station management system for scheduling shows, automated 
 - Automatic recording when shows are scheduled
 - Background recording service monitors schedule
 - Recording status tracking (PENDING/RECORDING/COMPLETED/FAILED)
+- **Auto-publishing** - Recordings automatically become podcast episodes
+
+### 🎧 Audio Playback
+- **Custom audio player** with play/pause controls
+- Real-time progress bar and duration display
+- In-browser playback for recordings and episodes
+- Responsive design with modern styling
 
 ### 🎨 Modern UI/UX
 - **Full-screen create form** with grid layout (no scrolling needed)
 - **Popup date/time pickers** with dark theme
 - **Custom delete confirmation modals** (no browser defaults)
 - **Scrollable edit modals** when clicking calendar events
+- **Hover tooltips** on calendar events showing complete details
 - Responsive design with dark theme
 - Smooth animations and transitions
 
 ### 📡 Podcast Distribution
-- RSS feed generation per show
-- Episode management
-- Metadata editing
-- Publishing controls
+- **Per-show RSS feeds** for podcast apps
+- **Beautiful modal UI** for feed URLs with one-click copy
+- iTunes-compatible podcast metadata
+- Automatic episode metadata from show info
+- Publishing controls and metadata editing
 
 ## Tech Stack
 
@@ -189,6 +198,16 @@ radio-suite/
 
 ## Recent Updates
 
+### Phase 4: Audio Playback, Podcast Feeds & Schedule Enhancements (Nov 21, 2024)
+- ✅ **Audio Player Component** - Custom player with play/pause, progress bar, time display
+- ✅ **Auto-Publishing** - Recordings automatically create podcast episodes
+- ✅ **Podcast RSS Feeds** - Per-show RSS feeds with iTunes metadata
+- ✅ **RSS Feed Modal** - Beautiful dark mode modal with copy-to-clipboard
+- ✅ **Schedule Overlap Prevention** - Backend validation prevents double-booking
+- ✅ **Calendar Visual Fixes** - Events render at correct heights (15-min granularity)
+- ✅ **Hover Tooltips** - Instant tooltips on calendar events showing full details
+- ✅ **CSS Overrides** - Solved min-height bug causing visual overlaps
+
 ### Phase 3: Icecast Stream Integration & Recorder Verification
 - ✅ Stream management UI (add, edit, delete, test)
 - ✅ Automatic stream testing and metadata extraction
@@ -212,11 +231,17 @@ radio-suite/
 
 ## Development Roadmap
 
+### Completed Recently ✅
+- [x] Audio player for recorded files
+- [x] Episode Management UI (auto-publishing)
+- [x] RSS feed generation and testing
+- [x] Schedule overlap prevention
+- [x] Calendar visual fixes (event heights)
+
 ### Next Up
-- [ ] Episode Management UI (view recordings, publish as episodes)
-- [ ] RSS feed testing and validation
 - [ ] Public-facing pages for listeners
 - [ ] Recording dashboard with status monitoring
+- [ ] Batch episode editing
 
 ### Future Enhancements
 - [ ] Enhance recorder service with error recovery and retry logic

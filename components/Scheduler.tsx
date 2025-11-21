@@ -8,6 +8,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { Repeat } from 'lucide-react'
 import EditSlotModal from '@/components/EditSlotModal'
 import ScheduleModal from '@/components/ScheduleModal'
+import { ScheduleEventTooltip } from '@/components/ScheduleEventTooltip'
 
 const locales = {
     'en-US': enUS,
@@ -142,8 +143,8 @@ export default function Scheduler({ shows, initialSlots, streams }: SchedulerPro
                     onNavigate={handleNavigate}
                     onView={handleViewChange}
                     views={[Views.WEEK, Views.DAY]}
-                    step={60}
-                    timeslots={1}
+                    step={15}
+                    timeslots={4}
                     selectable
                     onSelectSlot={handleSlotClick}
                     onSelectEvent={handleEventClick}
@@ -151,10 +152,14 @@ export default function Scheduler({ shows, initialSlots, streams }: SchedulerPro
                     className="text-gray-300 h-full"
                     components={{
                         event: ({ event }: any) => (
-                            <div className="flex items-center gap-1 h-full px-1">
-                                {event.isRecurring && <Repeat className="w-3 h-3 flex-shrink-0" />}
-                                <span className="truncate text-xs">{event.title}</span>
-                            </div>
+                            <ScheduleEventTooltip event={event}>
+                                <div className="flex items-center gap-1 h-full px-1 overflow-hidden">
+                                    {event.isRecurring && <Repeat className="w-3 h-3 flex-shrink-0" />}
+                                    <span className="truncate text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                                        {event.title}
+                                    </span>
+                                </div>
+                            </ScheduleEventTooltip>
                         )
                     }}
                 />
