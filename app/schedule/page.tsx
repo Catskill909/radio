@@ -2,6 +2,9 @@ import { getShows, getScheduleSlots } from "@/app/actions";
 import Scheduler from "@/components/Scheduler";
 import "./calendar-custom.css";
 
+// Force dynamic rendering to prevent caching issues with calendar navigation
+export const dynamic = 'force-dynamic';
+
 export default async function SchedulePage() {
     const shows = await getShows();
     const slots = await getScheduleSlots();

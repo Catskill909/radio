@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Calendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { enUS } from 'date-fns/locale'
@@ -47,6 +47,7 @@ interface SchedulerProps {
 }
 
 export default function Scheduler({ shows, initialSlots }: SchedulerProps) {
+    const [slots, setSlots] = useState(initialSlots)
     const [events, setEvents] = useState(
         initialSlots.map((slot) => ({
             id: slot.id,
@@ -55,9 +56,29 @@ export default function Scheduler({ shows, initialSlots }: SchedulerProps) {
             end: new Date(slot.endTime),
             resourceId: slot.showId,
             isRecurring: slot.isRecurring,
-            type: slot.show.type, // Add show type for color-coding
+            type: slot.show.type,
         }))
     )
+
+    // Controlled state for calendar navigation
+    const [date, setDate] = useState(new Date())
+    const [view, setView] = useState<any>(Views.WEEK)
+
+    // Sync slots and events when initialSlots changes (e.g., after navigation)
+    useEffect(() => {
+        setSlots(initialSlots)
+        setEvents(
+            initialSlots.map((slot) => ({
+                id: slot.id,
+                title: slot.show.title,
+                start: new Date(slot.startTime),
+                end: new Date(slot.endTime),
+                resourceId: slot.showId,
+                isRecurring: slot.isRecurring,
+                type: slot.show.type,
+            }))
+        )
+    }, [initialSlots])
 
     const [editSlotModalOpen, setEditSlotModalOpen] = useState(false)
     const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
@@ -66,8 +87,8 @@ export default function Scheduler({ shows, initialSlots }: SchedulerProps) {
     const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ start: Date; end: Date } | null>(null)
 
     const handleEventClick = async (event: any) => {
-        // Find the full slot data
-        const slot = initialSlots.find(s => s.id === event.id)
+        // Find the full slot data from state instead of initialSlots
+        const slot = slots.find(s => s.id === event.id)
         if (slot) {
             setSelectedSlot(slot)
             setEditSlotModalOpen(true)
@@ -81,6 +102,16 @@ export default function Scheduler({ shows, initialSlots }: SchedulerProps) {
             end: slotInfo.end as Date,
         })
         setScheduleModalOpen(true)
+    }, [])
+
+    // Handle calendar navigation - CRITICAL for navigation buttons to work
+    const handleNavigate = useCallback((newDate: Date) => {
+        setDate(newDate)
+    }, [])
+
+    // Handle view changes (Week/Day buttons)
+    const handleViewChange = useCallback((newView: any) => {
+        setView(newView)
     }, [])
 
     const eventPropGetter = (event: any) => {
@@ -103,7 +134,10 @@ export default function Scheduler({ shows, initialSlots }: SchedulerProps) {
                     events={events}
                     startAccessor={(event: any) => new Date(event.start)}
                     endAccessor={(event: any) => new Date(event.end)}
-                    defaultView={Views.WEEK}
+                    date={date}
+                    view={view}
+                    onNavigate={handleNavigate}
+                    onView={handleViewChange}
                     views={[Views.WEEK, Views.DAY]}
                     step={60}
                     timeslots={1}
