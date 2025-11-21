@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Radio, Calendar, Mic, Rss, ChevronLeft, ChevronRight, Menu, Waves } from "lucide-react";
 import { useState, useEffect } from "react";
 import { clsx } from "clsx";
+import { Tooltip } from "./Tooltip";
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -58,22 +59,28 @@ export default function Sidebar() {
                     const Icon = link.icon;
                     const isActive = pathname.startsWith(link.href);
                     return (
-                        <Link
+                        <Tooltip
                             key={link.href}
-                            href={link.href}
-                            className={clsx(
-                                "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors whitespace-nowrap overflow-hidden",
-                                isActive
-                                    ? "bg-blue-600 text-white"
-                                    : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                                isCollapsed ? "justify-center" : ""
-                            )}
-                            title={isCollapsed ? link.label : undefined}
+                            content={link.label}
+                            placement="right"
+                            disabled={!isCollapsed}
                         >
-                            <Icon className="w-5 h-5 flex-shrink-0" />
-                            {!isCollapsed && <span>{link.label}</span>}
-                        </Link>
+                            <Link
+                                href={link.href}
+                                className={clsx(
+                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors whitespace-nowrap overflow-hidden",
+                                    isActive
+                                        ? "bg-blue-600 text-white"
+                                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                                    isCollapsed ? "justify-center" : ""
+                                )}
+                            >
+                                <Icon className="w-5 h-5 flex-shrink-0" />
+                                {!isCollapsed && <span>{link.label}</span>}
+                            </Link>
+                        </Tooltip>
                     );
+
                 })}
             </nav>
         </aside>

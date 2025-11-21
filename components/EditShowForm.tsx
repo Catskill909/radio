@@ -7,6 +7,7 @@ import RecordingControls from "@/components/RecordingControls";
 import { useState, useEffect } from "react";
 import { Show } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { Tooltip } from "./Tooltip";
 
 export default function EditShowForm({ show, streams }: { show: Show; streams: { id: string; name: string; url: string }[] }) {
     const [imageUrl, setImageUrl] = useState(show.image || "");
@@ -117,13 +118,15 @@ export default function EditShowForm({ show, streams }: { show: Show; streams: {
                     >
                         Update Show
                     </button>
-                    <button
-                        type="button"
-                        onClick={() => setShowDeleteModal(true)}
-                        className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 rounded-lg transition-colors shadow-lg hover:shadow-red-500/20"
-                    >
-                        Delete
-                    </button>
+                    <Tooltip content="Delete Show">
+                        <button
+                            type="button"
+                            onClick={() => setShowDeleteModal(true)}
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 rounded-lg transition-colors shadow-lg hover:shadow-red-500/20"
+                        >
+                            Delete
+                        </button>
+                    </Tooltip>
                 </div>
             </form>
 

@@ -5,6 +5,7 @@ import { Radio, RefreshCw, Edit, Trash2, AlertCircle, CheckCircle, Clock } from 
 import { toggleStream, refreshStream, deleteStream } from '@/app/actions'
 import DeleteConfirmModal from './DeleteConfirmModal'
 import { formatDistanceToNow } from 'date-fns'
+import { Tooltip } from './Tooltip'
 
 interface StreamCardProps {
     stream: {
@@ -58,19 +59,39 @@ export default function StreamCard({ stream, onEdit }: StreamCardProps) {
     // Determine status indicator
     const getStatusIndicator = () => {
         if (!isEnabled) {
-            return <div className="w-4 h-4 rounded-full bg-gray-600" title="Disabled" />
+            return (
+                <Tooltip content="Disabled">
+                    <div className="w-4 h-4 rounded-full bg-gray-600" />
+                </Tooltip>
+            )
         }
 
         switch (stream.status) {
             case 'online':
-                return <div className="w-4 h-4 rounded-full bg-green-500 animate-pulse" title="Online" />
+                return (
+                    <Tooltip content="Online">
+                        <div className="w-4 h-4 rounded-full bg-green-500 animate-pulse" />
+                    </Tooltip>
+                )
             case 'offline':
             case 'error':
-                return <div className="w-4 h-4 rounded-full bg-red-500 animate-pulse" title="Offline/Error" />
+                return (
+                    <Tooltip content="Offline/Error">
+                        <div className="w-4 h-4 rounded-full bg-red-500 animate-pulse" />
+                    </Tooltip>
+                )
             case 'testing':
-                return <div className="w-4 h-4 rounded-full bg-yellow-500 animate-pulse" title="Testing" />
+                return (
+                    <Tooltip content="Testing">
+                        <div className="w-4 h-4 rounded-full bg-yellow-500 animate-pulse" />
+                    </Tooltip>
+                )
             default:
-                return <div className="w-4 h-4 rounded-full bg-gray-500" title="Unknown" />
+                return (
+                    <Tooltip content="Unknown">
+                        <div className="w-4 h-4 rounded-full bg-gray-500" />
+                    </Tooltip>
+                )
         }
     }
 

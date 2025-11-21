@@ -8,6 +8,7 @@ import DeleteConfirmModal from "@/components/DeleteConfirmModal"
 import EditShowModal from "@/components/EditShowModal"
 import EditShowForm from "@/components/EditShowForm"
 import { RssFeedModal } from "@/components/RssFeedModal"
+import { Tooltip } from "@/components/Tooltip"
 
 interface Show {
     id: string
@@ -100,15 +101,17 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
                                     <Edit className="w-4 h-4" />
                                     Edit
                                 </button>
-                                <button
-                                    onClick={() => {
-                                        setSelectedShow(show)
-                                        setDeleteModalOpen(true)
-                                    }}
-                                    className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
+                                <Tooltip content="Delete Show">
+                                    <button
+                                        onClick={() => {
+                                            setSelectedShow(show)
+                                            setDeleteModalOpen(true)
+                                        }}
+                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </Tooltip>
                             </div>
                         </div>
                     ))}

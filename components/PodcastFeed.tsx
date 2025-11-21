@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Rss, Copy, Check } from "lucide-react";
+import { Tooltip } from "./Tooltip";
 
 interface PodcastFeedProps {
     feedUrl: string;
@@ -30,13 +31,14 @@ export function PodcastFeed({ feedUrl, title = "Podcast Feed" }: PodcastFeedProp
                     value={feedUrl}
                     className="flex-1 bg-gray-900/50 border border-gray-700 rounded px-3 py-2 text-sm text-gray-300 font-mono"
                 />
-                <button
-                    onClick={copyToClipboard}
-                    className="p-2 bg-orange-600 hover:bg-orange-700 rounded transition-colors text-white"
-                    title="Copy to clipboard"
-                >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                </button>
+                <Tooltip content="Copy to clipboard">
+                    <button
+                        onClick={copyToClipboard}
+                        className="p-2 bg-orange-600 hover:bg-orange-700 rounded transition-colors text-white"
+                    >
+                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                </Tooltip>
             </div>
             <p className="text-xs text-gray-500 mt-2">
                 Subscribe to this feed in your favorite podcast app

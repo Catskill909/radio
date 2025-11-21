@@ -109,7 +109,8 @@ body {
   min-height: 0 !important;
   max-height: none !important;
   /* REMOVED overflow: hidden - might be clipping height! */
-  padding: 2px 4px !important;
+  padding: 0 !important;
+  /* Moved padding to inner content for tooltip trigger */
 }
 
 .rbc-event-content {
@@ -131,4 +132,22 @@ body {
 .rbc-current-time-indicator {
   background-color: #ef4444 !important;
   /* Red 500 */
+  border-top-color: #1f2937;
+}
+
+.tippy-box[data-theme~='radio-suite'][data-placement^='bottom']>.tippy-arrow::before {
+  border-bottom-color: #1f2937;
+}
+
+.tippy-box[data-theme~='radio-suite'][data-placement^='left']>.tippy-arrow::before {
+  border-left-color: #1f2937;
+}
+
+.tippy-box[data-theme~='radio-suite'][data-placement^='right']>.tippy-arrow::before {
+  border-right-color: #1f2937;
+}
+
+.tippy-box[data-theme~='radio-suite']>.tippy-content {
+  padding: 0.5rem 0.75rem;
+  color: #f9fafb;
 }

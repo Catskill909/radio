@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { Calendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar'
+import { Calendar as BigCalendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { enUS } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { Repeat } from 'lucide-react'
+import { Repeat, Clock } from 'lucide-react'
+import { Tooltip } from './Tooltip'
 import EditSlotModal from '@/components/EditSlotModal'
 import ScheduleModal from '@/components/ScheduleModal'
-import { ScheduleEventTooltip } from '@/components/ScheduleEventTooltip'
 
 const locales = {
     'en-US': enUS,
@@ -157,7 +157,7 @@ export default function Scheduler({ shows, initialSlots, streams }: SchedulerPro
         <div className="w-full h-full">
             {/* Full-Width Calendar */}
             <div className="bg-gray-900 rounded-xl p-4 border border-gray-800 h-full">
-                <Calendar
+                <BigCalendar
                     localizer={localizer}
                     events={events}
                     startAccessor={(event: any) => new Date(event.start)}
@@ -173,18 +173,43 @@ export default function Scheduler({ shows, initialSlots, streams }: SchedulerPro
                     onSelectSlot={handleSlotClick}
                     onSelectEvent={handleEventClick}
                     eventPropGetter={eventPropGetter}
+                    tooltipAccessor={null}
+                    formats={{
+                        eventTimeRangeFormat: () => "",
+                    }}
                     className="text-gray-300 h-full"
                     components={{
-                        event: ({ event }: any) => (
-                            <ScheduleEventTooltip event={event}>
-                                <div className="flex items-center gap-1 px-1 overflow-hidden">
-                                    {event.isRecurring && <Repeat className="w-3 h-3 flex-shrink-0" />}
-                                    <span className="truncate text-xs whitespace-nowrap overflow-hidden text-ellipsis">
-                                        {event.title}
-                                    </span>
+                        event: ({ event }: any) => {
+                            const duration = Math.round((event.end.getTime() - event.start.getTime()) / (1000 * 60));
+                            const tooltipContent = (
+                                <div className="space-y-1">
+                                    <div className="font-semibold">{event.title}</div>
+                                    <div className="text-xs opacity-80">{event.type}</div>
+                                    <div className="flex items-center gap-1 text-xs">
+                                        <Clock className="w-3 h-3" />
+                                        <span>{format(event.start, "h:mm a")} - {format(event.end, "h:mm a")}</span>
+                                    </div>
+                                    <div className="text-xs">{duration} minutes</div>
+                                    {event.isRecurring && (
+                                        <div className="flex items-center gap-1 text-xs text-yellow-400">
+                                            <Repeat className="w-3 h-3" />
+                                            <span>Recurring Weekly</span>
+                                        </div>
+                                    )}
                                 </div>
-                            </ScheduleEventTooltip>
-                        )
+                            );
+
+                            return (
+                                <Tooltip content={tooltipContent} placement="top">
+                                    <div className="flex items-center gap-1 px-1 py-0.5 overflow-hidden w-full h-full">
+                                        {event.isRecurring && <Repeat className="w-3 h-3 flex-shrink-0" />}
+                                        <span className="truncate text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                                            {event.title}
+                                        </span>
+                                    </div>
+                                </Tooltip>
+                            );
+                        }
                     }}
                 />
             </div>
