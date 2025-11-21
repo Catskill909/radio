@@ -9,5 +9,17 @@
         "**/node_modules/**": true,
         "**/.next/**": true,
         "**/dist/**": true
+    },
+    "files.exclude": {
+        "**/*.db": true,
+        "**/*.db-journal": true,
+        "**/*.db-shm": true,
+        "**/*.db-wal": true,
+        "**/*.SAFE_BACKUP_*": true,
+        "**/*.backup_*": true
+    },
+    "search.exclude": {
+        "**/*.db": true,
+        "**/*.db-journal": true
     }
 }
