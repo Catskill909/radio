@@ -2,6 +2,7 @@
 
 import { X, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { updateScheduleSlot, deleteScheduleSlot } from '@/app/actions'
 import DateTimePicker from './DateTimePicker'
 import DeleteConfirmModal from './DeleteConfirmModal'
@@ -37,6 +38,7 @@ interface EditSlotModalProps {
 }
 
 export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSlotModalProps) {
+    const router = useRouter()
     const [startTime, setStartTime] = useState<Date>(new Date())
     const [duration, setDuration] = useState(60)
     const [isRecurring, setIsRecurring] = useState(false)
@@ -62,7 +64,8 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
         try {
             const endTime = new Date(startTime.getTime() + duration * 60000)
             await updateScheduleSlot(slot.id, startTime, endTime, isRecurring)
-            window.location.reload()
+            // Force hard reload to bypass browser cache
+            window.location.href = window.location.href
         } catch (err: any) {
             setError(err.message)
             setIsSaving(false)
@@ -73,6 +76,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
         await deleteScheduleSlot(slot.id)
         setDeleteModalOpen(false)
         onClose()
+        // Force full page reload
         window.location.reload()
     }
 

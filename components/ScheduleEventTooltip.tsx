@@ -41,7 +41,7 @@ export function ScheduleEventTooltip({ event, children }: ScheduleEventTooltipPr
 
     return (
         <div
-            className="relative h-full w-full group"
+            className="relative w-full group"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >

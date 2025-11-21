@@ -105,10 +105,10 @@ body {
   border: none !important;
   border-radius: 4px !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  max-height: 100% !important;
+  /* Let react-big-calendar control height via absolute positioning */
   min-height: 0 !important;
-  height: auto !important;
-  overflow: hidden !important;
+  max-height: none !important;
+  /* REMOVED overflow: hidden - might be clipping height! */
   padding: 2px 4px !important;
 }
 

@@ -84,6 +84,30 @@ export default function Scheduler({ shows, initialSlots, streams }: SchedulerPro
         )
     }, [initialSlots])
 
+    // DEBUG: Log event data to console
+    console.log('=== SCHEDULER DEBUG ===')
+    console.log('Total events:', events.length)
+
+    // Find the 12:30 AM event
+    const event1230 = events.find(e => {
+        const hour = e.start.getHours()
+        const minute = e.start.getMinutes()
+        return (hour === 0 || hour === 12) && minute === 30
+    })
+
+    if (event1230) {
+        console.log('12:30 AM EVENT FOUND:', {
+            title: event1230.title,
+            start: event1230.start.toLocaleString(),
+            end: event1230.end.toLocaleString(),
+            duration: (event1230.end.getTime() - event1230.start.getTime()) / 60000 + ' minutes',
+            startTime: event1230.start.getTime(),
+            endTime: event1230.end.getTime()
+        })
+    } else {
+        console.log('12:30 AM event NOT FOUND')
+    }
+
     const [editSlotModalOpen, setEditSlotModalOpen] = useState(false)
     const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
 
@@ -153,7 +177,7 @@ export default function Scheduler({ shows, initialSlots, streams }: SchedulerPro
                     components={{
                         event: ({ event }: any) => (
                             <ScheduleEventTooltip event={event}>
-                                <div className="flex items-center gap-1 h-full px-1 overflow-hidden">
+                                <div className="flex items-center gap-1 px-1 overflow-hidden">
                                     {event.isRecurring && <Repeat className="w-3 h-3 flex-shrink-0" />}
                                     <span className="truncate text-xs whitespace-nowrap overflow-hidden text-ellipsis">
                                         {event.title}
