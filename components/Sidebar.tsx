@@ -2,17 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Radio, Calendar, Mic, Rss, ChevronLeft, ChevronRight, Menu } from "lucide-react";
-import { useState } from "react";
+import { Radio, Calendar, Mic, Rss, ChevronLeft, ChevronRight, Menu, Waves } from "lucide-react";
+import { useState, useEffect } from "react";
 import { clsx } from "clsx";
 
 export default function Sidebar() {
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    // Auto-collapse on schedule page
+    useEffect(() => {
+        if (pathname === '/schedule') {
+            setIsCollapsed(true);
+        }
+    }, [pathname]);
+
     const links = [
         { href: "/shows", label: "Shows", icon: Radio },
         { href: "/schedule", label: "Schedule", icon: Calendar },
+        { href: "/streams", label: "Streams", icon: Waves },
         { href: "/recordings", label: "Recordings", icon: Mic },
         { href: "/episodes", label: "Episodes", icon: Rss },
     ];

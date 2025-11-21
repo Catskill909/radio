@@ -138,6 +138,24 @@ export async function createScheduleSlot(
     revalidatePath("/schedule");
 }
 
+
+export async function updateScheduleSlot(
+    id: string,
+    startTime: Date,
+    endTime: Date,
+    isRecurring: boolean
+) {
+    await prisma.scheduleSlot.update({
+        where: { id },
+        data: {
+            startTime,
+            endTime,
+            isRecurring,
+        },
+    });
+    revalidatePath("/schedule");
+}
+
 export async function deleteScheduleSlot(id: string) {
     await prisma.scheduleSlot.delete({
         where: { id },
@@ -199,4 +217,124 @@ export async function deleteShow(id: string) {
     revalidatePath("/shows");
     revalidatePath("/schedule");
     redirect("/shows");
+}
+
+// ============================================
+// Icecast Stream Actions
+// ============================================
+
+export async function getStreams() {
+    return await prisma.icecastStream.findMany({
+        orderBy: { createdAt: "desc" },
+    });
+}
+
+export async function getStream(id: string) {
+    return await prisma.icecastStream.findUnique({
+        where: { id },
+    });
+}
+
+export async function createStream(name: string, url: string) {
+    const { testStream } = await import("@/lib/stream-tester");
+
+    // Test the stream before creating
+    const testResult = await testStream(url);
+
+    const stream = await prisma.icecastStream.create({
+        data: {
+            name,
+            url,
+            status: testResult.status,
+            bitrate: testResult.bitrate,
+            format: testResult.format,
+            listeners: testResult.listeners,
+            maxListeners: testResult.maxListeners,
+            genre: testResult.genre,
+            description: testResult.description,
+            errorMessage: testResult.errorMessage,
+            lastChecked: new Date(),
+        },
+    });
+
+    revalidatePath("/streams");
+    return stream;
+}
+
+export async function testStreamUrl(url: string) {
+    const { testStream } = await import("@/lib/stream-tester");
+    return await testStream(url);
+}
+
+export async function toggleStream(id: string, enabled: boolean) {
+    await prisma.icecastStream.update({
+        where: { id },
+        data: { isEnabled: enabled },
+    });
+    revalidatePath("/streams");
+}
+
+export async function updateStreamStatus(id: string, testResult: any) {
+    await prisma.icecastStream.update({
+        where: { id },
+        data: {
+            status: testResult.status,
+            bitrate: testResult.bitrate,
+            format: testResult.format,
+            listeners: testResult.listeners,
+            maxListeners: testResult.maxListeners,
+            genre: testResult.genre,
+            description: testResult.description,
+            errorMessage: testResult.errorMessage,
+            lastChecked: new Date(),
+        },
+    });
+    revalidatePath("/streams");
+}
+
+export async function refreshStream(id: string) {
+    const stream = await prisma.icecastStream.findUnique({
+        where: { id },
+    });
+
+    if (!stream) return null;
+
+    const { testStream } = await import("@/lib/stream-tester");
+    const testResult = await testStream(stream.url);
+
+    await updateStreamStatus(id, testResult);
+    return testResult;
+}
+
+export async function deleteStream(id: string) {
+    await prisma.icecastStream.delete({
+        where: { id },
+    });
+    revalidatePath("/streams");
+}
+
+export async function updateStream(id: string, name: string, url: string) {
+    const { testStream } = await import("@/lib/stream-tester");
+
+    // Test the new URL
+    const testResult = await testStream(url);
+
+    await prisma.icecastStream.update({
+        where: { id },
+        data: {
+            name,
+            url,
+            status: testResult.status,
+            bitrate: testResult.bitrate,
+            format: testResult.format,
+            listeners: testResult.listeners,
+            maxListeners: testResult.maxListeners,
+            genre: testResult.genre,
+            description: testResult.description,
+            errorMessage: testResult.errorMessage,
+            lastChecked: new Date(),
+        },
+    });
+
+    revalidatePath("/streams");
 }

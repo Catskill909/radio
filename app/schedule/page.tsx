@@ -1,5 +1,6 @@
 import { getShows, getScheduleSlots } from "@/app/actions";
 import Scheduler from "@/components/Scheduler";
+import "./calendar-custom.css";
 
 export default async function SchedulePage() {
     const shows = await getShows();
@@ -7,8 +8,13 @@ export default async function SchedulePage() {
 
     return (
         <div className="h-full flex flex-col">
-            <h1 className="text-3xl font-bold mb-6">Schedule</h1>
-            <Scheduler shows={shows} initialSlots={slots} />
+            <div className="mb-6">
+                <h1 className="text-4xl font-bold" style={{ fontFamily: 'Oswald, sans-serif' }}>Schedule</h1>
+                <p className="text-gray-400 mt-2">Click any time slot to schedule a show</p>
+            </div>
+            <div className="flex-1">
+                <Scheduler shows={shows} initialSlots={slots} />
+            </div>
         </div>
     );
 }
