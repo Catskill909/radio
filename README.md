@@ -111,6 +111,37 @@ npm run dev
 
 8. Open [http://localhost:3000](http://localhost:3000) in your browser
 
+## ⚠️ Database Management (IMPORTANT)
+
+This project uses Prisma with SQLite. **Follow these rules to avoid data loss:**
+
+### Making Schema Changes
+
+**ALWAYS** run migrations after editing `prisma/schema.prisma`:
+
+```bash
+# Edit prisma/schema.prisma, then immediately run:
+npx prisma migrate dev --name describe_your_change
+```
+
+### Quick Commands
+
+```bash
+npm run db:backup      # Create timestamped backup
+npm run db:studio      # Open database browser UI
+npm run db:migrate     # Run migrations
+```
+
+### 📖 Full Documentation
+
+See [PRISMA_WORKFLOW.md](./PRISMA_WORKFLOW.md) for complete workflow guide, troubleshooting, and recovery procedures.
+
+**Key Points:**
+- ✅ Database files are gitignored (not committed)
+- ✅ Always backup before risky operations
+- ✅ Use migrations for all schema changes
+- ✅ Never manually edit the database
+
 ## Usage
 
 ### Creating a Show
