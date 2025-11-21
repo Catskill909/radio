@@ -1,62 +1,49 @@
-import { getRecording, publishRecording } from "@/app/actions";
+import { getEpisode, updateEpisode } from "@/app/actions";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
-import { FileAudio, Calendar, User } from "lucide-react";
+import { FileAudio, Calendar, User, Clock } from "lucide-react";
 
-export default async function PublishRecordingPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditEpisodePage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const recording = await getRecording(id);
+    const episode = await getEpisode(id);
 
-    if (!recording) {
-        redirect("/recordings");
+    if (!episode) {
+        redirect("/episodes");
     }
 
-    if (recording.episode) {
-        redirect("/recordings");
-    }
-
-    async function handlePublish(formData: FormData) {
+    async function handleUpdate(formData: FormData) {
         "use server";
-        await publishRecording(id, formData);
+        await updateEpisode(id, formData);
     }
 
     return (
         <div className="max-w-2xl mx-auto space-y-6">
-            <h1 className="text-3xl font-bold">Publish Recording as Episode</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold">Edit Episode</h1>
+                <span className="px-3 py-1 bg-green-900/50 text-green-400 rounded-full text-sm font-medium border border-green-800">
+                    Published
+                </span>
+            </div>
 
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-                <h2 className="text-lg font-semibold mb-4 text-gray-300">Recording Details</h2>
+                <h2 className="text-lg font-semibold mb-4 text-gray-300">Episode Details</h2>
                 <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2 text-gray-400">
                         <FileAudio className="w-4 h-4" />
-                        <span>File: {recording.filePath}</span>
+                        <span>File: {episode.recording.filePath}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-400">
                         <Calendar className="w-4 h-4" />
-                        <span>Recorded: {format(new Date(recording.startTime), "PPP 'at' p")}</span>
+                        <span>Published: {episode.publishedAt ? format(new Date(episode.publishedAt), "PPP") : 'Not published'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-400">
-                        <FileAudio className="w-4 h-4" />
-                        <span>Duration: {recording.duration ? `${Math.floor(recording.duration / 60)}m ${recording.duration % 60}s` : 'Unknown'}</span>
+                        <Clock className="w-4 h-4" />
+                        <span>Duration: {episode.duration ? `${Math.floor(episode.duration / 60)}m ${episode.duration % 60}s` : 'Unknown'}</span>
                     </div>
-                    {recording.scheduleSlot?.show && (
-                        <>
-                            <div className="flex items-center gap-2 text-gray-400">
-                                <User className="w-4 h-4" />
-                                <span>Show: {recording.scheduleSlot.show.title}</span>
-                            </div>
-                            {recording.scheduleSlot.show.host && (
-                                <div className="flex items-center gap-2 text-gray-400">
-                                    <User className="w-4 h-4" />
-                                    <span>Host: {recording.scheduleSlot.show.host}</span>
-                                </div>
-                            )}
-                        </>
-                    )}
                 </div>
             </div>
 
-            <form action={handlePublish} className="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-6">
+            <form action={handleUpdate} className="bg-gray-800 border border-gray-700 rounded-xl p-6 space-y-6">
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
                         Episode Title *
@@ -66,7 +53,7 @@ export default async function PublishRecordingPage({ params }: { params: Promise
                         id="title"
                         name="title"
                         required
-                        defaultValue={recording.scheduleSlot?.show?.title || ""}
+                        defaultValue={episode.title}
                         className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
@@ -79,7 +66,7 @@ export default async function PublishRecordingPage({ params }: { params: Promise
                         id="description"
                         name="description"
                         rows={4}
-                        defaultValue={recording.scheduleSlot?.show?.description || ""}
+                        defaultValue={episode.description || ""}
                         className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
@@ -94,6 +81,7 @@ export default async function PublishRecordingPage({ params }: { params: Promise
                             id="seasonNumber"
                             name="seasonNumber"
                             min="1"
+                            defaultValue={episode.seasonNumber || ""}
                             className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
@@ -107,13 +95,14 @@ export default async function PublishRecordingPage({ params }: { params: Promise
                             id="episodeNumber"
                             name="episodeNumber"
                             min="1"
+                            defaultValue={episode.episodeNumber || ""}
                             className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
                 </div>
 
                 <div className="border-t border-gray-700 pt-4 mt-4">
-                    <h3 className="text-md font-semibold mb-4 text-gray-300">Metadata Overrides</h3>
+                    <h3 className="text-md font-semibold mb-4 text-gray-300">Metadata</h3>
 
                     <div className="space-y-4">
                         <div>
@@ -124,9 +113,8 @@ export default async function PublishRecordingPage({ params }: { params: Promise
                                 type="text"
                                 id="host"
                                 name="host"
-                                defaultValue={recording.scheduleSlot?.show?.host || ""}
+                                defaultValue={episode.host || ""}
                                 className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Leave empty to use show host"
                             />
                         </div>
 
@@ -138,9 +126,8 @@ export default async function PublishRecordingPage({ params }: { params: Promise
                                 type="url"
                                 id="image"
                                 name="image"
-                                defaultValue={recording.scheduleSlot?.show?.image || ""}
+                                defaultValue={episode.imageUrl || ""}
                                 className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Leave empty to use show image"
                             />
                         </div>
 
@@ -152,8 +139,8 @@ export default async function PublishRecordingPage({ params }: { params: Promise
                                 type="text"
                                 id="tags"
                                 name="tags"
+                                defaultValue={episode.tags || ""}
                                 className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="e.g. music, interview, rock"
                             />
                         </div>
                     </div>
@@ -164,10 +151,10 @@ export default async function PublishRecordingPage({ params }: { params: Promise
                         type="submit"
                         className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
                     >
-                        Publish Episode
+                        Save Changes
                     </button>
                     <a
-                        href="/recordings"
+                        href="/episodes"
                         className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium text-center"
                     >
                         Cancel

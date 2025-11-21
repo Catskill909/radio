@@ -25,9 +25,11 @@ interface Show {
     id: string
     title: string
     type: string
-    description?: string | null
-    image?: string | null
-    host?: string | null
+    description: string | null
+    image: string | null
+    host: string | null
+    recordingEnabled: boolean
+    recordingSource: string | null
     createdAt: Date
     updatedAt: Date
 }
@@ -44,9 +46,10 @@ interface Slot {
 interface SchedulerProps {
     shows: Show[]
     initialSlots: Slot[]
+    streams: { id: string; name: string; url: string }[]
 }
 
-export default function Scheduler({ shows, initialSlots }: SchedulerProps) {
+export default function Scheduler({ shows, initialSlots, streams }: SchedulerProps) {
     const [slots, setSlots] = useState(initialSlots)
     const [events, setEvents] = useState(
         initialSlots.map((slot) => ({
@@ -165,6 +168,7 @@ export default function Scheduler({ shows, initialSlots }: SchedulerProps) {
                     setSelectedSlot(null)
                 }}
                 slot={selectedSlot}
+                streams={streams}
             />
 
             {/* Schedule Modal */}

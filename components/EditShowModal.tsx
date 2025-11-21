@@ -41,7 +41,7 @@ export default function EditShowModal({
             />
 
             {/* Modal */}
-            <div className="relative bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="relative bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
                 {/* Fixed Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-800 flex-shrink-0">
                     <h2 className="text-2xl font-bold text-white">{title}</h2>

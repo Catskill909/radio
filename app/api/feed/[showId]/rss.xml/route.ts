@@ -40,6 +40,9 @@ export async function GET(
         image_url: show.image || undefined,
         language: "en",
         pubDate: new Date(),
+        custom_namespaces: {
+            'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
+        },
     });
 
     // Flatten recordings from slots
@@ -58,7 +61,14 @@ export async function GET(
                 enclosure: {
                     url: `${request.nextUrl.origin}/recordings/${recording.filePath}`,
                     type: "audio/mpeg",
+                    size: recording.size || 0
                 },
+                custom_elements: [
+                    { 'itunes:duration': recording.episode.duration || recording.duration },
+                    { 'itunes:author': recording.episode.host || show.host },
+                    { 'itunes:image': { _attr: { href: recording.episode.imageUrl || show.image } } },
+                    { 'itunes:keywords': recording.episode.tags }
+                ]
             });
         }
     });

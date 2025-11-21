@@ -112,7 +112,7 @@ export default async function RecordingsPage() {
                                             className="w-64 h-10"
                                             preload="none"
                                         >
-                                            <source src={`/recordings/${recording.filePath}`} type="audio/mpeg" />
+                                            <source src={`/api/audio/${recording.filePath}`} type="audio/mpeg" />
                                             Your browser does not support the audio element.
                                         </audio>
                                     </div>

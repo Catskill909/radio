@@ -98,10 +98,72 @@ async function startRecording(slot: any) {
         .on('end', async () => {
             console.log(`FFmpeg finished for ${slot.show.title}`)
             activeRecordings.delete(slot.id)
-            await prisma.recording.update({
+
+            const endTime = new Date()
+            let size = 0
+            let duration = 0
+
+            try {
+                // Get file size
+                if (fs.existsSync(filePath)) {
+                    const stats = fs.statSync(filePath)
+                    size = stats.size
+                }
+
+                // Get duration using ffprobe
+                await new Promise<void>((resolve) => {
+                    ffmpeg.ffprobe(filePath, (err, metadata) => {
+                        if (!err && metadata && metadata.format && metadata.format.duration) {
+                            duration = Math.round(metadata.format.duration)
+                        } else {
+                            // Fallback to time difference
+                            duration = Math.round((endTime.getTime() - recording.startTime.getTime()) / 1000)
+                        }
+                        resolve()
+                    })
+                })
+            } catch (e) {
+                console.error('Error getting recording metadata:', e)
+                // Fallback to time difference if everything fails
+                if (duration === 0) {
+                    duration = Math.round((endTime.getTime() - recording.startTime.getTime()) / 1000)
+                }
+            }
+
+            // @ts-expect-error - Prisma types will update on next generation
+            const updatedRecording = await prisma.recording.update({
                 where: { id: recording.id },
-                data: { status: 'COMPLETED', endTime: new Date() },
+                data: {
+                    status: 'COMPLETED',
+                    endTime: endTime,
+                    size: size,
+                    duration: duration
+                },
             })
+
+            // Auto-publish as episode
+            console.log(`Auto-publishing episode for recording ${recording.id}`)
+            const show = slot.show
+            const formattedDate = new Date(recording.startTime).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            })
+
+            // @ts-expect-error - Prisma types will update on next generation
+            await prisma.episode.create({
+                data: {
+                    recordingId: recording.id,
+                    title: `${show.title} - ${formattedDate}`,
+                    description: show.description || `Recorded episode of ${show.title}`,
+                    publishedAt: new Date(),
+                    duration: duration,
+                    host: show.host,
+                    imageUrl: show.image,
+                    tags: show.type, // Use show type as initial tag
+                }
+            })
+            console.log(`Episode published successfully for ${show.title}`)
         })
         .save(filePath)
 

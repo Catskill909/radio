@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { getShows, deleteShow } from "@/app/actions"
 import Link from "next/link"
-import { Plus, Edit, Trash2 } from "lucide-react"
+import { Plus, Edit, Trash2, Rss } from "lucide-react"
 import DeleteConfirmModal from "@/components/DeleteConfirmModal"
 import EditShowModal from "@/components/EditShowModal"
 import EditShowForm from "@/components/EditShowForm"
+import { RssFeedModal } from "@/components/RssFeedModal"
 
 interface Show {
     id: string
@@ -30,6 +31,7 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
     const [shows, setShows] = useState(initialShows)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [editModalOpen, setEditModalOpen] = useState(false)
+    const [rssModalOpen, setRssModalOpen] = useState(false)
     const [selectedShow, setSelectedShow] = useState<Show | null>(null)
 
     const handleDelete = async () => {
@@ -78,6 +80,16 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
                             )}
 
                             <div className="flex gap-2 mt-4">
+                                <button
+                                    onClick={() => {
+                                        setSelectedShow(show)
+                                        setRssModalOpen(true)
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all"
+                                >
+                                    <Rss className="w-4 h-4" />
+                                    Podcast Feed
+                                </button>
                                 <button
                                     onClick={() => {
                                         setSelectedShow(show)
@@ -132,6 +144,19 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
             >
                 {selectedShow && <EditShowForm show={selectedShow} streams={streams} />}
             </EditShowModal>
+
+            {/* RSS Feed Modal */}
+            {selectedShow && (
+                <RssFeedModal
+                    isOpen={rssModalOpen}
+                    onClose={() => {
+                        setRssModalOpen(false)
+                        setSelectedShow(null)
+                    }}
+                    feedUrl={`${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/feed/show/${selectedShow.id}`}
+                    title={`${selectedShow.title} Podcast Feed`}
+                />
+            )}
         </>
     )
 }

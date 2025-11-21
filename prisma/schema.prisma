@@ -8,69 +8,75 @@ datasource db {
 }
 
 model Show {
-  id               String   @id @default(uuid())
+  id               String         @id @default(uuid())
   title            String
   description      String?
-  type             String   // "Local Podcast", "Syndicated Music", etc.
-  host             String?  // Show host name
+  type             String
+  host             String?
   image            String?
-  recordingEnabled Boolean  @default(false)  // Enable/disable recording
-  recordingSource  String?                   // Stream URL or source identifier
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  recordingEnabled Boolean        @default(false)
+  recordingSource  String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
   slots            ScheduleSlot[]
 }
 
 model ScheduleSlot {
-  id        String   @id @default(uuid())
-  showId    String
-  show      Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
-  startTime DateTime
-  endTime   DateTime
-  sourceUrl String?  // Optional override for stream source
-  isRecurring Boolean @default(false)
-  recordings Recording[]
+  id          String      @id @default(uuid())
+  showId      String
+  startTime   DateTime
+  endTime     DateTime
+  sourceUrl   String?
+  isRecurring Boolean     @default(false)
+  recordings  Recording[]
+  show        Show        @relation(fields: [showId], references: [id], onDelete: Cascade)
 }
 
 model Recording {
-  id             String   @id @default(uuid())
+  id             String        @id @default(uuid())
   scheduleSlotId String?
-  scheduleSlot   ScheduleSlot? @relation(fields: [scheduleSlotId], references: [id])
   filePath       String
   startTime      DateTime
   endTime        DateTime?
-  status         String   // "PENDING", "RECORDING", "COMPLETED", "FAILED"
-  createdAt      DateTime @default(now())
+  status         String
+  createdAt      DateTime      @default(now())
+  duration       Int?
+  size           Int?
   episode        Episode?
+  scheduleSlot   ScheduleSlot? @relation(fields: [scheduleSlotId], references: [id])
 }
 
 model Episode {
-  id          String   @id @default(uuid())
-  recordingId String   @unique
-  recording   Recording @relation(fields: [recordingId], references: [id])
-  title       String
-  description String?
-  publishedAt DateTime?
+  id            String    @id @default(uuid())
+  recordingId   String    @unique
+  title         String
+  description   String?
+  publishedAt   DateTime?
   episodeNumber Int?
   seasonNumber  Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  duration      Int?
+  host          String?
+  imageUrl      String?
+  tags          String?
+  recording     Recording @relation(fields: [recordingId], references: [id])
 }
 
 model IcecastStream {
-  id           String   @id @default(uuid())
+  id           String    @id @default(uuid())
   name         String
   url          String
-  isEnabled    Boolean  @default(false)
-  status       String   @default("unknown") // "online", "offline", "error", "testing"
+  isEnabled    Boolean   @default(false)
+  status       String    @default("unknown")
   bitrate      Int?
-  format       String?  // "MP3", "AAC", "OGG"
+  format       String?
   listeners    Int?
   maxListeners Int?
   genre        String?
   description  String?
   lastChecked  DateTime?
   errorMessage String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }

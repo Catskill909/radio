@@ -1,4 +1,4 @@
-import { getShows, getScheduleSlots } from "@/app/actions";
+import { getShows, getScheduleSlots, getStreams } from "@/app/actions";
 import Scheduler from "@/components/Scheduler";
 import "./calendar-custom.css";
 
@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 export default async function SchedulePage() {
     const shows = await getShows();
     const slots = await getScheduleSlots();
+    const streams = await getStreams();
 
     return (
         <div className="h-full flex flex-col">
@@ -16,7 +17,7 @@ export default async function SchedulePage() {
                 <p className="text-gray-400 mt-2">Click any time slot to schedule a show</p>
             </div>
             <div className="flex-1">
-                <Scheduler shows={shows} initialSlots={slots} />
+                <Scheduler shows={shows} initialSlots={slots} streams={streams} />
             </div>
         </div>
     );

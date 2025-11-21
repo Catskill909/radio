@@ -1,7 +1,8 @@
 import { getEpisodes } from "@/app/actions";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Play, Edit } from "lucide-react";
+import { Edit } from "lucide-react";
+import { AudioPlayer } from "@/components/AudioPlayer";
 
 export default async function EpisodesPage() {
     const episodes = await getEpisodes();
@@ -31,15 +32,19 @@ export default async function EpisodesPage() {
 
                         <div className="flex items-center gap-4">
                             <Link
-                                href={`/episodes/${episode.id}`}
+                                href={`/episodes/${episode.id}/edit`}
                                 className="p-2 hover:bg-gray-700 rounded-full transition-colors text-gray-300 hover:text-white"
                             >
                                 <Edit className="w-5 h-5" />
                             </Link>
                             {/* Placeholder for audio player */}
-                            <button className="p-3 bg-blue-600 hover:bg-blue-700 rounded-full transition-colors text-white">
-                                <Play className="w-5 h-5" />
-                            </button>
+                            {/* Audio Player */}
+                            {episode.recording && (
+                                <AudioPlayer
+                                    src={`/api/audio/${episode.recording.filePath}`}
+                                    title={episode.title}
+                                />
+                            )}
                         </div>
                     </div>
                 ))}

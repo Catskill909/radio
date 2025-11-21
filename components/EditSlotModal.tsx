@@ -5,12 +5,19 @@ import { useEffect, useState } from 'react'
 import { updateScheduleSlot, deleteScheduleSlot } from '@/app/actions'
 import DateTimePicker from './DateTimePicker'
 import DeleteConfirmModal from './DeleteConfirmModal'
+import EditShowForm from './EditShowForm'
 
 interface Show {
     id: string
     title: string
+    description: string | null
     type: string
-    host?: string | null
+    image: string | null
+    host: string | null
+    recordingEnabled: boolean
+    recordingSource: string | null
+    createdAt: Date
+    updatedAt: Date
 }
 
 interface ScheduleSlot {
@@ -26,13 +33,16 @@ interface EditSlotModalProps {
     isOpen: boolean
     onClose: () => void
     slot: ScheduleSlot | null
+    streams: { id: string; name: string; url: string }[]
 }
 
-export default function EditSlotModal({ isOpen, onClose, slot }: EditSlotModalProps) {
+export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSlotModalProps) {
     const [startTime, setStartTime] = useState<Date>(new Date())
     const [duration, setDuration] = useState(60)
     const [isRecurring, setIsRecurring] = useState(false)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [isSaving, setIsSaving] = useState(false)
 
     useEffect(() => {
         if (slot) {
@@ -40,16 +50,23 @@ export default function EditSlotModal({ isOpen, onClose, slot }: EditSlotModalPr
             const durationMins = Math.round((new Date(slot.endTime).getTime() - new Date(slot.startTime).getTime()) / 60000)
             setDuration(durationMins)
             setIsRecurring(slot.isRecurring)
+            setError(null)
         }
     }, [slot])
 
     if (!isOpen || !slot) return null
 
     const handleSave = async () => {
-        const endTime = new Date(startTime.getTime() + duration * 60000)
-
-        await updateScheduleSlot(slot.id, startTime, endTime, isRecurring)
-        window.location.reload()
+        setIsSaving(true)
+        setError(null)
+        try {
+            const endTime = new Date(startTime.getTime() + duration * 60000)
+            await updateScheduleSlot(slot.id, startTime, endTime, isRecurring)
+            window.location.reload()
+        } catch (err: any) {
+            setError(err.message)
+            setIsSaving(false)
+        }
     }
 
     const handleDelete = async () => {
@@ -62,7 +79,7 @@ export default function EditSlotModal({ isOpen, onClose, slot }: EditSlotModalPr
     return (
         <>
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                     {/* Header */}
                     <div className="sticky top-0 bg-gray-900 border-b border-gray-800 p-6 flex items-center justify-between z-10">
                         <h2 className="text-2xl font-bold" style={{ fontFamily: 'Oswald, sans-serif' }}>
@@ -77,72 +94,81 @@ export default function EditSlotModal({ isOpen, onClose, slot }: EditSlotModalPr
                     </div>
 
                     {/* Content */}
-                    <div className="p-6 space-y-6">
-                        {/* Show Info (Read-only) */}
-                        <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                            <h3 className="text-sm font-semibold text-gray-400 mb-2">Show Details</h3>
-                            <div className="space-y-1">
-                                <p className="text-lg font-semibold">{slot.show.title}</p>
-                                {slot.show.host && (
-                                    <p className="text-sm text-gray-400">Host: {slot.show.host}</p>
-                                )}
-                                <p className="text-sm text-gray-400">Type: {slot.show.type}</p>
+                    <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Left Column: Slot Settings */}
+                        <div className="space-y-6">
+                            <h3 className="text-xl font-semibold text-white border-b border-gray-800 pb-2">Slot Settings</h3>
+
+                            {error && (
+                                <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
+                                    {error}
+                                </div>
+                            )}
+
+                            {/* Start Time */}
+                            <div>
+                                <DateTimePicker
+                                    label="Start Time"
+                                    selected={startTime}
+                                    onChange={(date) => date && setStartTime(date)}
+                                    showTimeSelect={true}
+                                />
+                            </div>
+
+                            {/* Duration */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    Duration (minutes)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={duration}
+                                    onChange={(e) => setDuration(parseInt(e.target.value))}
+                                    min="15"
+                                    step="15"
+                                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            {/* Recurring */}
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    id="recurring"
+                                    checked={isRecurring}
+                                    onChange={(e) => setIsRecurring(e.target.checked)}
+                                    className="w-5 h-5 rounded border-gray-700 bg-gray-800 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                                />
+                                <label htmlFor="recurring" className="text-sm font-medium text-gray-300">
+                                    Repeat Weekly
+                                </label>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-3 pt-4 border-t border-gray-800 mt-8">
+                                <button
+                                    onClick={() => setDeleteModalOpen(true)}
+                                    className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    Delete Slot
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={isSaving}
+                                    className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                                >
+                                    {isSaving ? 'Saving...' : 'Save Slot Changes'}
+                                </button>
                             </div>
                         </div>
 
-                        {/* Start Time */}
-                        <div>
-                            <DateTimePicker
-                                label="Start Time"
-                                selected={startTime}
-                                onChange={(date) => date && setStartTime(date)}
-                            />
-                        </div>
-
-                        {/* Duration */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Duration (minutes)
-                            </label>
-                            <input
-                                type="number"
-                                value={duration}
-                                onChange={(e) => setDuration(parseInt(e.target.value))}
-                                min="15"
-                                step="15"
-                                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-
-                        {/* Recurring */}
-                        <div className="flex items-center gap-3">
-                            <input
-                                type="checkbox"
-                                id="recurring"
-                                checked={isRecurring}
-                                onChange={(e) => setIsRecurring(e.target.checked)}
-                                className="w-5 h-5 rounded border-gray-700 bg-gray-800 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                            />
-                            <label htmlFor="recurring" className="text-sm font-medium text-gray-300">
-                                Repeat Weekly
-                            </label>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-3 pt-4">
-                            <button
-                                onClick={() => setDeleteModalOpen(true)}
-                                className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                                Delete Slot
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                            >
-                                Save Changes
-                            </button>
+                        {/* Right Column: Show Settings */}
+                        <div className="space-y-6 border-l border-gray-800 pl-8">
+                            <h3 className="text-xl font-semibold text-white border-b border-gray-800 pb-2">Show Settings</h3>
+                            <div className="bg-gray-800/30 rounded-xl p-4 border border-gray-700/50">
+                                <EditShowForm show={slot.show} streams={streams} />
+                            </div>
                         </div>
                     </div>
                 </div>

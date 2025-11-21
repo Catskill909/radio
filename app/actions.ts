@@ -145,6 +145,37 @@ export async function updateScheduleSlot(
     endTime: Date,
     isRecurring: boolean
 ) {
+    // Check for overlaps
+    const overlapping = await prisma.scheduleSlot.findFirst({
+        where: {
+            id: { not: id }, // Exclude current slot
+            OR: [
+                {
+                    // New start time falls within existing slot
+                    startTime: { lte: startTime },
+                    endTime: { gt: startTime },
+                },
+                {
+                    // New end time falls within existing slot
+                    startTime: { lt: endTime },
+                    endTime: { gte: endTime },
+                },
+                {
+                    // New slot completely encompasses existing slot
+                    startTime: { gte: startTime },
+                    endTime: { lte: endTime },
+                },
+            ],
+        },
+        include: {
+            show: true,
+        },
+    });
+
+    if (overlapping) {
+        throw new Error(`Time slot overlaps with existing show: ${overlapping.show.title}`);
+    }
+
     await prisma.scheduleSlot.update({
         where: { id },
         data: {
@@ -225,6 +256,9 @@ export async function updateEpisode(id: string, formData: FormData) {
     const description = formData.get("description") as string;
     const episodeNumber = formData.get("episodeNumber") ? parseInt(formData.get("episodeNumber") as string) : null;
     const seasonNumber = formData.get("seasonNumber") ? parseInt(formData.get("seasonNumber") as string) : null;
+    const host = formData.get("host") as string;
+    const imageUrl = formData.get("image") as string;
+    const tags = formData.get("tags") as string;
 
     await prisma.episode.update({
         where: { id },
@@ -233,6 +267,9 @@ export async function updateEpisode(id: string, formData: FormData) {
             description,
             episodeNumber,
             seasonNumber,
+            host,
+            imageUrl,
+            tags,
         },
     });
 
@@ -247,6 +284,29 @@ export async function publishRecording(recordingId: string, formData: FormData) 
     const episodeNumber = formData.get("episodeNumber") ? parseInt(formData.get("episodeNumber") as string) : null;
     const seasonNumber = formData.get("seasonNumber") ? parseInt(formData.get("seasonNumber") as string) : null;
 
+    // Get optional overrides from form
+    const customHost = formData.get("host") as string;
+    const customImage = formData.get("image") as string;
+    const customTags = formData.get("tags") as string;
+
+    // Fetch recording to get duration and show defaults
+    const recording = await prisma.recording.findUnique({
+        where: { id: recordingId },
+        include: {
+            scheduleSlot: {
+                include: {
+                    show: true
+                }
+            }
+        }
+    });
+
+    if (!recording) {
+        throw new Error("Recording not found");
+    }
+
+    const show = recording.scheduleSlot?.show;
+
     await prisma.episode.create({
         data: {
             recordingId,
@@ -255,6 +315,12 @@ export async function publishRecording(recordingId: string, formData: FormData) 
             episodeNumber,
             seasonNumber,
             publishedAt: new Date(),
+            duration: recording.duration || 0,
+            // Use form value -> show value -> null
+            host: customHost || show?.host || null,
+            imageUrl: customImage || show?.image || null,
+            // tags: customTags || show?.tags || null // Show doesn't have tags yet in schema, so just custom or null
+            tags: customTags || null
         },
     });
 
