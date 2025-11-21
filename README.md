@@ -70,22 +70,37 @@ cd radio
 npm install
 ```
 
-3. Set up the database:
+3. Install FFmpeg (required for recording):
+   
+   **macOS:**
+   ```bash
+   brew install ffmpeg
+   ```
+   
+   **Ubuntu/Debian:**
+   ```bash
+   sudo apt-get install ffmpeg
+   ```
+   
+   **Windows:**
+   Download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH
+
+4. Set up the database:
 ```bash
 npx prisma migrate dev
 ```
 
-4. Create a `.env` file:
+5. Create a `.env` file:
 ```env
 DATABASE_URL="file:./dev.db"
 ```
 
-5. Run the development server:
+7. Run the development server:
 ```bash
 npm run dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser
+8. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Usage
 
@@ -174,10 +189,17 @@ radio-suite/
 
 ## Recent Updates
 
+### Phase 3: Icecast Stream Integration & Recorder Verification
+- ✅ Stream management UI (add, edit, delete, test)
+- ✅ Automatic stream testing and metadata extraction
+- ✅ Integration with show recording source selection  
+- ✅ Recorder service verified working with Icecast streams
+- ✅ URL validation and trimming to prevent connectivity issues
+
 ### Phase 2: Full-Screen Layout & Recording Controls
 - ✅ Full-screen grid layout for create show form
 - ✅ Recording on/off toggle switch
-- ✅ Recording source dropdown (placeholder)
+- ✅ Recording source dropdown populated with real streams
 - ✅ Better space utilization with two-column layout
 - ✅ Database schema updated with recording fields
 
@@ -190,12 +212,16 @@ radio-suite/
 
 ## Development Roadmap
 
-- [ ] Implement actual stream source configuration
-- [ ] Add recording source management UI
-- [ ] Enhance recorder service with error recovery
+### Next Up
+- [ ] Episode Management UI (view recordings, publish as episodes)
+- [ ] RSS feed testing and validation
+- [ ] Public-facing pages for listeners
+- [ ] Recording dashboard with status monitoring
+
+### Future Enhancements
+- [ ] Enhance recorder service with error recovery and retry logic
 - [ ] Add audio player for recorded files
-- [ ] Implement episode publishing workflow
-- [ ] Add analytics and reporting
+- [ ] Analytics and reporting
 - [ ] Multi-user support with authentication
 - [ ] Cloud storage integration for recordings
 

@@ -163,6 +163,23 @@ export async function deleteScheduleSlot(id: string) {
     revalidatePath("/schedule");
 }
 
+
+export async function getRecordings() {
+    return await prisma.recording.findMany({
+        include: {
+            scheduleSlot: {
+                include: {
+                    show: true,
+                },
+            },
+            episode: true,
+        },
+        orderBy: {
+            startTime: 'desc',
+        },
+    });
+}
+
 export async function getEpisodes() {
     return await prisma.episode.findMany({
         include: {
@@ -177,6 +194,20 @@ export async function getEpisodes() {
             },
         },
         orderBy: { createdAt: "desc" },
+    });
+}
+
+export async function getRecording(id: string) {
+    return await prisma.recording.findUnique({
+        where: { id },
+        include: {
+            scheduleSlot: {
+                include: {
+                    show: true,
+                },
+            },
+            episode: true,
+        },
     });
 }
 
@@ -210,6 +241,28 @@ export async function updateEpisode(id: string, formData: FormData) {
     redirect("/episodes");
 }
 
+export async function publishRecording(recordingId: string, formData: FormData) {
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const episodeNumber = formData.get("episodeNumber") ? parseInt(formData.get("episodeNumber") as string) : null;
+    const seasonNumber = formData.get("seasonNumber") ? parseInt(formData.get("seasonNumber") as string) : null;
+
+    await prisma.episode.create({
+        data: {
+            recordingId,
+            title,
+            description,
+            episodeNumber,
+            seasonNumber,
+            publishedAt: new Date(),
+        },
+    });
+
+    revalidatePath("/recordings");
+    revalidatePath("/episodes");
+    redirect("/recordings");
+}
+
 export async function deleteShow(id: string) {
     await prisma.show.delete({
         where: { id },
@@ -238,13 +291,16 @@ export async function getStream(id: string) {
 export async function createStream(name: string, url: string) {
     const { testStream } = await import("@/lib/stream-tester");
 
+    // Trim URL to remove any whitespace
+    const cleanUrl = url.trim();
+
     // Test the stream before creating
-    const testResult = await testStream(url);
+    const testResult = await testStream(cleanUrl);
 
     const stream = await prisma.icecastStream.create({
         data: {
             name,
-            url,
+            url: cleanUrl,
             status: testResult.status,
             bitrate: testResult.bitrate,
             format: testResult.format,
@@ -324,16 +380,18 @@ export async function deleteStream(id: string) {
 }
 
 export async function updateStream(id: string, name: string, url: string) {
-    const { testStream } = await import("@/lib/stream-tester");
+    const { testStream } = await import(`@/lib/stream-tester`);
 
-    // Test the new URL
-    const testResult = await testStream(url);
+    // Trim URL to remove any whitespace
+    const cleanUrl = url.trim();
+
+    const testResult = await testStream(cleanUrl);
 
     await prisma.icecastStream.update({
         where: { id },
         data: {
             name,
-            url,
+            url: cleanUrl,
             status: testResult.status,
             bitrate: testResult.bitrate,
             format: testResult.format,
