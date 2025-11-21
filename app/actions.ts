@@ -194,22 +194,53 @@ export async function createScheduleSlot(
     sourceUrl?: string,
     isRecurring: boolean = false
 ) {
-    // Check for overlaps
-    const overlapping = await checkSlotOverlap(startTime, endTime);
+    const slotsToCreate = [];
 
-    if (overlapping) {
-        throw new Error(`Time slot overlaps with existing show: ${overlapping.show.title}`);
-    }
+    if (isRecurring) {
+        // Generate slots for the next 12 weeks (approx 3 months)
+        for (let i = 0; i < 12; i++) {
+            const slotStart = new Date(startTime);
+            slotStart.setDate(slotStart.getDate() + (i * 7));
 
-    await prisma.scheduleSlot.create({
-        data: {
+            const slotEnd = new Date(endTime);
+            slotEnd.setDate(slotEnd.getDate() + (i * 7));
+
+            // Check for overlaps with existing slots
+            const overlapping = await checkSlotOverlap(slotStart, slotEnd);
+            if (overlapping) {
+                throw new Error(
+                    `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+                );
+            }
+
+            slotsToCreate.push({
+                showId,
+                startTime: slotStart,
+                endTime: slotEnd,
+                sourceUrl,
+                isRecurring: true,
+            });
+        }
+    } else {
+        // Single slot - check for overlap
+        const overlapping = await checkSlotOverlap(startTime, endTime);
+        if (overlapping) {
+            throw new Error(`Time slot overlaps with existing show: ${overlapping.show.title}`);
+        }
+
+        slotsToCreate.push({
             showId,
             startTime,
             endTime,
             sourceUrl,
-            isRecurring,
-        },
+            isRecurring: false,
+        });
+    }
+
+    await prisma.scheduleSlot.createMany({
+        data: slotsToCreate,
     });
+
     revalidatePath("/schedule");
 }
 
