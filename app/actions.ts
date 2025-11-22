@@ -382,14 +382,56 @@ export async function getEpisode(id: string) {
     });
 }
 
+export async function getEpisodesForShow(showId: string) {
+    // Get all episodes for a specific show through the recording -> scheduleSlot -> show relationship
+    const episodes = await prisma.episode.findMany({
+        where: {
+            recording: {
+                scheduleSlot: {
+                    showId: showId
+                }
+            }
+        },
+        include: {
+            recording: {
+                include: {
+                    scheduleSlot: {
+                        include: {
+                            show: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            publishedAt: 'desc'
+        }
+    });
+
+    return episodes;
+}
+
 export async function updateEpisode(id: string, formData: FormData) {
     const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
+    const description = (formData.get("description") as string) || null;
     const episodeNumber = formData.get("episodeNumber") ? parseInt(formData.get("episodeNumber") as string) : null;
     const seasonNumber = formData.get("seasonNumber") ? parseInt(formData.get("seasonNumber") as string) : null;
-    const host = formData.get("host") as string;
-    const imageUrl = formData.get("image") as string;
-    const tags = formData.get("tags") as string;
+    const host = (formData.get("host") as string) || null;
+    const imageUrl = (formData.get("image") as string) || null;
+    const tags = (formData.get("tags") as string) || null;
+    const explicit = formData.get("explicit") === "true" ? true : formData.get("explicit") === "false" ? false : null;
+
+    // Get the episode to find the show ID for RSS feed revalidation
+    const episode = await prisma.episode.findUnique({
+        where: { id },
+        include: {
+            recording: {
+                include: {
+                    scheduleSlot: true
+                }
+            }
+        }
+    });
 
     await prisma.episode.update({
         where: { id },
@@ -401,12 +443,18 @@ export async function updateEpisode(id: string, formData: FormData) {
             host,
             imageUrl,
             tags,
+            explicit,
         },
     });
 
+    // Revalidate relevant paths including RSS feed
     revalidatePath("/episodes");
     revalidatePath(`/episodes/${id}`);
-    redirect("/episodes");
+
+    // Revalidate RSS feed if we have a show ID
+    if (episode?.recording?.scheduleSlot?.showId) {
+        revalidatePath(`/api/feed/${episode.recording.scheduleSlot.showId}/rss.xml`);
+    }
 }
 
 export async function publishRecording(recordingId: string, formData: FormData) {
