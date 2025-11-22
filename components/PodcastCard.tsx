@@ -4,14 +4,16 @@ import { useState, useEffect } from "react";
 import { Copy, ExternalLink, Rss, Mic, Calendar, List, Play } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { formatInTimezone } from "@/lib/client-date-utils";
 import AudioPlayer from "./AudioPlayer";
 import EpisodeManagerDrawer from "./EpisodeManagerDrawer";
 
 interface PodcastCardProps {
     show: any;
+    timezone: string;
 }
 
-export default function PodcastCard({ show }: PodcastCardProps) {
+export default function PodcastCard({ show, timezone }: PodcastCardProps) {
     const [copied, setCopied] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [showPlayer, setShowPlayer] = useState(false);
@@ -122,9 +124,9 @@ export default function PodcastCard({ show }: PodcastCardProps) {
                                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                                 <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Latest Episode</span>
                             </div>
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                            <span className="text-xs text-gray-500 flex items-center gap-1.5">
                                 <Calendar className="w-3 h-3" />
-                                {format(new Date(show.latestEpisode.publishedAt || show.latestEpisode.createdAt), "PPP")}
+                                {formatInTimezone(new Date(show.latestEpisode.publishedAt || show.latestEpisode.createdAt), "PPP 'at' p", timezone)}
                             </span>
                         </div>
 
@@ -155,6 +157,7 @@ export default function PodcastCard({ show }: PodcastCardProps) {
                 showTitle={show.title}
                 isOpen={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
+                timezone={timezone}
             />
         </div>
     );

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, FileAudio, Calendar, Clock, Edit2, Play } from "lucide-react";
 import { format } from "date-fns";
+import { formatInTimezone } from "@/lib/client-date-utils";
 import { getEpisodesForShow } from "@/app/actions";
 import EditEpisodeModal from "./EditEpisodeModal";
 import AudioPlayer from "./AudioPlayer";
@@ -36,9 +37,10 @@ interface EpisodeManagerDrawerProps {
     showTitle: string;
     isOpen: boolean;
     onClose: () => void;
+    timezone: string;
 }
 
-export default function EpisodeManagerDrawer({ showId, showTitle, isOpen, onClose }: EpisodeManagerDrawerProps) {
+export default function EpisodeManagerDrawer({ showId, showTitle, isOpen, onClose, timezone }: EpisodeManagerDrawerProps) {
     const [episodes, setEpisodes] = useState<Episode[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingEpisode, setEditingEpisode] = useState<Episode | null>(null);
@@ -134,10 +136,16 @@ export default function EpisodeManagerDrawer({ showId, showTitle, isOpen, onClos
                                             </h3>
                                             <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 mb-2">
                                                 {episode.publishedAt && (
-                                                    <span className="flex items-center gap-1">
-                                                        <Calendar className="w-3 h-3" />
-                                                        {format(new Date(episode.publishedAt), "PPP")}
-                                                    </span>
+                                                    <>
+                                                        <span className="flex items-center gap-1">
+                                                            <Calendar className="w-3 h-3" />
+                                                            {formatInTimezone(new Date(episode.publishedAt), "PPP", timezone)}
+                                                        </span>
+                                                        <span className="flex items-center gap-1">
+                                                            <Clock className="w-3 h-3" />
+                                                            {formatInTimezone(new Date(episode.publishedAt), "p", timezone)}
+                                                        </span>
+                                                    </>
                                                 )}
                                                 {episode.duration && (
                                                     <span className="flex items-center gap-1">

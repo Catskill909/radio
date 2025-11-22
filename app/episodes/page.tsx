@@ -1,9 +1,13 @@
-import { getShowsWithEpisodes } from "@/app/actions";
+import { getShowsWithEpisodes, getStationSettings } from "@/app/actions";
 import PodcastCard from "@/components/PodcastCard";
 import { Rss } from "lucide-react";
 
 export default async function EpisodesPage() {
-    const shows = await getShowsWithEpisodes();
+    const [shows, settings] = await Promise.all([
+        getShowsWithEpisodes(),
+        getStationSettings()
+    ]);
+    const timezone = settings.timezone || "UTC";
 
     // Filter out shows that have no episodes if desired, or keep them to show empty state
     // For now, let's show all shows so users can see the RSS link even before publishing
@@ -19,7 +23,7 @@ export default async function EpisodesPage() {
 
             <div className="grid grid-cols-1 gap-6">
                 {shows.map((show: any) => (
-                    <PodcastCard key={show.id} show={show} />
+                    <PodcastCard key={show.id} show={show} timezone={timezone} />
                 ))}
 
                 {shows.length === 0 && (
