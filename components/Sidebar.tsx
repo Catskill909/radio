@@ -30,10 +30,38 @@ export default function Sidebar() {
     return (
         <aside
             className={clsx(
-                "bg-gray-800 border-r border-gray-700 flex flex-col transition-all duration-300 ease-in-out",
+                "bg-gray-800 border-r border-gray-700 flex flex-col transition-all duration-300 ease-in-out relative",
                 isCollapsed ? "w-20" : "w-64"
             )}
         >
+            {/* Floating Edge Tab Toggle - Material Design Style */}
+            <Tooltip
+                content={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                placement="right"
+            >
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className={clsx(
+                        "absolute top-3 -right-3 z-50",
+                        "w-6 h-12 rounded-r-lg",
+                        "bg-gray-700 hover:bg-gray-600",
+                        "border border-l-0 border-gray-600",
+                        "shadow-lg",
+                        "flex items-center justify-center",
+                        "transition-all duration-200",
+                        "hover:w-7 hover:-right-3.5",
+                        "group"
+                    )}
+                    aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                >
+                    {isCollapsed ? (
+                        <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-white transition-colors" />
+                    ) : (
+                        <ChevronLeft className="w-4 h-4 text-gray-300 group-hover:text-white transition-colors" />
+                    )}
+                </button>
+            </Tooltip>
+
             <div className="p-6 flex items-center justify-between">
                 {!isCollapsed && (
                     <h1 className="text-xl font-bold flex items-center gap-2 whitespace-nowrap overflow-hidden">
@@ -44,15 +72,6 @@ export default function Sidebar() {
                 {isCollapsed && (
                     <Radio className="w-8 h-8 text-blue-500 mx-auto" />
                 )}
-                <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={clsx(
-                        "p-1 rounded hover:bg-gray-700 text-gray-400 transition-colors",
-                        isCollapsed ? "absolute top-6 left-20 ml-2 bg-gray-800 border border-gray-700 z-50" : ""
-                    )}
-                >
-                    {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-                </button>
             </div>
 
             <nav className="flex-1 px-3 space-y-2">
