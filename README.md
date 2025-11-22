@@ -21,7 +21,7 @@ A comprehensive radio station management system for scheduling shows, automated 
 - Custom descriptions
 
 ### 📅 Advanced Scheduling
-- **Click-to-add scheduling** with a simple visual calendar (no drag-and-drop)
+- **Click-to-add scheduling** with a simple visual calendar
 - **Recurring shows** – Automatically generate weekly slots
 - Week and day views
 - Visual indicators for recurring shows
