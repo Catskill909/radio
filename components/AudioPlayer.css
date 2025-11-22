@@ -1,19 +1,105 @@
-/* MINIMAL styling - only what was requested */
+/* Dark Mode Material Design - STYLING ONLY */
 
-/* Make time numbers brighter and more visible */
-.audio-player-wrapper .rhap_time {
-    color: #e5e7eb !important;
-    font-weight: 500;
+/* Container: Dark background with elevation */
+.audio-player-wrapper .rhap_container {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    border: 1px solid rgba(148, 163, 184, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 16px 20px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* Add subtle border to make it stand out as a unit */
-.audio-player-wrapper .rhap_container {
-    border: 1px solid rgba(75, 85, 99, 0.3);
-    border-radius: 8px;
-    padding: 0.75rem;
+/* Main controls: Play button on LEFT with minimal spacing */
+.audio-player-wrapper .rhap_main-controls {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    margin-right: 16px !important;
+}
+
+/* Play button: Simple dark style */
+.audio-player-wrapper .rhap_play-pause-button {
+    order: -1 !important;
+    color: #f1f5f9 !important;
+}
+
+.audio-player-wrapper .rhap_play-pause-button:hover {
+    color: #ffffff !important;
+}
+
+/* Progress bar container */
+.audio-player-wrapper .rhap_progress-container {
+    margin: 0 !important;
+    flex: 1 !important;
+}
+
+/* Progress bar background */
+.audio-player-wrapper .rhap_progress-bar {
+    background-color: rgba(148, 163, 184, 0.2) !important;
+    border-radius: 4px !important;
+    height: 4px !important;
+}
+
+/* Progress bar filled portion */
+.audio-player-wrapper .rhap_progress-filled {
+    background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%) !important;
+    border-radius: 4px !important;
+}
+
+/* Progress indicator dot - HIDDEN to prevent overlap */
+.audio-player-wrapper .rhap_progress-indicator {
+    display: none !important;
+}
+
+/* Time display: High contrast readable text */
+.audio-player-wrapper .rhap_time {
+    color: #f1f5f9 !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    padding: 0 8px !important;
+}
+
+/* Current time - same color as total time */
+.audio-player-wrapper .rhap_current-time {
+    color: #f1f5f9 !important;
+}
+
+/* Volume controls */
+.audio-player-wrapper .rhap_volume-button {
+    color: #cbd5e1 !important;
+}
+
+.audio-player-wrapper .rhap_volume-button:hover {
+    color: #f1f5f9 !important;
+}
+
+.audio-player-wrapper .rhap_volume-bar {
+    background-color: rgba(148, 163, 184, 0.2) !important;
+    border-radius: 4px !important;
+}
+
+.audio-player-wrapper .rhap_volume-indicator {
+    background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%) !important;
+    border-radius: 4px !important;
 }
 
 /* Hide loop button */
 .audio-player-wrapper .rhap_repeat-button {
     display: none !important;
+}
+
+/* Additional controls styling */
+.audio-player-wrapper .rhap_additional-controls {
+    gap: 8px !important;
+}
+
+/* Skip buttons if present */
+.audio-player-wrapper .rhap_skip-button {
+    color: #cbd5e1 !important;
+    transition: color 0.2s ease !important;
+}
+
+.audio-player-wrapper .rhap_skip-button:hover {
+    color: #f1f5f9 !important;
 }
