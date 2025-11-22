@@ -24,6 +24,7 @@ export default function Sidebar() {
         { href: "/streams", label: "Streams", icon: Waves },
         { href: "/recordings", label: "Recordings", icon: Mic },
         { href: "/episodes", label: "Episodes", icon: Rss },
+        { href: "/settings", label: "Settings", icon: Menu },
     ];
 
     return (
