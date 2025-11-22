@@ -1,0 +1,19 @@
+/* MINIMAL styling - only what was requested */
+
+/* Make time numbers brighter and more visible */
+.audio-player-wrapper .rhap_time {
+    color: #e5e7eb !important;
+    font-weight: 500;
+}
+
+/* Add subtle border to make it stand out as a unit */
+.audio-player-wrapper .rhap_container {
+    border: 1px solid rgba(75, 85, 99, 0.3);
+    border-radius: 8px;
+    padding: 0.75rem;
+}
+
+/* Hide loop button */
+.audio-player-wrapper .rhap_repeat-button {
+    display: none !important;
+}

@@ -29,6 +29,7 @@
     "react-datepicker": "^8.9.0",
     "react-dom": "19.2.0",
     "react-dropzone": "^14.3.8",
+    "react-h5-audio-player": "^3.10.1",
     "rss": "^1.2.2",
     "tailwind-merge": "^3.4.0",
     "wavesurfer.js": "^7.11.1"

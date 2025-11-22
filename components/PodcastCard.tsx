@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { Copy, ExternalLink, Rss, Mic, Calendar, List } from "lucide-react";
+import { Copy, ExternalLink, Rss, Mic, Calendar, List, Play } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import AudioPlayer from "./AudioPlayer";
@@ -14,11 +14,21 @@ interface PodcastCardProps {
 export default function PodcastCard({ show }: PodcastCardProps) {
     const [copied, setCopied] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [showPlayer, setShowPlayer] = useState(false);
 
     const [origin, setOrigin] = useState('');
 
     useEffect(() => {
         setOrigin(window.location.origin);
+    }, []);
+
+    useEffect(() => {
+        // Delay player mount to stagger metadata loading
+        const timer = setTimeout(() => {
+            setShowPlayer(true);
+        }, Math.random() * 500); // Random delay 0-500ms to stagger loads
+
+        return () => clearTimeout(timer);
     }, []);
 
     const feedUrl = `${origin}/api/feed/${show.id}/rss.xml`;
@@ -122,10 +132,14 @@ export default function PodcastCard({ show }: PodcastCardProps) {
                         <p className="text-sm text-gray-400 mb-4 line-clamp-1">{show.latestEpisode.description}</p>
 
                         <div className="w-full">
-                            <AudioPlayer
-                                src={`/api/audio/${show.latestEpisode.recording.filePath}`}
-                                title={show.latestEpisode.title}
-                            />
+                            {showPlayer ? (
+                                <AudioPlayer
+                                    src={`/api/audio/${show.latestEpisode.recording.filePath}`}
+                                    title={show.latestEpisode.title}
+                                />
+                            ) : (
+                                <div className="h-16 bg-gray-700/30 rounded-lg animate-pulse"></div>
+                            )}
                         </div>
                     </div>
                 ) : (

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
-import { Play, Pause, ZoomIn, ZoomOut, Scissors, Loader, AlertCircle, CheckCircle } from 'lucide-react';
+import { Play, Pause, ZoomIn, ZoomOut, Scissors, Loader, AlertCircle, CheckCircle, Volume2, Keyboard } from 'lucide-react';
 
 interface WaveSurferEditorProps {
     audioUrl: string;
@@ -21,12 +21,16 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
     const [isLoading, setIsLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [processingOperation, setProcessingOperation] = useState<'trim' | 'fade' | 'normalize' | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [zoom, setZoom] = useState(1);
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [hasRegion, setHasRegion] = useState(false);
+    const [fadeIn, setFadeIn] = useState(2);
+    const [fadeOut, setFadeOut] = useState(2);
+    const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
     // Initialize WaveSurfer
     useEffect(() => {
@@ -173,6 +177,7 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
         }
 
         setIsSaving(true);
+        setProcessingOperation('trim');
         setError(null);
         setSuccess(null);
 
@@ -213,8 +218,94 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
             setError(err instanceof Error ? err.message : 'Failed to trim audio');
         } finally {
             setIsSaving(false);
+            setProcessingOperation(null);
         }
     };
+
+    const handleProcessAudio = async (operation: 'fade' | 'normalize', parameters: any = {}) => {
+        console.log(`Starting ${operation} with params:`, parameters);
+        setIsSaving(true);
+        setProcessingOperation(operation);
+        setError(null);
+        setSuccess(null);
+
+        try {
+            console.log('Sending request to /api/process-audio');
+            const response = await fetch('/api/process-audio', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    filename,
+                    operation,
+                    parameters,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || `Failed to ${operation} audio`);
+            }
+
+            setSuccess(`Audio processed successfully! New duration: ${Math.round(data.duration)}s. Backup saved.`);
+
+            // Notify parent component
+            if (onSave) {
+                onSave(data.duration);
+            }
+
+            // Reload the waveform after a short delay
+            setTimeout(() => {
+                if (wavesurferRef.current) {
+                    wavesurferRef.current.load(audioUrl + '?t=' + Date.now()); // Cache bust
+                }
+            }, 1000);
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : `Failed to ${operation} audio`);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Ignore if typing in an input
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+                return;
+            }
+
+            switch (e.key) {
+                case ' ':
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
+                case 'ArrowLeft':
+                    if (wavesurferRef.current) wavesurferRef.current.skip(-5);
+                    break;
+                case 'ArrowRight':
+                    if (wavesurferRef.current) wavesurferRef.current.skip(5);
+                    break;
+                case '+':
+                case '=':
+                    handleZoomIn();
+                    break;
+                case '-':
+                case '_':
+                    handleZoomOut();
+                    break;
+                case '?':
+                    setShowKeyboardHelp(prev => !prev);
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [zoom]); // Re-bind when zoom changes to ensure latest state access if needed
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -283,6 +374,68 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                     </div>
                 </div>
 
+                {/* Advanced Controls */}
+                <div className="mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+                    <div className="flex flex-wrap items-center gap-6">
+                        {/* Fade Controls */}
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-400">Fade In (s):</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="10"
+                                    value={fadeIn}
+                                    onChange={(e) => setFadeIn(Number(e.target.value))}
+                                    className="w-16 px-2 py-1 bg-gray-900 border border-gray-600 rounded text-white text-sm"
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-400">Fade Out (s):</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="10"
+                                    value={fadeOut}
+                                    onChange={(e) => setFadeOut(Number(e.target.value))}
+                                    className="w-16 px-2 py-1 bg-gray-900 border border-gray-600 rounded text-white text-sm"
+                                />
+                            </div>
+                            <button
+                                onClick={() => handleProcessAudio('fade', { fadeIn, fadeOut })}
+                                disabled={isLoading || isSaving}
+                                className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-700 text-white text-sm rounded transition-colors flex items-center gap-2"
+                            >
+                                {processingOperation === 'fade' && <Loader className="w-3 h-3 animate-spin" />}
+                                {processingOperation === 'fade' ? 'Applying...' : 'Apply Fade'}
+                            </button>
+                        </div>
+
+                        <div className="w-px h-8 bg-gray-700 hidden sm:block"></div>
+
+                        {/* Normalize */}
+                        <button
+                            onClick={() => handleProcessAudio('normalize')}
+                            disabled={isLoading || isSaving}
+                            className="px-3 py-1 bg-teal-600 hover:bg-teal-700 disabled:bg-gray-700 text-white text-sm rounded transition-colors flex items-center gap-2"
+                        >
+                            {processingOperation === 'normalize' ? <Loader className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4" />}
+                            {processingOperation === 'normalize' ? 'Normalizing...' : 'Normalize Audio'}
+                        </button>
+
+                        <div className="w-px h-8 bg-gray-700 hidden sm:block"></div>
+
+                        {/* Keyboard Help Toggle */}
+                        <button
+                            onClick={() => setShowKeyboardHelp(true)}
+                            className="p-2 text-gray-400 hover:text-white transition-colors"
+                            title="Keyboard Shortcuts (?)"
+                        >
+                            <Keyboard className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+
                 {/* Loading State */}
                 {isLoading && (
                     <div className="flex items-center justify-center py-20">
@@ -317,8 +470,8 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                     disabled={isSaving || isLoading || !hasRegion}
                     className="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
                 >
-                    {isSaving && <Loader className="w-5 h-5 animate-spin" />}
-                    {isSaving ? 'Trimming...' : 'Trim & Save'}
+                    {processingOperation === 'trim' && <Loader className="w-5 h-5 animate-spin" />}
+                    {processingOperation === 'trim' ? 'Trimming...' : 'Trim & Save'}
                 </button>
 
                 {onClose && (
@@ -331,6 +484,49 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                     </button>
                 )}
             </div>
+            {/* Keyboard Shortcuts Modal */}
+            {showKeyboardHelp && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowKeyboardHelp(false)}>
+                    <div className="bg-gray-800 p-6 rounded-xl max-w-md w-full shadow-2xl border border-gray-700" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <Keyboard className="w-6 h-6" />
+                            Keyboard Shortcuts
+                        </h3>
+                        <div className="space-y-3">
+                            <div className="flex justify-between text-gray-300">
+                                <span>Play / Pause</span>
+                                <kbd className="px-2 py-1 bg-gray-700 rounded text-xs font-mono">Space</kbd>
+                            </div>
+                            <div className="flex justify-between text-gray-300">
+                                <span>Seek Backward 5s</span>
+                                <kbd className="px-2 py-1 bg-gray-700 rounded text-xs font-mono">←</kbd>
+                            </div>
+                            <div className="flex justify-between text-gray-300">
+                                <span>Seek Forward 5s</span>
+                                <kbd className="px-2 py-1 bg-gray-700 rounded text-xs font-mono">→</kbd>
+                            </div>
+                            <div className="flex justify-between text-gray-300">
+                                <span>Zoom In</span>
+                                <kbd className="px-2 py-1 bg-gray-700 rounded text-xs font-mono">+</kbd>
+                            </div>
+                            <div className="flex justify-between text-gray-300">
+                                <span>Zoom Out</span>
+                                <kbd className="px-2 py-1 bg-gray-700 rounded text-xs font-mono">-</kbd>
+                            </div>
+                            <div className="flex justify-between text-gray-300">
+                                <span>Toggle Help</span>
+                                <kbd className="px-2 py-1 bg-gray-700 rounded text-xs font-mono">?</kbd>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setShowKeyboardHelp(false)}
+                            className="mt-6 w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                        >
+                            Got it
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

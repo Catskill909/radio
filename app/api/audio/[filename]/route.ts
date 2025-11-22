@@ -19,14 +19,46 @@ export async function GET(
         return new NextResponse("File not found", { status: 404 });
     }
 
-    const fileBuffer = fs.readFileSync(filePath);
     const stats = fs.statSync(filePath);
+    const fileSize = stats.size;
 
-    return new NextResponse(fileBuffer, {
-        headers: {
-            "Content-Type": "audio/mpeg",
-            "Content-Length": stats.size.toString(),
-            "Content-Disposition": `inline; filename="${filename}"`,
-        },
-    });
+    // Get range header
+    const range = request.headers.get("range");
+
+    if (range) {
+        // Parse range header (e.g., "bytes=0-1023")
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunkSize = (end - start) + 1;
+
+        // Read only the requested chunk
+        const file = fs.openSync(filePath, "r");
+        const buffer = Buffer.alloc(chunkSize);
+        fs.readSync(file, buffer, 0, chunkSize, start);
+        fs.closeSync(file);
+
+        // Return 206 Partial Content
+        return new NextResponse(buffer, {
+            status: 206,
+            headers: {
+                "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+                "Accept-Ranges": "bytes",
+                "Content-Length": chunkSize.toString(),
+                "Content-Type": "audio/mpeg",
+            },
+        });
+    } else {
+        // No range requested, send full file
+        const fileBuffer = fs.readFileSync(filePath);
+
+        return new NextResponse(fileBuffer, {
+            headers: {
+                "Content-Type": "audio/mpeg",
+                "Content-Length": fileSize.toString(),
+                "Accept-Ranges": "bytes",
+                "Content-Disposition": `inline; filename="${filename}"`,
+            },
+        });
+    }
 }
