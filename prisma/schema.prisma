@@ -21,6 +21,9 @@ model Show {
   image            String?
   recordingEnabled Boolean        @default(false)
   recordingSource  String?
+  language         String         @default("en-us")
+  copyright        String?
+  link             String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   slots            ScheduleSlot[]

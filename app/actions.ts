@@ -17,6 +17,9 @@ export async function createShow(formData: FormData) {
     const image = (formData.get("image") as string) || null;
     const recordingEnabled = formData.get("recordingEnabled") === "true";
     const recordingSource = (formData.get("recordingSource") as string) || null;
+    const language = (formData.get("language") as string) || "en-us";
+    const copyright = (formData.get("copyright") as string) || null;
+    const link = (formData.get("link") as string) || null;
 
     const startDateStr = formData.get("startDate") as string;
     const startTimeStr = formData.get("startTime") as string;
@@ -37,6 +40,9 @@ export async function createShow(formData: FormData) {
             image,
             recordingEnabled,
             recordingSource,
+            language,
+            copyright,
+            link,
         },
     });
 
@@ -122,6 +128,9 @@ export async function updateShow(id: string, formData: FormData) {
     const image = (formData.get("image") as string) || null;
     const recordingEnabled = formData.get("recordingEnabled") === "true";
     const recordingSource = (formData.get("recordingSource") as string) || null;
+    const language = (formData.get("language") as string) || "en-us";
+    const copyright = (formData.get("copyright") as string) || null;
+    const link = (formData.get("link") as string) || null;
 
     await prisma.show.update({
         where: { id },
@@ -138,6 +147,9 @@ export async function updateShow(id: string, formData: FormData) {
             image,
             recordingEnabled,
             recordingSource,
+            language,
+            copyright,
+            link,
         },
     });
 
@@ -307,6 +319,43 @@ export async function getEpisodes() {
             },
         },
         orderBy: { createdAt: "desc" },
+    });
+}
+
+export async function getShowsWithEpisodes() {
+    const shows = await prisma.show.findMany({
+        include: {
+            slots: {
+                include: {
+                    recordings: {
+                        include: {
+                            episode: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: { title: 'asc' }
+    });
+
+    // Transform data to get episodes per show
+    return shows.map(show => {
+        // Flatten all episodes from all slots/recordings
+        const episodes = show.slots.flatMap(slot =>
+            slot.recordings
+                .filter(r => r.episode)
+                .map(r => ({
+                    ...r.episode!,
+                    recording: r // Keep recording data for file path
+                }))
+        ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        return {
+            ...show,
+            episodes,
+            latestEpisode: episodes[0] || null,
+            totalEpisodes: episodes.length
+        };
     });
 }
 

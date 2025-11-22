@@ -121,6 +121,49 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                             />
                         </div>
 
+                        {/* Language - Span 4 */}
+                        <div className="col-span-12 md:col-span-4 space-y-1.5">
+                            <label htmlFor="language" className="block text-sm font-medium text-gray-300">
+                                Language
+                            </label>
+                            <input
+                                type="text"
+                                id="language"
+                                name="language"
+                                defaultValue="en-us"
+                                className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                placeholder="e.g. en-us"
+                            />
+                        </div>
+
+                        {/* Copyright - Span 4 */}
+                        <div className="col-span-12 md:col-span-4 space-y-1.5">
+                            <label htmlFor="copyright" className="block text-sm font-medium text-gray-300">
+                                Copyright
+                            </label>
+                            <input
+                                type="text"
+                                id="copyright"
+                                name="copyright"
+                                className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                placeholder="e.g. © 2025 Station Name"
+                            />
+                        </div>
+
+                        {/* Website Link - Span 4 */}
+                        <div className="col-span-12 md:col-span-4 space-y-1.5">
+                            <label htmlFor="link" className="block text-sm font-medium text-gray-300">
+                                Website URL
+                            </label>
+                            <input
+                                type="url"
+                                id="link"
+                                name="link"
+                                className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                placeholder="https://example.com"
+                            />
+                        </div>
+
                         {/* Tags - Span 8 */}
                         <div className="col-span-12 md:col-span-8 space-y-1.5">
                             <label htmlFor="tags" className="block text-sm font-medium text-gray-300">

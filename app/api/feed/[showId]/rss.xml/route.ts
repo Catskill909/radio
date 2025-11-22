@@ -32,17 +32,38 @@ export async function GET(
         return new NextResponse("Show not found", { status: 404 });
     }
 
+    const getAbsoluteUrl = (url: string | null) => {
+        if (!url) return undefined;
+        if (url.startsWith('http')) return url;
+        return `${request.nextUrl.origin}${url}`;
+    };
+
     const feed = new RSS({
         title: show.title,
         description: show.description || "",
         feed_url: `${request.nextUrl.origin}/api/feed/${show.id}/rss.xml`,
-        site_url: `${request.nextUrl.origin}/shows/${show.id}`,
-        image_url: show.image || undefined,
-        language: "en",
+        site_url: show.link || `${request.nextUrl.origin}/shows/${show.id}`,
+        image_url: getAbsoluteUrl(show.image),
+        language: show.language || "en-us",
+        copyright: show.copyright || undefined,
         pubDate: new Date(),
         custom_namespaces: {
             'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
         },
+        custom_elements: [
+            { 'itunes:author': show.host || show.author || "Radio Suite" },
+            { 'itunes:subtitle': show.description?.substring(0, 255) || "" },
+            { 'itunes:summary': show.description || "" },
+            {
+                'itunes:owner': [
+                    { 'itunes:name': show.host || show.author || "Radio Suite" },
+                    { 'itunes:email': show.email || "no-reply@example.com" }
+                ]
+            },
+            { 'itunes:explicit': show.explicit ? 'yes' : 'no' },
+            { 'itunes:category': { _attr: { text: show.category || "Music" } } },
+            { 'itunes:type': show.type || 'episodic' }
+        ]
     });
 
     // Flatten recordings from slots
@@ -59,14 +80,14 @@ export async function GET(
                 url: `${request.nextUrl.origin}/episodes/${recording.episode.id}`,
                 date: recording.episode.publishedAt || recording.createdAt,
                 enclosure: {
-                    url: `${request.nextUrl.origin}/recordings/${recording.filePath}`,
+                    url: `${request.nextUrl.origin}/api/audio/${recording.filePath}`,
                     type: "audio/mpeg",
                     size: recording.size || 0
                 },
                 custom_elements: [
                     { 'itunes:duration': recording.episode.duration || recording.duration },
                     { 'itunes:author': recording.episode.host || show.host },
-                    { 'itunes:image': { _attr: { href: recording.episode.imageUrl || show.image } } },
+                    { 'itunes:image': { _attr: { href: getAbsoluteUrl(recording.episode.imageUrl || show.image) } } },
                     { 'itunes:keywords': recording.episode.tags }
                 ]
             });
