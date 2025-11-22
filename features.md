@@ -166,6 +166,7 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Accessible from the Edit Episode modal via "Edit Audio (Trim/Cut)" button
   - Updated duration is fed back into the episode metadata
   - Backup paths and processing success surfaced in the UI
+  - Edited audio is what listeners hear in players and podcast feeds
 
 ---
 
@@ -182,6 +183,8 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 - **In-app RSS UI**
   - RSS feed box on Podcast dashboard cards with copy-to-clipboard and open-in-new-tab
   - `PodcastFeed` component for reusable RSS UI
+ - **Sync with edits**
+   - Changes to show and episode metadata (title, description, artwork, explicit flag) are reflected in the feeds
 
 ---
 

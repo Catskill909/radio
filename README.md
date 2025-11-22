@@ -7,9 +7,9 @@ A comprehensive radio station management system for scheduling shows, automated 
 - **Show management** – Create and manage shows with rich metadata (host, artwork, type, tags, explicit flag, recording config).
 - **Visual schedule** – Calendar-based week/day views with recurring slots, conflict prevention, tooltips, and edit modals.
 - **Automated recording** – Per-show recording toggles, Icecast stream source selection, background recorder service, and status tracking.
-- **Recordings & episodes** – Recordings index with inline player, one-click publishing to episodes, and episode metadata editing.
-- **Audio playback & editing** – Scrub-enabled audio player across the app plus an in-browser waveform editor for trimming, fades, and normalization.
-- **Podcast feeds** – Global RSS feed and per-show iTunes-compatible RSS feeds with in-app copy/open UI.
+- **Recordings & episodes** – Turn live recordings into podcast episodes with post-recording episode metadata editing (titles, descriptions, explicit flag, etc.).
+- **Audio playback & editing** – Scrub-enabled audio player across the app plus an in-browser waveform editor to trim, fade, and normalize recordings before publishing.
+- **Podcast feeds** – Global RSS feed and per-show iTunes-compatible RSS feeds that automatically reflect show/episode edits, with in-app copy/open UI.
 - **Stream monitoring** – Icecast streams dashboard with health checks, status badges, bitrate/listener stats, and error diagnostics.
 - **Modern admin UI** – Dark theme, responsive layout, modals, tooltips, and keyboard shortcuts in the editor workflows.
 
@@ -21,11 +21,11 @@ A comprehensive radio station management system for scheduling shows, automated 
 - Custom descriptions
 
 ### 📅 Advanced Scheduling
-- **Drag-and-drop scheduler** with visual calendar interface
-- **Recurring shows** - Automatically generate weekly slots
+- **Click-to-add scheduling** with a simple visual calendar (no drag-and-drop)
+- **Recurring shows** – Automatically generate weekly slots
 - Week and day views
 - Visual indicators for recurring shows
-- Click events to edit shows directly from calendar
+- Click events to create and edit shows directly from the calendar
 
 ### 🎬 Automated Recording
 - **Toggle recording** on/off per show
@@ -74,7 +74,7 @@ A comprehensive radio station management system for scheduling shows, automated 
 ## Tech Stack
 
 - **Frontend:** Next.js 14 (App Router), React, TypeScript, TailwindCSS
-- **Calendar:** react-big-calendar, react-dnd (drag-and-drop)
+- **Calendar:** react-big-calendar
 - **Date/Time:** react-datepicker with custom dark theme
 - **Backend:** Next.js Server Actions
 - **Database:** SQLite + Prisma ORM
@@ -186,10 +186,10 @@ See [PRISMA_WORKFLOW.md](./PRISMA_WORKFLOW.md) for complete workflow guide, trou
 ### Scheduling Shows
 
 1. Navigate to **Schedule**
-2. Drag a show from the sidebar onto the calendar
-3. Choose the time slot
-4. Confirm if it should be recurring weekly
-5. Click on any scheduled event to edit
+2. Click an empty time slot on the calendar
+3. In the modal, select an existing show or create a new one
+4. Set the duration and choose whether it repeats weekly
+5. Click any scheduled event to edit or delete
 
 ### Managing Recordings
 
@@ -210,7 +210,7 @@ node recorder-service.ts
 radio-suite/
 ├── app/
 │   ├── actions.ts              # Server actions for data mutations
-│   ├── schedule/               # Schedule page with drag-and-drop calendar
+│   ├── schedule/               # Schedule page with calendar UI (click-to-schedule)
 │   ├── shows/                  # Show management (create, edit, list)
 │   ├── episodes/               # Episode management
 │   └── api/                    # API routes (RSS feeds, uploads)
