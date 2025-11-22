@@ -234,6 +234,28 @@ This section is intentionally lightweight – it is meant to be edited as priori
 
 ### P1 – Near-Term
 
+- **Enhanced Settings & Station Configuration**
+  - **Station Identity**
+    - Station name for RSS feeds and public pages
+    - Station description/tagline
+    - Default contact email for podcast feed ownership
+    - Default station artwork (fallback for shows without images)
+  - **Recording Behavior**
+    - Pre-roll buffer: "Start recording X seconds early" to prevent cut-offs
+    - Post-roll buffer: "Keep recording X seconds after scheduled end" to catch overruns
+    - Auto-delete unpublished recordings after X days (storage management)
+    - Recording file naming template customization
+  - **Auto-Extension Configuration**
+    - Extension trigger: "Extend when less than X weeks remain" (currently hardcoded to 4 weeks)
+    - Extension duration: "Extend by X weeks" (currently hardcoded to 52 weeks)
+  - **UI Preferences**
+    - Calendar time granularity options: 5min / 15min / 30min slots
+    - Default show duration templates for quick creation
+    - Week start day preference: Sunday vs Monday for calendar
+  - **Episode Publishing Controls**
+    - Toggle auto-publish recordings on/off (currently always enabled)
+    - Default episode numbering scheme: sequential vs date-based vs manual
+  - _Note: Recording bitrate will remain "copy from source" for zero quality loss and minimal CPU overhead. Quality control happens at the Icecast source level._
 - **Public-facing listener pages**
   - Public show pages with latest episodes and embedded players
   - Simple station home page ("On Air Now" + upcoming schedule)
