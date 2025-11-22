@@ -56,8 +56,8 @@ export async function createShow(formData: FormData) {
     const slotsToCreate = [];
 
     if (isRecurring) {
-        // Generate slots for the next 12 weeks (approx 3 months)
-        for (let i = 0; i < 12; i++) {
+        // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
+        for (let i = 0; i < 52; i++) {
             const slotStart = new Date(startDateTime);
             slotStart.setDate(slotStart.getDate() + (i * 7));
 
@@ -213,8 +213,8 @@ export async function createScheduleSlot(
     const slotsToCreate = [];
 
     if (isRecurring) {
-        // Generate slots for the next 12 weeks (approx 3 months)
-        for (let i = 0; i < 12; i++) {
+        // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
+        for (let i = 0; i < 52; i++) {
             const slotStart = new Date(startTime);
             slotStart.setDate(slotStart.getDate() + (i * 7));
 
@@ -298,8 +298,8 @@ export async function updateScheduleSlot(
     if (isRecurring && !existingSlot.isRecurring) {
         const slotsToCreate = [];
         
-        // Generate slots for the next 11 weeks (starting from week 2, since week 1 already exists)
-        for (let i = 1; i < 12; i++) {
+        // Generate slots for the next 51 weeks (starting from week 2, since week 1 already exists)
+        for (let i = 1; i < 52; i++) {
             const slotStart = new Date(startTime);
             slotStart.setDate(slotStart.getDate() + (i * 7));
 

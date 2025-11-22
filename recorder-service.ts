@@ -219,8 +219,88 @@ function cleanup() {
 process.on('SIGINT', cleanup)
 process.on('SIGTERM', cleanup)
 
-// Run every 10 seconds
+// Auto-extend recurring shows function
+async function extendRecurringShows() {
+    console.log('[AUTO-EXTEND] Checking for recurring shows that need extension...')
+
+    try {
+        const recurringSlots = await prisma.scheduleSlot.findMany({
+            where: { isRecurring: true },
+            include: { show: true },
+            orderBy: { startTime: 'asc' },
+        })
+
+        if (recurringSlots.length === 0) return
+
+        // Group slots by show
+        const showGroups = new Map<string, typeof recurringSlots>()
+        for (const slot of recurringSlots) {
+            const existing = showGroups.get(slot.showId) || []
+            existing.push(slot)
+            showGroups.set(slot.showId, existing)
+        }
+
+        let totalExtended = 0
+
+        for (const [showId, slots] of showGroups.entries()) {
+            const show = slots[0].show
+            const latestSlot = slots.reduce((latest, current) => {
+                return new Date(current.endTime) > new Date(latest.endTime) ? current : latest
+            })
+
+            const latestEndTime = new Date(latestSlot.endTime)
+            const now = new Date()
+            const fourWeeksFromNow = new Date(now.getTime() + (28 * 24 * 60 * 60 * 1000))
+
+            // Check if the show ends within the next 4 weeks
+            if (latestEndTime < fourWeeksFromNow) {
+                console.log(`[AUTO-EXTEND] "${show.title}" needs extension - ends ${latestEndTime.toLocaleDateString()}`)
+
+                const firstSlot = slots.reduce((earliest, current) => {
+                    return new Date(current.startTime) < new Date(earliest.startTime) ? current : earliest
+                })
+
+                const duration = new Date(firstSlot.endTime).getTime() - new Date(firstSlot.startTime).getTime()
+                const slotsToCreate = []
+
+                for (let i = 1; i <= 52; i++) {
+                    const newStartTime = new Date(latestSlot.startTime)
+                    newStartTime.setDate(newStartTime.getDate() + (i * 7))
+                    const newEndTime = new Date(newStartTime.getTime() + duration)
+
+                    slotsToCreate.push({
+                        showId: showId,
+                        startTime: newStartTime,
+                        endTime: newEndTime,
+                        sourceUrl: firstSlot.sourceUrl,
+                        isRecurring: true,
+                    })
+                }
+
+                await prisma.scheduleSlot.createMany({
+                    data: slotsToCreate,
+                })
+
+                console.log(`[AUTO-EXTEND] ✅ Extended "${show.title}" by 52 weeks`)
+                totalExtended++
+            }
+        }
+
+        if (totalExtended > 0) {
+            console.log(`[AUTO-EXTEND] Extended ${totalExtended} show(s) automatically`)
+        }
+    } catch (error) {
+        console.error('[AUTO-EXTEND] Error extending recurring shows:', error)
+    }
+}
+
+// Run schedule check every 10 seconds
 setInterval(checkSchedule, 10000)
 checkSchedule() // Initial run
 
+// Run auto-extend check once per day (every 24 hours)
+setInterval(extendRecurringShows, 24 * 60 * 60 * 1000)
+extendRecurringShows() // Initial run on startup
+
 console.log('Recorder service started.')
+console.log('Auto-extension enabled: recurring shows will be extended automatically.')
