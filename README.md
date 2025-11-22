@@ -6,12 +6,14 @@ A comprehensive radio station management system for scheduling shows, automated 
 
 - **Show management** – Create and manage shows with rich metadata (host, artwork, type, tags, explicit flag, recording config).
 - **Visual schedule** – Calendar-based week/day views with recurring slots, conflict prevention, tooltips, and edit modals.
+- **Station-wide timezone** – Single global station timezone configurable in Settings; schedule views, the live clock, and the recorder service all use station time, independent of user or server location.
 - **Automated recording** – Per-show recording toggles, Icecast stream source selection, background recorder service, and status tracking.
+- **Auto-extending recurring shows** – Weekly shows are generated roughly a year ahead and automatically extended in the background so long-running programs keep their slots without manual upkeep.
 - **Recordings & episodes** – Turn live recordings into podcast episodes with post-recording episode metadata editing (titles, descriptions, explicit flag, etc.).
 - **Audio playback & editing** – Scrub-enabled audio player across the app plus an in-browser waveform editor to trim, fade, and normalize recordings before publishing.
 - **Podcast feeds** – Global RSS feed and per-show iTunes-compatible RSS feeds that automatically reflect show/episode edits, with in-app copy/open UI.
 - **Stream monitoring** – Icecast streams dashboard with health checks, status badges, bitrate/listener stats, and error diagnostics.
-- **Modern admin UI** – Dark theme, responsive layout, modals, tooltips, and keyboard shortcuts in the editor workflows.
+- **Modern admin UI** – Dark theme, responsive layout, modals, tooltips, Settings page, and keyboard shortcuts in the editor workflows.
 
 ### 🎙️ Show Management
 - Create and manage radio shows with rich metadata
@@ -22,18 +24,25 @@ A comprehensive radio station management system for scheduling shows, automated 
 
 ### 📅 Advanced Scheduling
 - **Click-to-add scheduling** with a simple visual calendar
-- **Recurring shows** – Automatically generate weekly slots
+- **Recurring shows** – Automatically generate weekly slots ~1 year ahead (52 weeks) with background auto-extension so successful shows can run for years.
 - Week and day views
 - Visual indicators for recurring shows
 - Click events to create and edit shows directly from the calendar
+
+### ⏰ Station Time (One Truth)
+- Set a single **station timezone** in Settings (e.g. `America/New_York`).
+- All schedule views, the red "now" marker, and the Station Clock use this timezone.
+- The recorder service fires recordings based on **station wall-clock time**, not the server's or user's local timezone.
+- Example: If the station is set to `America/New_York` and you schedule a show at 3:00 PM, users in Los Angeles and London still see it at 3:00 PM station time, and recordings start at that NY 3:00 PM.
 
 ### 🎬 Automated Recording
 - **Toggle recording** on/off per show
 - **Recording source selection** via dropdown
 - Automatic recording when shows are scheduled
-- Background recording service monitors schedule
+- Background recording service monitors schedule using station time
 - Recording status tracking (PENDING/RECORDING/COMPLETED/FAILED)
 - **Auto-publishing** - Recordings automatically become podcast episodes
+- **Automatic recurring extension** – Background job extends recurring shows as they approach the end of their scheduled horizon so long-running series never silently fall off the calendar.
 
 ### 🎧 Audio Playback
 - **Custom audio player** with play/pause controls
@@ -54,6 +63,7 @@ A comprehensive radio station management system for scheduling shows, automated 
 - **Custom delete confirmation modals** (no browser defaults)
 - **Scrollable edit modals** when clicking calendar events
 - **Hover tooltips** on calendar events showing complete details
+- **Settings view** for station-wide configuration (currently a timezone selector with live station clock, with more controls planned)
 - Responsive design with dark theme
 - Smooth animations and transitions
 
@@ -251,6 +261,11 @@ radio-suite/
 - Publication date: publishedAt
 
 ## Recent Updates
+
+### Phase 5: Station Timezone & Recurring Automation (Nov 22, 2025)
+- ✅ Global station timezone setting with Settings page and live station clock
+- ✅ Schedule, calendar "now" marker, and recorder service aligned to station time
+- ✅ Recurring shows generate 52 weeks ahead and auto-extend in the background via the recorder service
 
 ### Phase 4: Audio Playback, Podcast Feeds & Schedule Enhancements (Nov 21, 2024)
 - ✅ **Audio Player Component** - Custom player with play/pause, progress bar, time display

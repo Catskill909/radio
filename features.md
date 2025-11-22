@@ -44,7 +44,7 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Edit existing slot via modal (start time, duration, recurring flag)
   - Delete slot with confirmation
 - **Recurring shows**
-  - Automatic generation of weekly slots for 12 weeks
+  - Automatic generation of weekly slots ~1 year ahead (52 weeks) with background auto-extension so long-running shows stay scheduled
   - Visual recurring indicator and styling on calendar events
 - **Overlap prevention**
   - Backend validation to block overlapping schedule slots
@@ -88,6 +88,9 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Stops recording when the show ends
   - Writes audio files to `/recordings`
   - Updates recording status in the database
+  - Uses the station-wide timezone consistently with the calendar "now" marker
+- **Automatic recurring extension**
+  - Recurring shows are extended automatically in the background as they approach the end of their scheduled horizon (no manual upkeep required for long-running programs)
 - **Recording lifecycle**
   - Statuses: PENDING, RECORDING, COMPLETED, FAILED
   - Recordings link to schedule slots and shows
@@ -195,6 +198,7 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 - **Layout & navigation**
   - Sidebar navigation for Shows, Schedule, Streams, Recordings, Episodes
   - Auto-collapse of sidebar on Schedule for maximum calendar space
+  - Settings page for station-wide configuration (currently timezone with live station clock, more to come)
 - **Theming & components**
   - Dark theme with TailwindCSS
   - Custom modals for create/edit/delete confirmation
