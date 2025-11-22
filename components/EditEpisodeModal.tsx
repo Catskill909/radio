@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useTransition } from "react";
-import { X, FileAudio, Loader } from "lucide-react";
+import { X, FileAudio, Loader, Music } from "lucide-react";
 import { updateEpisode } from "@/app/actions";
 import ImageUpload from "./ImageUpload";
 import AudioUpload from "./AudioUpload";
 import ConfirmDialog from "./ConfirmDialog";
+
 
 interface Episode {
     id: string;
@@ -38,6 +39,7 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
     const [newAudioFile, setNewAudioFile] = useState<{ filename: string; duration: number; size: number } | null>(null);
     const [showAudioConfirm, setShowAudioConfirm] = useState(false);
     const [pendingAudio, setPendingAudio] = useState<{ filename: string; duration: number; size: number } | null>(null);
+
 
     const handleAudioUpload = (filename: string, duration: number, size: number) => {
         // Show confirmation dialog before accepting the new audio
@@ -146,6 +148,7 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                                                 ✓ New audio file ready. Click "Save Changes" to apply.
                                             </div>
                                         )}
+
                                     </div>
                                 </div>
 
@@ -304,6 +307,8 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                 cancelText="Cancel"
                 variant="warning"
             />
+
+
         </>
     );
 }
