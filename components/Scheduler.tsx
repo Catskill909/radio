@@ -36,6 +36,9 @@ interface Show {
     tags: string | null
     recordingEnabled: boolean
     recordingSource: string | null
+    language: string
+    copyright: string | null
+    link: string | null
     createdAt: Date
     updatedAt: Date
 }
