@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { X, FileAudio, Loader } from "lucide-react";
 import { updateEpisode } from "@/app/actions";
 import ImageUpload from "./ImageUpload";
+import AudioUpload from "./AudioUpload";
+import ConfirmDialog from "./ConfirmDialog";
 
 interface Episode {
     id: string;
@@ -33,6 +35,22 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
     const [imageUrl, setImageUrl] = useState(episode.imageUrl || "");
+    const [newAudioFile, setNewAudioFile] = useState<{ filename: string; duration: number; size: number } | null>(null);
+    const [showAudioConfirm, setShowAudioConfirm] = useState(false);
+    const [pendingAudio, setPendingAudio] = useState<{ filename: string; duration: number; size: number } | null>(null);
+
+    const handleAudioUpload = (filename: string, duration: number, size: number) => {
+        // Show confirmation dialog before accepting the new audio
+        setPendingAudio({ filename, duration, size });
+        setShowAudioConfirm(true);
+    };
+
+    const confirmAudioReplacement = () => {
+        if (pendingAudio) {
+            setNewAudioFile(pendingAudio);
+            setPendingAudio(null);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -43,6 +61,13 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
         // Add the image URL to form data
         if (imageUrl) {
             formData.set("image", imageUrl);
+        }
+
+        // Add new audio file info if replaced
+        if (newAudioFile) {
+            formData.set("newAudioFile", newAudioFile.filename);
+            formData.set("newAudioDuration", newAudioFile.duration.toString());
+            formData.set("newAudioSize", newAudioFile.size.toString());
         }
 
         startTransition(async () => {
@@ -106,22 +131,21 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                                         </p>
                                     </div>
 
-                                    {/* Audio Info (Read-only) */}
-                                    <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-                                        <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-                                            <FileAudio className="w-4 h-4" />
+                                    {/* Audio Upload */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
                                             Audio File
-                                        </h3>
-                                        <div className="space-y-2 text-sm text-gray-400">
-                                            <div>
-                                                <span className="text-gray-500">File:</span> {episode.recording.filePath}
+                                        </label>
+                                        <AudioUpload
+                                            currentFile={newAudioFile ? newAudioFile.filename : episode.recording.filePath}
+                                            currentDuration={newAudioFile ? newAudioFile.duration : episode.duration}
+                                            onUpload={handleAudioUpload}
+                                        />
+                                        {newAudioFile && (
+                                            <div className="mt-2 p-2 bg-blue-900/30 border border-blue-700 rounded text-xs text-blue-300">
+                                                ✓ New audio file ready. Click "Save Changes" to apply.
                                             </div>
-                                            {episode.duration && (
-                                                <div>
-                                                    <span className="text-gray-500">Duration:</span> {Math.floor(episode.duration / 60)}m {episode.duration % 60}s
-                                                </div>
-                                            )}
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -132,13 +156,13 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                                         <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
                                             Episode Title *
                                         </label>
-                                        <input
-                                            type="text"
+                                        <textarea
                                             id="title"
                                             name="title"
                                             required
+                                            rows={2}
                                             defaultValue={episode.title}
-                                            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                         />
                                     </div>
 
@@ -265,6 +289,21 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                     </form>
                 </div>
             </div>
+
+            {/* Audio Replacement Confirmation */}
+            <ConfirmDialog
+                isOpen={showAudioConfirm}
+                onClose={() => {
+                    setShowAudioConfirm(false);
+                    setPendingAudio(null);
+                }}
+                onConfirm={confirmAudioReplacement}
+                title="Replace Audio File?"
+                message="This will replace the current audio file. The old file will be permanently deleted when you save. Common reasons: removing flagged music, correcting errors, or improving audio quality."
+                confirmText="Replace Audio"
+                cancelText="Cancel"
+                variant="warning"
+            />
         </>
     );
 }

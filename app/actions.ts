@@ -421,6 +421,11 @@ export async function updateEpisode(id: string, formData: FormData) {
     const tags = (formData.get("tags") as string) || null;
     const explicit = formData.get("explicit") === "true" ? true : formData.get("explicit") === "false" ? false : null;
 
+    // Check for audio file replacement
+    const newAudioFile = formData.get("newAudioFile") as string | null;
+    const newAudioDuration = formData.get("newAudioDuration") ? parseInt(formData.get("newAudioDuration") as string) : null;
+    const newAudioSize = formData.get("newAudioSize") ? parseInt(formData.get("newAudioSize") as string) : null;
+
     // Get the episode to find the show ID for RSS feed revalidation
     const episode = await prisma.episode.findUnique({
         where: { id },
@@ -433,6 +438,38 @@ export async function updateEpisode(id: string, formData: FormData) {
         }
     });
 
+    if (!episode) {
+        throw new Error("Episode not found");
+    }
+
+    // Handle audio file replacement
+    if (newAudioFile && newAudioDuration !== null) {
+        const fs = await import("fs");
+        const path = await import("path");
+
+        // Delete old audio file
+        const oldFilePath = path.join(process.cwd(), "recordings", episode.recording.filePath);
+        if (fs.existsSync(oldFilePath)) {
+            try {
+                fs.unlinkSync(oldFilePath);
+                console.log(`Deleted old audio file: ${oldFilePath}`);
+            } catch (error) {
+                console.error(`Error deleting old audio file ${oldFilePath}:`, error);
+            }
+        }
+
+        // Update recording with new file info
+        await prisma.recording.update({
+            where: { id: episode.recording.id },
+            data: {
+                filePath: newAudioFile,
+                duration: newAudioDuration,
+                size: newAudioSize
+            }
+        });
+    }
+
+    // Update episode metadata
     await prisma.episode.update({
         where: { id },
         data: {
@@ -444,6 +481,8 @@ export async function updateEpisode(id: string, formData: FormData) {
             imageUrl,
             tags,
             explicit,
+            // Update duration if new audio was uploaded
+            ...(newAudioDuration !== null && { duration: newAudioDuration })
         },
     });
 
