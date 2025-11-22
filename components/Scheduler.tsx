@@ -241,6 +241,7 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
                 }}
                 selectedSlot={selectedTimeSlot}
                 shows={shows}
+                streams={streams}
             />
         </div>
     )
