@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useTransition } from "react";
-import { X, FileAudio, Loader, Music } from "lucide-react";
+import { X, FileAudio, Loader, Music, Scissors } from "lucide-react";
 import { updateEpisode } from "@/app/actions";
 import ImageUpload from "./ImageUpload";
 import AudioUpload from "./AudioUpload";
 import ConfirmDialog from "./ConfirmDialog";
+import AudioEditorModal from "./AudioEditorModal";
 
 
 interface Episode {
@@ -39,6 +40,8 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
     const [newAudioFile, setNewAudioFile] = useState<{ filename: string; duration: number; size: number } | null>(null);
     const [showAudioConfirm, setShowAudioConfirm] = useState(false);
     const [pendingAudio, setPendingAudio] = useState<{ filename: string; duration: number; size: number } | null>(null);
+    const [showAudioEditor, setShowAudioEditor] = useState(false);
+    const [currentDuration, setCurrentDuration] = useState(episode.duration);
 
 
     const handleAudioUpload = (filename: string, duration: number, size: number) => {
@@ -52,6 +55,13 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
             setNewAudioFile(pendingAudio);
             setPendingAudio(null);
         }
+    };
+
+    const handleAudioEditorSave = (newDuration: number) => {
+        setCurrentDuration(newDuration);
+        // Don't call onSave() here - it closes the entire EditEpisodeModal
+        // User can save all changes when they manually close the editor
+        // For now, just update the local duration state
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -148,6 +158,16 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                                                 ✓ New audio file ready. Click "Save Changes" to apply.
                                             </div>
                                         )}
+
+                                        {/* Edit Audio Button */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowAudioEditor(true)}
+                                            className="mt-3 w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <Scissors className="w-4 h-4" />
+                                            Edit Audio (Trim/Cut)
+                                        </button>
 
                                     </div>
                                 </div>
@@ -308,6 +328,15 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                 variant="warning"
             />
 
+
+            {/* Audio Editor Modal */}
+            <AudioEditorModal
+                isOpen={showAudioEditor}
+                onClose={() => setShowAudioEditor(false)}
+                audioUrl={`/api/audio/${episode.recording.filePath}`}
+                filename={episode.recording.filePath}
+                onSave={handleAudioEditorSave}
+            />
 
         </>
     );
