@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { stationTimeToUTC } from "@/lib/station-time";
 
 export async function createShow(formData: FormData) {
     const title = formData.get("title") as string;
@@ -47,7 +48,8 @@ export async function createShow(formData: FormData) {
     });
 
     // Calculate initial start and end time
-    const startDateTime = new Date(`${startDateStr}T${startTimeStr}`);
+    // ✅ STATION TIMEZONE: Interpret user input as station-local time, convert to UTC for DB
+    const startDateTime = stationTimeToUTC(startDateStr, startTimeStr);
     const endDateTime = new Date(startDateTime.getTime() + durationMins * 60000);
 
     // Generate slots
@@ -201,11 +203,13 @@ async function checkSlotOverlap(
 
 export async function createScheduleSlot(
     showId: string,
-    startTime: Date,
-    endTime: Date,
+    startTime: Date,  // ✅ STATION TIMEZONE: Should be UTC Date from station-time conversion
+    endTime: Date,    // ✅ STATION TIMEZONE: Should be UTC Date from station-time conversion
     sourceUrl?: string,
     isRecurring: boolean = false
 ) {
+    // Note: startTime and endTime should already be UTC instants,
+    // converted from station-local time by the calling code (e.g., modal)
     const slotsToCreate = [];
 
     if (isRecurring) {
@@ -263,6 +267,16 @@ export async function updateScheduleSlot(
     endTime: Date,
     isRecurring: boolean
 ) {
+    // Get the existing slot to check if recurring status changed
+    const existingSlot = await prisma.scheduleSlot.findUnique({
+        where: { id },
+        include: { show: true }
+    });
+
+    if (!existingSlot) {
+        throw new Error("Schedule slot not found");
+    }
+
     // Check for overlaps using the helper function
     const overlapping = await checkSlotOverlap(startTime, endTime, id);
 
@@ -270,6 +284,7 @@ export async function updateScheduleSlot(
         throw new Error(`Time slot overlaps with existing show: ${overlapping.show.title}`);
     }
 
+    // Update the existing slot
     await prisma.scheduleSlot.update({
         where: { id },
         data: {
@@ -278,6 +293,40 @@ export async function updateScheduleSlot(
             isRecurring,
         },
     });
+
+    // If recurring was just enabled, create additional weekly slots
+    if (isRecurring && !existingSlot.isRecurring) {
+        const slotsToCreate = [];
+        
+        // Generate slots for the next 11 weeks (starting from week 2, since week 1 already exists)
+        for (let i = 1; i < 12; i++) {
+            const slotStart = new Date(startTime);
+            slotStart.setDate(slotStart.getDate() + (i * 7));
+
+            const slotEnd = new Date(endTime);
+            slotEnd.setDate(slotEnd.getDate() + (i * 7));
+
+            // Check for overlaps with existing slots
+            const overlapping = await checkSlotOverlap(slotStart, slotEnd);
+            if (overlapping) {
+                throw new Error(
+                    `Cannot create recurring slots: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+                );
+            }
+
+            slotsToCreate.push({
+                showId: existingSlot.showId,
+                startTime: slotStart,
+                endTime: slotEnd,
+                isRecurring: true,
+            });
+        }
+
+        await prisma.scheduleSlot.createMany({
+            data: slotsToCreate,
+        });
+    }
+
     revalidatePath("/schedule");
 }
 

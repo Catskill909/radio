@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import ffmpeg from 'fluent-ffmpeg'
 import fs from 'fs'
 import path from 'path'
+import { formatInStationTime, getStationTimezone } from './lib/station-time'
 
 const prisma = new PrismaClient()
 const RECORDINGS_DIR = path.join(process.cwd(), 'recordings')
@@ -15,8 +16,10 @@ if (!fs.existsSync(RECORDINGS_DIR)) {
 const activeRecordings = new Map<string, ffmpeg.FfmpegCommand>()
 
 async function checkSchedule() {
-    const now = new Date()
-    console.log(`[${now.toISOString()}] Checking schedule...`)
+    const now = new Date()  // UTC time for comparison with DB
+    const stationTz = getStationTimezone()
+    const nowStation = formatInStationTime(now, 'yyyy-MM-dd HH:mm:ss')
+    console.log(`[${now.toISOString()}] Checking schedule... (Station time: ${nowStation} ${stationTz})`)
 
     try {
         // Find active slots
@@ -48,7 +51,9 @@ async function checkSchedule() {
             }
 
             // Start new recording
-            console.log(`Starting recording for slot: ${slot.id} (${slot.show.title})`)
+            const slotStartStation = formatInStationTime(slot.startTime, 'HH:mm')
+            const slotEndStation = formatInStationTime(slot.endTime, 'HH:mm')
+            console.log(`Starting recording for slot: ${slot.id} (${slot.show.title}) - Station time: ${slotStartStation}-${slotEndStation} ${stationTz})`)
             // Fix Race Condition: Mark as active immediately before async operations
             // We use a placeholder value initially
             activeRecordings.set(slot.id, null as any)
@@ -62,7 +67,8 @@ async function checkSchedule() {
 
             const slot = await prisma.scheduleSlot.findUnique({ where: { id: slotId } })
             if (!slot || slot.endTime <= now) {
-                console.log(`Stopping recording for slot: ${slotId}`)
+                const endStation = slot ? formatInStationTime(slot.endTime, 'HH:mm') : 'unknown'
+                console.log(`Stopping recording for slot: ${slotId} (ended at ${endStation} ${stationTz})`)
                 command.kill('SIGKILL') // This should trigger the 'end' event or 'error'
                 activeRecordings.delete(slotId)
             }

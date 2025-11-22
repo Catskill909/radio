@@ -25,7 +25,7 @@ export default async function SchedulePage() {
                 </div>
             </div>
             <div className="flex-1">
-                <Scheduler shows={shows} initialSlots={slots} streams={streams} />
+                <Scheduler shows={shows} initialSlots={slots} streams={streams} stationTimezone={timezone} />
             </div>
         </div>
     );

@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { Calendar as BigCalendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
+import { toZonedTime } from 'date-fns-tz'
 import { enUS } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { Repeat, Clock } from 'lucide-react'
@@ -56,41 +57,38 @@ interface SchedulerProps {
     shows: Show[]
     initialSlots: Slot[]
     streams: { id: string; name: string; url: string }[]
+    stationTimezone: string  // ✅ STATION TIMEZONE: IANA timezone string (e.g., 'America/New_York')
 }
 
-export default function Scheduler({ shows, initialSlots, streams }: SchedulerProps) {
+export default function Scheduler({ shows, initialSlots, streams, stationTimezone }: SchedulerProps) {
+    // ✅ STATION TIMEZONE: Convert UTC timestamps from DB to station-local time for display
+    const convertSlotToEvent = useCallback((slot: Slot) => ({
+        id: slot.id,
+        title: slot.show.title,
+        start: toZonedTime(new Date(slot.startTime), stationTimezone),
+        end: toZonedTime(new Date(slot.endTime), stationTimezone),
+        resourceId: slot.showId,
+        isRecurring: slot.isRecurring,
+        type: slot.show.type,
+    }), [stationTimezone]);
+
     const [slots, setSlots] = useState(initialSlots)
     const [events, setEvents] = useState(
-        initialSlots.map((slot) => ({
-            id: slot.id,
-            title: slot.show.title,
-            start: new Date(slot.startTime),
-            end: new Date(slot.endTime),
-            resourceId: slot.showId,
-            isRecurring: slot.isRecurring,
-            type: slot.show.type,
-        }))
+        initialSlots.map(convertSlotToEvent)
     )
 
     // Controlled state for calendar navigation
-    const [date, setDate] = useState(new Date())
+    // ✅ STATION TIMEZONE: Initialize to current time in station timezone
+    const [date, setDate] = useState(() => toZonedTime(new Date(), stationTimezone))
     const [view, setView] = useState<any>(Views.WEEK)
 
     // Sync slots and events when initialSlots changes (e.g., after navigation)
     useEffect(() => {
         setSlots(initialSlots)
         setEvents(
-            initialSlots.map((slot) => ({
-                id: slot.id,
-                title: slot.show.title,
-                start: new Date(slot.startTime),
-                end: new Date(slot.endTime),
-                resourceId: slot.showId,
-                isRecurring: slot.isRecurring,
-                type: slot.show.type,
-            }))
+            initialSlots.map(convertSlotToEvent)
         )
-    }, [initialSlots])
+    }, [initialSlots, convertSlotToEvent])
 
     // DEBUG: Log event data to console
     console.log('=== SCHEDULER DEBUG ===')
@@ -182,6 +180,7 @@ export default function Scheduler({ shows, initialSlots, streams }: SchedulerPro
                     onSelectEvent={handleEventClick}
                     eventPropGetter={eventPropGetter}
                     tooltipAccessor={null}
+                    getNow={() => toZonedTime(new Date(), stationTimezone)}
                     formats={{
                         eventTimeRangeFormat: () => "",
                     }}
