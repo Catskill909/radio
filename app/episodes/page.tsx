@@ -2,7 +2,7 @@ import { getEpisodes } from "@/app/actions";
 import Link from "next/link";
 import { format } from "date-fns";
 import { Edit } from "lucide-react";
-import { AudioPlayer } from "@/components/AudioPlayer";
+import AudioPlayer from "@/components/AudioPlayer";
 
 export default async function EpisodesPage() {
     const episodes = await getEpisodes();

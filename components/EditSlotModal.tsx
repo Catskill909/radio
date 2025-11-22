@@ -105,80 +105,92 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                     </div>
 
                     {/* Content */}
-                    <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Left Column: Slot Settings */}
-                        <div className="space-y-6">
-                            <h3 className="text-xl font-semibold text-white border-b border-gray-800 pb-2">Slot Settings</h3>
+                    <div className="p-6 space-y-8">
+                        {/* Top Section: Slot Settings */}
+                        <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-800">
+                            <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                                <Clock className="w-5 h-5 text-blue-400" />
+                                Slot Settings
+                            </h3>
 
                             {error && (
-                                <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm">
+                                <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm mb-6">
                                     {error}
                                 </div>
                             )}
 
-                            {/* Start Time */}
-                            <div>
-                                <DateTimePicker
-                                    label="Start Time"
-                                    selected={startTime}
-                                    onChange={(date) => date && setStartTime(date)}
-                                    showTimeSelect={true}
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* Start Time */}
+                                <div>
+                                    <DateTimePicker
+                                        label="Start Time"
+                                        selected={startTime}
+                                        onChange={(date) => date && setStartTime(date)}
+                                        showTimeSelect={true}
+                                    />
+                                </div>
+
+                                {/* Duration */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        Duration (minutes)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={duration}
+                                        onChange={(e) => setDuration(parseInt(e.target.value))}
+                                        min="15"
+                                        step="15"
+                                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                {/* Recurring */}
+                                <div className="flex items-center h-full pt-6">
+                                    <div className="flex items-center gap-3 p-3 bg-gray-800 rounded-lg border border-gray-700 w-full">
+                                        <input
+                                            type="checkbox"
+                                            id="recurring"
+                                            checked={isRecurring}
+                                            onChange={(e) => setIsRecurring(e.target.checked)}
+                                            className="w-5 h-5 rounded border-gray-700 bg-gray-800 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                                        />
+                                        <label htmlFor="recurring" className="text-sm font-medium text-gray-300 cursor-pointer select-none flex-1">
+                                            Repeat Weekly
+                                        </label>
+                                        <Repeat className="w-4 h-4 text-gray-500" />
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Duration */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Duration (minutes)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={duration}
-                                    onChange={(e) => setDuration(parseInt(e.target.value))}
-                                    min="15"
-                                    step="15"
-                                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-
-                            {/* Recurring */}
-                            <div className="flex items-center gap-3">
-                                <input
-                                    type="checkbox"
-                                    id="recurring"
-                                    checked={isRecurring}
-                                    onChange={(e) => setIsRecurring(e.target.checked)}
-                                    className="w-5 h-5 rounded border-gray-700 bg-gray-800 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                                />
-                                <label htmlFor="recurring" className="text-sm font-medium text-gray-300">
-                                    Repeat Weekly
-                                </label>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex gap-3 pt-4 border-t border-gray-800 mt-8">
+                            {/* Slot Actions */}
+                            <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-700/50">
                                 <Tooltip content="Delete Slot">
                                     <button
                                         onClick={() => setDeleteModalOpen(true)}
-                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-colors shadow-lg hover:shadow-red-500/20"
+                                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/50 rounded-lg font-medium transition-colors"
                                     >
-                                        <Trash2 className="w-5 h-5" />
+                                        <Trash2 className="w-4 h-4" />
+                                        Delete Slot
                                     </button>
                                 </Tooltip>
                                 <button
                                     onClick={handleSave}
                                     disabled={isSaving}
-                                    className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20"
                                 >
                                     {isSaving ? 'Saving...' : 'Save Slot Changes'}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Right Column: Show Settings */}
-                        <div className="space-y-6 border-l border-gray-800 pl-8">
-                            <h3 className="text-xl font-semibold text-white border-b border-gray-800 pb-2">Show Settings</h3>
-                            <div className="bg-gray-800/30 rounded-xl p-4 border border-gray-700/50">
+                        {/* Bottom Section: Show Settings */}
+                        <div className="space-y-6">
+                            <h3 className="text-xl font-semibold text-white border-b border-gray-800 pb-4 flex items-center gap-2">
+                                <CalendarIcon className="w-5 h-5 text-purple-400" />
+                                Show Settings
+                            </h3>
+                            <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700/50">
                                 <EditShowForm show={slot.show} streams={streams} />
                             </div>
                         </div>

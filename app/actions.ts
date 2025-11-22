@@ -568,3 +568,48 @@ export async function updateStream(id: string, name: string, url: string) {
 
     revalidatePath("/streams");
 }
+
+export async function deleteRecording(id: string) {
+    const fs = await import("fs");
+    const path = await import("path");
+
+    // 1. Get the recording to find the file path
+    const recording = await prisma.recording.findUnique({
+        where: { id },
+    });
+
+    if (!recording) {
+        throw new Error("Recording not found");
+    }
+
+    // 2. Delete the file from filesystem
+    if (recording.filePath) {
+        const filePath = path.join(process.cwd(), "recordings", recording.filePath);
+        if (fs.existsSync(filePath)) {
+            try {
+                fs.unlinkSync(filePath);
+                console.log(`Deleted file: ${filePath}`);
+            } catch (error) {
+                console.error(`Error deleting file ${filePath}:`, error);
+            }
+        }
+    }
+
+    // 3. Delete from database
+    const episode = await prisma.episode.findUnique({
+        where: { recordingId: id }
+    });
+
+    if (episode) {
+        await prisma.episode.delete({
+            where: { id: episode.id }
+        });
+    }
+
+    await prisma.recording.delete({
+        where: { id },
+    });
+
+    revalidatePath("/recordings");
+    revalidatePath("/episodes");
+}
