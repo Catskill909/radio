@@ -4,6 +4,15 @@ A comprehensive radio station management system for scheduling shows, automated 
 
 ## Features
 
+- **Show management** – Create and manage shows with rich metadata (host, artwork, type, tags, explicit flag, recording config).
+- **Visual schedule** – Calendar-based week/day views with recurring slots, conflict prevention, tooltips, and edit modals.
+- **Automated recording** – Per-show recording toggles, Icecast stream source selection, background recorder service, and status tracking.
+- **Recordings & episodes** – Recordings index with inline player, one-click publishing to episodes, and episode metadata editing.
+- **Audio playback & editing** – Scrub-enabled audio player across the app plus an in-browser waveform editor for trimming, fades, and normalization.
+- **Podcast feeds** – Global RSS feed and per-show iTunes-compatible RSS feeds with in-app copy/open UI.
+- **Stream monitoring** – Icecast streams dashboard with health checks, status badges, bitrate/listener stats, and error diagnostics.
+- **Modern admin UI** – Dark theme, responsive layout, modals, tooltips, and keyboard shortcuts in the editor workflows.
+
 ### 🎙️ Show Management
 - Create and manage radio shows with rich metadata
 - Host information tracking
@@ -32,6 +41,13 @@ A comprehensive radio station management system for scheduling shows, automated 
 - In-browser playback for recordings and episodes
 - Responsive design with modern styling
 
+### ✂️ Audio Editing
+- Waveform-based audio editor for recordings
+- Trim selected regions with non-destructive backups
+- Apply fade-in/fade-out and normalize audio levels
+- Zoomable timeline and keyboard shortcuts for efficient editing
+- Integrated into the episode editing workflow
+
 ### 🎨 Modern UI/UX
 - **Full-screen create form** with grid layout (no scrolling needed)
 - **Popup date/time pickers** with dark theme
@@ -47,6 +63,13 @@ A comprehensive radio station management system for scheduling shows, automated 
 - iTunes-compatible podcast metadata
 - Automatic episode metadata from show info
 - Publishing controls and metadata editing
+
+### 📶 Stream Monitoring & Health
+- Icecast streams dashboard with add/edit/delete flows
+- Enable/disable streams with a single toggle
+- Automatic health checks every 30 seconds plus manual refresh
+- Live metadata: status, bitrate, format, listeners, genre, and last-checked time
+- Inline error messages and stale-data indicators when streams are unhealthy
 
 ## Tech Stack
 
