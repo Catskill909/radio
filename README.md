@@ -262,6 +262,11 @@ radio-suite/
 
 ## Recent Updates
 
+### Phase 6: Midnight Support & Smart Delete (Nov 23, 2025)
+- ✅ **Midnight-Crossing Support** - Shows spanning across midnight (e.g., 11 PM - 1 AM) automatically split into linked slots and display correctly across days.
+- ✅ **Smart Delete System** - Granular control to delete single instances or entire recurring series, with automatic handling of split shows.
+- ✅ **Redesigned Edit Modal** - Compact, professional UI with refined color palette and improved information hierarchy.
+
 ### Phase 5: Station Timezone & Recurring Automation (Nov 22, 2025)
 - ✅ Global station timezone setting with Settings page and live station clock
 - ✅ Schedule, calendar "now" marker, and recorder service aligned to station time

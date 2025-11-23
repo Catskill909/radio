@@ -49,6 +49,14 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 - **Overlap prevention**
   - Backend validation to block overlapping schedule slots
   - Clear error messages when conflicts occur
+- **Midnight-Crossing Support**
+  - Shows spanning midnight (e.g., 11 PM - 1 AM) are automatically split into two linked slots
+  - Visual indicators on the calendar showing the connection between split parts
+  - Timezone-aware splitting based on station time
+- **Smart Delete System**
+  - **Single Instance**: Delete just one specific show (automatically handles both parts of split shows)
+  - **This & All Future**: Delete the current show and all future recurring instances
+  - Visual warnings for complex deletions (split/recurring) and impact preview
 
 ---
 
