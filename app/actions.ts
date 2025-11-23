@@ -452,10 +452,74 @@ export async function updateScheduleSlot(
     revalidatePath("/schedule");
 }
 
-export async function deleteScheduleSlot(id: string) {
-    await prisma.scheduleSlot.delete({
+export async function deleteScheduleSlot(
+    id: string,
+    options?: {
+        deleteMode?: 'single' | 'this-and-future';
+        deleteBothParts?: boolean;
+    }
+) {
+    const slot = await prisma.scheduleSlot.findUnique({
         where: { id },
+        include: { show: true }
     });
+
+    if (!slot) {
+        throw new Error("Schedule slot not found");
+    }
+
+    const slotsToDelete: string[] = [id];
+
+    // Handle split shows (delete both parts)
+    if (options?.deleteBothParts && slot.splitGroupId) {
+        const linkedSlot = await prisma.scheduleSlot.findFirst({
+            where: {
+                splitGroupId: slot.splitGroupId,
+                id: { not: id }
+            }
+        });
+        if (linkedSlot) {
+            slotsToDelete.push(linkedSlot.id);
+        }
+    }
+
+    // Handle recurring shows (delete this and future instances)
+    if (options?.deleteMode === 'this-and-future' && slot.isRecurring) {
+        const futureSlots = await prisma.scheduleSlot.findMany({
+            where: {
+                showId: slot.showId,
+                isRecurring: true,
+                startTime: { gte: slot.startTime }
+            }
+        });
+
+        for (const futureSlot of futureSlots) {
+            if (!slotsToDelete.includes(futureSlot.id)) {
+                slotsToDelete.push(futureSlot.id);
+            }
+
+            // If deleting both parts, also delete linked splits of future instances
+            if (options?.deleteBothParts && futureSlot.splitGroupId) {
+                const futureLinked = await prisma.scheduleSlot.findFirst({
+                    where: {
+                        splitGroupId: futureSlot.splitGroupId,
+                        id: { not: futureSlot.id }
+                    }
+                });
+                if (futureLinked && !slotsToDelete.includes(futureLinked.id)) {
+                    slotsToDelete.push(futureLinked.id);
+                }
+            }
+        }
+    }
+
+    // Delete all collected slot IDs
+    await prisma.scheduleSlot.deleteMany({
+        where: {
+            id: { in: slotsToDelete }
+        }
+    });
+
     revalidatePath("/schedule");
 }
 

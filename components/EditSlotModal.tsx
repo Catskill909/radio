@@ -1,13 +1,13 @@
 'use client'
 
-import { X, Trash2, Calendar as CalendarIcon, Clock, Repeat } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { X, Clock, Calendar, Repeat, Trash2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
-import { updateScheduleSlot, deleteScheduleSlot } from '@/app/actions'
-import DateTimePicker from './DateTimePicker'
-import DeleteConfirmModal from './DeleteConfirmModal'
-import EditShowForm from './EditShowForm'
+import { updateScheduleSlot, deleteScheduleSlot, updateShow } from '@/app/actions'
+import DateTimePicker from '@/components/DateTimePicker'
+import DeleteSlotOptions from '@/components/DeleteSlotOptions'
+import EditShowForm from '@/components/EditShowForm'
 import { Tooltip } from './Tooltip'
 
 interface Show {
@@ -54,9 +54,10 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
     const [startTime, setStartTime] = useState<Date>(new Date())
     const [duration, setDuration] = useState(60)
     const [isRecurring, setIsRecurring] = useState(false)
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [isSaving, setIsSaving] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [showDeleteOptions, setShowDeleteOptions] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         if (slot) {
@@ -84,12 +85,17 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
         }
     }
 
-    const handleDelete = async () => {
-        await deleteScheduleSlot(slot.id)
-        setDeleteModalOpen(false)
-        onClose()
-        // Force full page reload
-        window.location.reload()
+    const handleDelete = async (mode: 'single' | 'this-and-future', deleteBothParts: boolean) => {
+        setIsDeleting(true)
+        setError(null)
+        try {
+            await deleteScheduleSlot(slot.id, { deleteMode: mode, deleteBothParts })
+            onClose()
+            window.location.reload()
+        } catch (err: any) {
+            setError(err.message)
+            setIsDeleting(false)
+        }
     }
 
     return (
@@ -169,30 +175,54 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                             </div>
 
                             {/* Slot Actions */}
-                            <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-700/50">
-                                <Tooltip content="Delete Slot">
-                                    <button
-                                        onClick={() => setDeleteModalOpen(true)}
-                                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/50 rounded-lg font-medium transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                        Delete Slot
-                                    </button>
-                                </Tooltip>
+                            <div className="flex justify-end gap-2 mt-6 pt-6 border-t border-gray-700/50">
                                 <button
                                     onClick={handleSave}
                                     disabled={isSaving}
-                                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20"
+                                    className="px-4 py-2 bg-blue-600/80 hover:bg-blue-600 disabled:bg-blue-800/50 disabled:cursor-not-allowed text-white rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
                                 >
-                                    {isSaving ? 'Saving...' : 'Save Slot Changes'}
+                                    {isSaving ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Delete Section */}
+                        <div className="bg-gray-800/30 rounded-xl p-4 border border-gray-700/50 flex justify-center">
+                            {showDeleteOptions ? (
+                                <DeleteSlotOptions
+                                    slot={{
+                                        id: slot.id,
+                                        isRecurring: slot.isRecurring,
+                                        splitGroupId: slot.splitGroupId,
+                                        splitPosition: slot.splitPosition,
+                                        startTime: slot.startTime
+                                    }}
+                                    showTitle={slot.show.title}
+                                    onDelete={handleDelete}
+                                    onCancel={() => setShowDeleteOptions(false)}
+                                />
+                            ) : (
+                                <button
+                                    onClick={() => setShowDeleteOptions(true)}
+                                    disabled={isDeleting}
+                                    className="flex items-center justify-center gap-2 px-6 py-2 bg-red-900/40 text-red-300 hover:bg-red-900/60 border border-red-800/50 rounded-md transition-colors disabled:opacity-50 text-sm"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    Delete Slot
+                                </button>
+                            )}
+
+                            {error && (
+                                <div className="mt-3 p-2.5 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-xs">
+                                    {error}
+                                </div>
+                            )}
                         </div>
 
                         {/* Bottom Section: Show Settings */}
                         <div className="space-y-6">
                             <h3 className="text-xl font-semibold text-white border-b border-gray-800 pb-4 flex items-center gap-2">
-                                <CalendarIcon className="w-5 h-5 text-purple-400" />
+                                <Calendar className="w-5 h-5 text-purple-400" />
                                 Show Settings
                             </h3>
                             <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700/50">
@@ -202,15 +232,6 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                     </div>
                 </div>
             </div>
-
-            {/* Delete Confirmation Modal */}
-            <DeleteConfirmModal
-                isOpen={deleteModalOpen}
-                onClose={() => setDeleteModalOpen(false)}
-                onConfirm={handleDelete}
-                title="Delete Schedule Slot"
-                message={`Are you sure you want to delete this schedule slot for "${slot.show.title}"? This action cannot be undone.`}
-            />
         </>
     )
 }

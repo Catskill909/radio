@@ -95,23 +95,9 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
     }, [stationTimezone]);
 
     const [slots, setSlots] = useState(initialSlots)
-    const [events, setEvents] = useState(() => {
-        const converted = initialSlots.map(convertSlotToEvent);
-
-        // DEBUG: Log split slots
-        const splitSlots = converted.filter(e => e.splitGroupId);
-        if (splitSlots.length > 0) {
-            console.log('=== SPLIT SLOTS DEBUG ===');
-            splitSlots.forEach(event => {
-                console.log(`${event.splitPosition}: ${event.title}`);
-                console.log(`  Start: ${event.start.toLocaleString()}`);
-                console.log(`  End: ${event.end.toLocaleString()}`);
-                console.log(`  Split Group: ${event.splitGroupId}`);
-            });
-        }
-
-        return converted;
-    })
+    const [events, setEvents] = useState(
+        initialSlots.map(convertSlotToEvent)
+    )
 
     // Controlled state for calendar navigation
     // ✅ STATION TIMEZONE: Initialize to current time in station timezone
