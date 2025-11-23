@@ -862,10 +862,9 @@ export async function deleteShow(id: string) {
     });
 
     if (!show) {
-        // Show already deleted or doesn't exist - just revalidate and redirect
+        // Show already deleted or doesn't exist - just revalidate
         revalidatePath("/shows");
         revalidatePath("/schedule");
-        redirect("/shows");
         return;
     }
 
@@ -874,7 +873,6 @@ export async function deleteShow(id: string) {
     });
     revalidatePath("/shows");
     revalidatePath("/schedule");
-    redirect("/shows");
 }
 
 // ============================================

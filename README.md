@@ -7,7 +7,8 @@ A comprehensive radio station management system for scheduling shows, automated 
 - **Show management** – Create and manage shows with rich metadata (host, artwork, type, tags, explicit flag, recording config).
 - **Visual schedule** – Calendar-based week/day views with recurring slots, conflict prevention, tooltips, and edit modals.
 - **Station-wide timezone** – Single global station timezone configurable in Settings; schedule views, the live clock, and the recorder service all use station time, independent of user or server location.
-- **Automated recording** – Per-show recording toggles, Icecast stream source selection, background recorder service, and status tracking.
+- Automated recording – Per-show recording toggles, Icecast stream source selection, background recorder service, and status tracking.
+  - **Smart transcoding**: automatically detects stream format (e.g., AAC) and transcodes to MP3 when needed, otherwise copies the stream directly.
 - **Auto-extending recurring shows** – Weekly shows are generated roughly a year ahead and automatically extended in the background so long-running programs keep their slots without manual upkeep.
 - **Recordings & episodes** – Turn live recordings into podcast episodes with post-recording episode metadata editing (titles, descriptions, explicit flag, etc.).
 - **Audio playback & editing** – Scrub-enabled audio player across the app plus an in-browser waveform editor to trim, fade, and normalize recordings before publishing.

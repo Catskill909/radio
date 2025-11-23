@@ -102,10 +102,41 @@ async function startRecording(slot: any) {
         },
     })
 
+    // Check stream format to decide on transcoding
+    let useTranscoding = false;
+    try {
+        await new Promise<void>((resolve) => {
+            ffmpeg.ffprobe(sourceUrl, (err, metadata) => {
+                if (!err && metadata && metadata.streams) {
+                    const audioStream = metadata.streams.find(s => s.codec_type === 'audio');
+                    // If codec is not mp3, we must transcode to fit in .mp3 container
+                    if (audioStream && audioStream.codec_name !== 'mp3') {
+                        console.log(`Stream codec is ${audioStream.codec_name}, enabling transcoding to mp3`)
+                        useTranscoding = true;
+                    }
+                } else {
+                    console.warn(`Could not probe stream ${sourceUrl}, defaulting to transcoding for safety`)
+                    useTranscoding = true;
+                }
+                resolve();
+            });
+        });
+    } catch (e) {
+        console.error(`Error probing stream, defaulting to transcoding:`, e);
+        useTranscoding = true;
+    }
+
     const command = ffmpeg(sourceUrl)
-        .audioCodec('copy') // Direct stream copy
+
+    if (useTranscoding) {
+        command.audioCodec('libmp3lame')
+    } else {
+        command.audioCodec('copy')
+    }
+
+    command
         .on('start', (commandLine) => {
-            console.log(`FFmpeg started for ${slot.show.title}`)
+            console.log(`FFmpeg started for ${slot.show.title} (Transcoding: ${useTranscoding})`)
             console.log(`Command: ${commandLine}`)
         })
         .on('error', async (err) => {

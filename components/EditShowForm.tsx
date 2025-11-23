@@ -23,7 +23,8 @@ export default function EditShowForm({ show, streams }: { show: Show; streams: {
 
     const handleDelete = async () => {
         await deleteShow(show.id);
-        // Router will redirect via the server action
+        router.push("/shows");
+        router.refresh();
     };
 
     return (

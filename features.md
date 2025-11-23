@@ -104,6 +104,7 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Writes audio files to `/recordings`
   - Updates recording status in the database
   - Uses the station-wide timezone consistently with the calendar "now" marker
+  - **Smart Transcoding**: Automatically detects stream format (e.g., AAC) and transcodes to MP3 if necessary, or uses direct stream copy for MP3 sources
 - **Automatic recurring extension**
   - Recurring shows are extended automatically in the background as they approach the end of their scheduled horizon (no manual upkeep required for long-running programs)
 - **Recording lifecycle**
@@ -269,7 +270,10 @@ This section is intentionally lightweight – it is meant to be edited as priori
   - **Episode Publishing Controls**
     - Toggle auto-publish recordings on/off (currently always enabled)
     - Default episode numbering scheme: sequential vs date-based vs manual
-  - _Note: Recording bitrate will remain "copy from source" for zero quality loss and minimal CPU overhead. Quality control happens at the Icecast source level._
+    - **Transcoding & Stream Settings**
+      - Customizable bitrate for transcoded recordings (e.g., 128k vs 192k vs 256k)
+      - Option to force transcoding even for compatible streams (e.g., to normalize bitrate)
+      - _Note: Default behavior remains "copy from source" for MP3 streams to ensure zero quality loss and minimal CPU overhead._
 - **Public-facing listener pages**
   - Public show pages with latest episodes and embedded players
   - Simple station home page ("On Air Now" + upcoming schedule)
