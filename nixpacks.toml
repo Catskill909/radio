@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ['nodejs_20', 'ffmpeg-full']
+
+[phases.install]
+cmds = ['npm install', 'npm install pm2 -g']
+
+[phases.build]
+cmds = ['npx prisma generate', 'npm run build']
+
+[start]
+cmd = 'pm2-runtime start ecosystem.config.js'
