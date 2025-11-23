@@ -4,46 +4,72 @@ Complete step-by-step guide to migrate from SQLite to PostgreSQL for production 
 
 ---
 
-## 🎯 Critical: Dual Environment Setup
+## 🎯 Environment Strategy
 
-**IMPORTANT:** This setup allows you to work with **both** databases simultaneously:
+You have two choices for your database setup. **Option 2 is what you asked for** (maximum consistency).
 
-- ✅ **Local Development:** Keep using SQLite (fast, simple, no setup)
-- ✅ **Production (Coolify):** Use PostgreSQL (scalable, container-friendly)
+### Option 1: Hybrid (Easiest)
+- **Local:** SQLite (Zero setup, just works)
+- **Prod:** PostgreSQL (Robust, scalable)
+- **Pros:** No need to install Postgres locally.
+- **Cons:** Slight differences between dev and prod.
 
-### How It Works
+### Option 2: Unified (Best Parity) 🌟
+- **Local:** PostgreSQL
+- **Prod:** PostgreSQL
+- **Pros:** **Exact match** between dev and prod. No "it works on my machine" bugs.
+- **Cons:** You must install PostgreSQL on your Mac.
 
-**Same codebase, different database based on environment!**
+### How to do Option 2 (Unified)
 
-**Local (Your Mac):**
-```env
-# .env file
-DATABASE_URL="file:./dev.db"
+1. **Install Postgres locally** (e.g., [Postgres.app](https://postgresapp.com/) or `brew install postgresql`).
+2. **Update `.env` locally:**
+   ```env
+   DATABASE_URL="postgresql://paulhenshaw@localhost:5432/radio_suite_dev"
+   ```
+3. **Update `schema.prisma`:**
+   ```prisma
+   datasource db {
+     provider = "postgresql"
+     url      = env("DATABASE_URL")
+   }
+   ```
+
+**Result:** You run the **exact same** database engine everywhere. 🚀
+
+---
+
+## 🏗️ Architecture Overview
+
+## 🏗️ Architecture Overview
+
+Here is how your "Portable Package" fits with the database in both environments:
+
+### 1. Local (Your Mac)
+Everything runs directly on your machine. Simplicity is key.
+```mermaid
+graph TD
+    A[Your Mac] --> B[Web App + Recorder]
+    B --> C[(SQLite File dev.db)]
 ```
-→ Uses SQLite → All your current data stays intact → No setup needed
 
-**Production (Coolify):**
-```env
-# Set in Coolify dashboard
-DATABASE_URL="postgresql://user:password@host:5432/radio_suite"
-```
-→ Uses PostgreSQL → Coolify manages it → Scalable for production
-
-### The Magic: One Schema, Two Databases
-
-Prisma automatically detects which database to use based on the connection string format:
-
-```prisma
-datasource db {
-  provider = "postgresql"  // Works for BOTH!
-  url      = env("DATABASE_URL")
-}
+### 2. Production (Coolify)
+Your App and Recorder run together in one container (The Portable Package), connecting to a robust managed database.
+```mermaid
+graph TD
+    subgraph Coolify_Server
+        D[Portable Package Container]
+        E[(PostgreSQL Database)]
+    end
+    
+    D -- Web App + Recorder (PM2) --> D
+    D -- Connects via URL --> E
 ```
 
-- Connection starts with `file:` → Prisma uses SQLite
-- Connection starts with `postgresql:` → Prisma uses PostgreSQL
-
-**You never have to change code or schema between environments!** 🎉
+**Why separate the DB in production?**
+- **Safety:** If your app crashes, your data is safe in the separate DB.
+- **Backups:** Coolify automatically backs up the PostgreSQL container.
+- **Performance:** PostgreSQL handles heavy traffic better than a file.
 
 ---
 
@@ -307,19 +333,19 @@ NODE_ENV=production
 nixPkgs = ['nodejs_20', 'ffmpeg-full']
 
 [phases.install]
-cmds = ['npm install']
+cmds = ['npm install', 'npm install pm2 -g']
 
 [phases.build]
 cmds = ['npx prisma generate', 'npm run build']
 
 [start]
-cmd = 'npm start'
+cmd = 'pm2-runtime start ecosystem.config.js'
 ```
 
 Commit this file:
 ```bash
 git add nixpacks.toml
-git commit -m "Add Nixpacks config for FFmpeg"
+git commit -m "Add Nixpacks config for FFmpeg and PM2"
 git push
 ```
 
@@ -353,67 +379,37 @@ This creates all your database tables in PostgreSQL.
 
 ---
 
-## Phase 4: Deploy Recorder Service
+## Phase 4: The "Portable Package" (Web + Recorder)
 
-The recorder service needs to run separately.
+We use **PM2** to run both the website and the recorder in the **same container**. This mirrors your local development setup and keeps everything in one place.
 
-### Option A: Separate Coolify App (Recommended)
+### 1. Create `ecosystem.config.js`
 
-1. Create **New Application** in Coolify
-2. Name: `radio-suite-recorder`
-3. Same Git repo, same branch
-4. **Environment Variables:**
-   - Same `DATABASE_URL` as main app
-   - Add: `SERVICE_TYPE=recorder`
-5. **Build configuration:**
-   - Create file: `nixpacks-recorder.toml`
-   ```toml
-   [phases.setup]
-   nixPkgs = ['nodejs_20', 'ffmpeg-full']
+**File:** `ecosystem.config.js` (NEW in project root)
 
-   [start]
-   cmd = 'npx tsx recorder-service.ts'
-   ```
-6. In Coolify, set build pack config to use `nixpacks-recorder.toml`
-7. **Storage:** Mount SAME volumes as main app:
-   - `/app/recordings` → same source as main app
-   - `/app/uploads` → same source as main app
-8. Deploy!
+```javascript
+module.exports = {
+  apps: [
+    {
+      name: 'web',
+      script: 'npm',
+      args: 'start',
+    },
+    {
+      name: 'recorder',
+      script: 'npx',
+      args: 'tsx recorder-service.ts',
+    },
+  ],
+};
+```
 
-### Option B: Background Process in Main App (Simpler)
+### 2. Why this is better for you:
+- **One Service:** You only manage one "App" in Coolify.
+- **Shared Storage:** The recorder writes to `/recordings` and the website reads from it instantly. No complex networking needed.
+- **Mirrors Local:** It works exactly like `npm run dev` (which runs both), but production-ready.
 
-Use PM2 to run both processes in one container.
-
-1. Install PM2:
-   ```bash
-   npm install pm2 --save
-   ```
-
-2. Create `ecosystem.config.js`:
-   ```javascript
-   module.exports = {
-     apps: [
-       {
-         name: 'web',
-         script: 'npm',
-         args: 'start',
-       },
-       {
-         name: 'recorder',
-         script: 'npx',
-         args: 'tsx recorder-service.ts',
-       },
-     ],
-   };
-   ```
-
-3. Update `nixpacks.toml`:
-   ```toml
-   [start]
-   cmd = 'npx pm2-runtime start ecosystem.config.js'
-   ```
-
-4. Redeploy!
+**Note:** We already configured `nixpacks.toml` in Phase 3 to use this file automatically! ✅
 
 ---
 
