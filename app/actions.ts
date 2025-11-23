@@ -203,54 +203,176 @@ async function checkSlotOverlap(
 
 export async function createScheduleSlot(
     showId: string,
-    startTime: Date,  // ✅ STATION TIMEZONE: Should be UTC Date from station-time conversion
-    endTime: Date,    // ✅ STATION TIMEZONE: Should be UTC Date from station-time conversion
+    startTime: Date,  // Date from browser - serialized to UTC when sent to server
+    endTime: Date,    // Date from browser - serialized to UTC when sent to server
     sourceUrl?: string,
     isRecurring: boolean = false
 ) {
-    // Note: startTime and endTime should already be UTC instants,
-    // converted from station-local time by the calling code (e.g., modal)
+    // Get station timezone and conversion utilities
+    const { getStationTimezone } = await import('@/lib/station-time');
+    const { toZonedTime, fromZonedTime } = await import('date-fns-tz');
+    const stationTz = getStationTimezone();
+
+    // Note: startTime and endTime are already UTC Dates after client->server serialization
+    // We just need to convert to station time for midnight detection
     const slotsToCreate = [];
 
-    if (isRecurring) {
-        // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
-        for (let i = 0; i < 52; i++) {
-            const slotStart = new Date(startTime);
-            slotStart.setDate(slotStart.getDate() + (i * 7));
+    // Convert UTC dates to station time for midnight detection
+    const startStation = toZonedTime(startTime, stationTz);
+    const endStation = toZonedTime(endTime, stationTz);
 
-            const slotEnd = new Date(endTime);
-            slotEnd.setDate(slotEnd.getDate() + (i * 7));
+    // Check if slot crosses midnight IN STATION TIMEZONE
+    const crossesMidnight = startStation.getDate() !== endStation.getDate() ||
+        startStation.getMonth() !== endStation.getMonth() ||
+        startStation.getFullYear() !== endStation.getFullYear();
 
-            // Check for overlaps with existing slots
-            const overlapping = await checkSlotOverlap(slotStart, slotEnd);
-            if (overlapping) {
-                throw new Error(
-                    `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+    if (crossesMidnight) {
+        // Generate a unique group ID for linked slots
+        const splitGroupId = crypto.randomUUID();
+
+        // Calculate midnight boundary IN STATION TIMEZONE
+        const midnightStation = new Date(startStation);
+        midnightStation.setDate(midnightStation.getDate() + 1);
+        midnightStation.setHours(0, 0, 0, 0);
+
+        // Convert midnight back to UTC for storage
+        const midnight = fromZonedTime(
+            `${midnightStation.getFullYear()}-${String(midnightStation.getMonth() + 1).padStart(2, '0')}-${String(midnightStation.getDate()).padStart(2, '0')}T00:00:00`,
+            stationTz
+        );
+
+        if (isRecurring) {
+            // Generate pairs of slots for the next 52 weeks
+            for (let i = 0; i < 52; i++) {
+                const weekOffset = i * 7;
+
+                // First slot (before midnight)
+                const slot1Start = new Date(startTime);
+                slot1Start.setDate(slot1Start.getDate() + weekOffset);
+                const slot1End = new Date(midnight);
+                slot1End.setDate(slot1End.getDate() + weekOffset);
+
+                // Second slot (after midnight)
+                const slot2Start = new Date(midnight);
+                slot2Start.setDate(slot2Start.getDate() + weekOffset);
+                const slot2End = new Date(endTime);
+                slot2End.setDate(slot2End.getDate() + weekOffset);
+
+                // Check for overlaps
+                const overlap1 = await checkSlotOverlap(slot1Start, slot1End);
+                const overlap2 = await checkSlotOverlap(slot2Start, slot2End);
+
+                if (overlap1) {
+                    throw new Error(
+                        `Cannot create recurring show: Week ${i + 1} first half overlaps with "${overlap1.show.title}"`
+                    );
+                }
+                if (overlap2) {
+                    throw new Error(
+                        `Cannot create recurring show: Week ${i + 1} second half overlaps with "${overlap2.show.title}"`
+                    );
+                }
+
+                slotsToCreate.push(
+                    {
+                        showId,
+                        startTime: slot1Start,
+                        endTime: slot1End,
+                        sourceUrl,
+                        isRecurring: true,
+                        splitGroupId: `${splitGroupId}-week${i}`,
+                        splitPosition: 'first'
+                    },
+                    {
+                        showId,
+                        startTime: slot2Start,
+                        endTime: slot2End,
+                        sourceUrl,
+                        isRecurring: true,
+                        splitGroupId: `${splitGroupId}-week${i}`,
+                        splitPosition: 'second'
+                    }
                 );
+            }
+        } else {
+            // Single pair of slots
+            const overlap1 = await checkSlotOverlap(startTime, midnight);
+            const overlap2 = await checkSlotOverlap(midnight, endTime);
+
+            if (overlap1) {
+                throw new Error(`First half of time slot overlaps with existing show: ${overlap1.show.title}`);
+            }
+            if (overlap2) {
+                throw new Error(`Second half of time slot overlaps with existing show: ${overlap2.show.title}`);
+            }
+
+            slotsToCreate.push(
+                {
+                    showId,
+                    startTime: startTime,
+                    endTime: midnight,
+                    sourceUrl,
+                    isRecurring: false,
+                    splitGroupId,
+                    splitPosition: 'first'
+                },
+                {
+                    showId,
+                    startTime: midnight,
+                    endTime: endTime,
+                    sourceUrl,
+                    isRecurring: false,
+                    splitGroupId,
+                    splitPosition: 'second'
+                }
+            );
+        }
+    } else {
+        // Same-day slots (existing logic)
+        if (isRecurring) {
+            // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
+            for (let i = 0; i < 52; i++) {
+                const slotStart = new Date(startTime);
+                slotStart.setDate(slotStart.getDate() + (i * 7));
+
+                const slotEnd = new Date(endTime);
+                slotEnd.setDate(slotEnd.getDate() + (i * 7));
+
+                // Check for overlaps with existing slots
+                const overlapping = await checkSlotOverlap(slotStart, slotEnd);
+                if (overlapping) {
+                    throw new Error(
+                        `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+                    );
+                }
+
+                slotsToCreate.push({
+                    showId,
+                    startTime: slotStart,
+                    endTime: slotEnd,
+                    sourceUrl,
+                    isRecurring: true,
+                    splitGroupId: null,
+                    splitPosition: null,
+                });
+            }
+        } else {
+            // Single slot - check for overlap
+            const overlapping = await checkSlotOverlap(startTime, endTime);
+            if (overlapping) {
+                throw new Error(`Time slot overlaps with existing show: ${overlapping.show.title}`);
             }
 
             slotsToCreate.push({
                 showId,
-                startTime: slotStart,
-                endTime: slotEnd,
+                startTime: startTime,
+                endTime: endTime,
                 sourceUrl,
-                isRecurring: true,
+                isRecurring: false,
+                splitGroupId: null,
+                splitPosition: null,
             });
         }
-    } else {
-        // Single slot - check for overlap
-        const overlapping = await checkSlotOverlap(startTime, endTime);
-        if (overlapping) {
-            throw new Error(`Time slot overlaps with existing show: ${overlapping.show.title}`);
-        }
-
-        slotsToCreate.push({
-            showId,
-            startTime,
-            endTime,
-            sourceUrl,
-            isRecurring: false,
-        });
     }
 
     await prisma.scheduleSlot.createMany({
@@ -297,7 +419,7 @@ export async function updateScheduleSlot(
     // If recurring was just enabled, create additional weekly slots
     if (isRecurring && !existingSlot.isRecurring) {
         const slotsToCreate = [];
-        
+
         // Generate slots for the next 51 weeks (starting from week 2, since week 1 already exists)
         for (let i = 1; i < 52; i++) {
             const slotStart = new Date(startTime);

@@ -81,9 +81,11 @@ export default function ScheduleModal({
     const handleScheduleExisting = async () => {
         if (!selectedShowId || !selectedSlot) return
 
+        // Calculate end time based on duration
         const endTime = new Date(selectedSlot.start)
         endTime.setMinutes(endTime.getMinutes() + duration)
 
+        // Send browser-local dates to server - server will convert to station time
         await createScheduleSlot(selectedShowId, selectedSlot.start, endTime, undefined, isRecurring)
         onClose()
         window.location.reload() // Refresh to show new slot
@@ -210,7 +212,15 @@ export default function ScheduleModal({
                                     <input
                                         type="number"
                                         value={duration}
-                                        onChange={(e) => setDuration(parseInt(e.target.value))}
+                                        onChange={(e) => {
+                                            const val = e.target.value === '' ? '' : parseInt(e.target.value);
+                                            setDuration(val as any);
+                                        }}
+                                        onBlur={(e) => {
+                                            if (!e.target.value || isNaN(parseInt(e.target.value))) {
+                                                setDuration(60);
+                                            }
+                                        }}
                                         min="15"
                                         step="15"
                                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
@@ -434,7 +444,15 @@ export default function ScheduleModal({
                                     <input
                                         type="number"
                                         value={duration}
-                                        onChange={(e) => setDuration(parseInt(e.target.value))}
+                                        onChange={(e) => {
+                                            const val = e.target.value === '' ? '' : parseInt(e.target.value);
+                                            setDuration(val as any);
+                                        }}
+                                        onBlur={(e) => {
+                                            if (!e.target.value || isNaN(parseInt(e.target.value))) {
+                                                setDuration(60);
+                                            }
+                                        }}
                                         min="15"
                                         step="15"
                                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"

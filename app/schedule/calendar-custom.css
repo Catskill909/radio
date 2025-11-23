@@ -248,3 +248,40 @@
         font-size: 16px !important;
     }
 }
+
+/* Split Midnight-Crossing Shows */
+.rbc-event.split-show-first {
+    border-right: 3px dashed #fbbf24 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    position: relative;
+}
+
+.rbc-event.split-show-first::after {
+    content: '→';
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fbbf24;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.rbc-event.split-show-second {
+    border-left: 3px dashed #fbbf24 !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    position: relative;
+}
+
+.rbc-event.split-show-second::before {
+    content: '←';
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fbbf24;
+    font-weight: bold;
+    opacity: 0.8;
+}

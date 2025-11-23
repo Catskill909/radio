@@ -38,6 +38,8 @@ interface ScheduleSlot {
     startTime: Date
     endTime: Date
     isRecurring: boolean
+    splitGroupId: string | null
+    splitPosition: string | null
 }
 
 interface EditSlotModalProps {

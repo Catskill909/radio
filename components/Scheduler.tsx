@@ -51,6 +51,8 @@ interface Slot {
     startTime: Date
     endTime: Date
     isRecurring: boolean
+    splitGroupId: string | null
+    splitPosition: string | null
 }
 
 interface SchedulerProps {
@@ -62,20 +64,54 @@ interface SchedulerProps {
 
 export default function Scheduler({ shows, initialSlots, streams, stationTimezone }: SchedulerProps) {
     // ✅ STATION TIMEZONE: Convert UTC timestamps from DB to station-local time for display
-    const convertSlotToEvent = useCallback((slot: Slot) => ({
-        id: slot.id,
-        title: slot.show.title,
-        start: toZonedTime(new Date(slot.startTime), stationTimezone),
-        end: toZonedTime(new Date(slot.endTime), stationTimezone),
-        resourceId: slot.showId,
-        isRecurring: slot.isRecurring,
-        type: slot.show.type,
-    }), [stationTimezone]);
+    const convertSlotToEvent = useCallback((slot: Slot) => {
+        // Check if this is part of a split show
+        const isSplit = slot.splitGroupId !== null;
+
+        let start = toZonedTime(new Date(slot.startTime), stationTimezone);
+        let end = toZonedTime(new Date(slot.endTime), stationTimezone);
+
+        // WORKAROUND: react-big-calendar doesn't render events ending exactly at midnight
+        // For split "first" parts, subtract 1 second from end time for display
+        if (isSplit && slot.splitPosition === 'first') {
+            const endMidnight = new Date(end);
+            if (endMidnight.getHours() === 0 && endMidnight.getMinutes() === 0) {
+                end = new Date(end.getTime() - 1000); // Show as 11:59:59 PM instead of 12:00 AM
+            }
+        }
+
+        return {
+            id: slot.id,
+            title: slot.show.title,
+            start,
+            end,
+            resourceId: slot.showId,
+            isRecurring: slot.isRecurring,
+            type: slot.show.type,
+            splitGroupId: slot.splitGroupId,
+            splitPosition: slot.splitPosition,
+            isSplit,
+        };
+    }, [stationTimezone]);
 
     const [slots, setSlots] = useState(initialSlots)
-    const [events, setEvents] = useState(
-        initialSlots.map(convertSlotToEvent)
-    )
+    const [events, setEvents] = useState(() => {
+        const converted = initialSlots.map(convertSlotToEvent);
+
+        // DEBUG: Log split slots
+        const splitSlots = converted.filter(e => e.splitGroupId);
+        if (splitSlots.length > 0) {
+            console.log('=== SPLIT SLOTS DEBUG ===');
+            splitSlots.forEach(event => {
+                console.log(`${event.splitPosition}: ${event.title}`);
+                console.log(`  Start: ${event.start.toLocaleString()}`);
+                console.log(`  End: ${event.end.toLocaleString()}`);
+                console.log(`  Split Group: ${event.splitGroupId}`);
+            });
+        }
+
+        return converted;
+    })
 
     // Controlled state for calendar navigation
     // ✅ STATION TIMEZONE: Initialize to current time in station timezone
@@ -154,8 +190,15 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
             ? `event-${event.type.toLowerCase().replace(/ /g, '-')}`
             : ''
 
+        // Add split show classes
+        const splitClass = event.splitPosition === 'first'
+            ? 'split-show-first'
+            : event.splitPosition === 'second'
+                ? 'split-show-second'
+                : ''
+
         return {
-            className: `${typeClass} ${event.isRecurring ? 'border-l-4 border-yellow-500' : ''}`,
+            className: `${typeClass} ${splitClass} ${event.isRecurring ? 'border-l-4 border-yellow-500' : ''}`.trim(),
         }
     }
 
@@ -197,6 +240,11 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
                                         <span>{format(event.start, "h:mm a")} - {format(event.end, "h:mm a")}</span>
                                     </div>
                                     <div className="text-xs">{duration} minutes</div>
+                                    {event.isSplit && (
+                                        <div className="text-xs text-amber-400">
+                                            {event.splitPosition === 'first' ? '⚡ Continues after midnight' : '⚡ Started before midnight'}
+                                        </div>
+                                    )}
                                     {event.isRecurring && (
                                         <div className="flex items-center gap-1 text-xs text-yellow-400">
                                             <Repeat className="w-3 h-3" />
