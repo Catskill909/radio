@@ -279,27 +279,33 @@ This section is intentionally lightweight – it is meant to be edited as priori
 
 ### P2 – Medium-Term
 
-- **Analytics & reporting**
-  - Per-show and per-episode download counts (from RSS logs or hosting)
-  - Basic time-series dashboards for episode popularity
-- **Multi-user support**
-  - Authentication and roles (admin / producer / host)
-  - Audit trail for schedule and metadata changes
-- **Cloud storage for recordings**
-  - Configurable remote storage (e.g., S3) instead of local `/recordings` folder
-  - Background upload and URL rewrites in RSS feeds
-- **Custom recording source URLs**
-  - Allow entering arbitrary stream URLs beyond managed Icecast entries
+- **Public-Facing Listener Experience** (Inspired by Airtime Pro & LibreTime)
+  - **Station Microsite**: A dedicated public landing page (`/public`) featuring:
+    - "On Air Now" player with live metadata
+    - Visual weekly schedule grid (read-only version of admin calendar)
+    - Show pages with descriptions, host bios, and episode archives
+  - **Embeddable Widgets**:
+    - **Schedule Widget**: Drop-in script to show "Upcoming Shows" on external station websites
+    - **Player Widget**: Portable live stream player
+    - **Now Playing**: Simple JSON/HTML endpoint for current show metadata
+  - **Public API**: Read-only REST API for developers to build custom frontends
+
+- **Analytics & Reporting**
+  - Per-show and per-episode download counts
+  - Listener peak times and geographic breakdown (via Icecast stats)
+  - Retention graphs for podcast episodes
 
 ### P3 – Longer-Term / Ideas
 
-- **Advanced scheduling rules**
-  - Blackout windows, templates, and copy/paste slots across weeks
-- **Listener-focused enhancements**
-  - Public "Now Playing" widget driven from schedule and streams
-- **Richer audio tooling**
-  - Waveform previews in the recordings list
-  - Per-episode loudness normalization presets
+- **Advanced Automation & Production** (Inspired by Rivendell)
+  - **Remote Voice Tracking**: Web interface for hosts to record links/intros between tracks from home
+  - **Cloud Library Management**: Upload and tag music/content remotely
+  - **Log/Clock Management**: Define strict rotation rules and hour templates
+
+- **System Enhancements**
+  - **Multi-user Roles**: Granular permissions (Admin vs. DJ vs. Scheduler)
+  - **Cloud Storage**: S3-compatible backend for recordings and assets
+  - **Visual Waveform Previews**: In-browser scrubbing for all library content
 
 ---
 
