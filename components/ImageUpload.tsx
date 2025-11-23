@@ -93,7 +93,7 @@ export default function ImageUpload({ value, onChange }: ImageUploadProps) {
 
     if (value) {
         return (
-            <div className="relative w-full h-64 bg-gray-900 rounded-lg overflow-hidden border border-gray-700 group">
+            <div className="relative w-full aspect-square bg-gray-900 rounded-lg overflow-hidden border border-gray-700 group">
                 <Image
                     src={value}
                     alt="Show cover"

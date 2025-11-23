@@ -19,12 +19,12 @@ export default async function SettingsPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-1 overflow-y-auto pb-8">
-                {/* Left Column: Identity */}
+            <div className="flex-1 overflow-y-auto pb-8 space-y-8">
+                {/* Full Width: Station Identity */}
                 <StationIdentityForm initialSettings={settings} />
 
-                {/* Right Column: Regional */}
-                <div className="space-y-8">
+                {/* Below: Timezone Controls */}
+                <div className="max-w-md">
                     <StationTimezoneForm initialTimezone={timezone} />
                 </div>
             </div>

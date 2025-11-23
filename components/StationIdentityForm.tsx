@@ -65,62 +65,65 @@ export default function StationIdentityForm({ initialSettings }: StationIdentity
                 </div>
             )}
 
-            <div className="space-y-4">
-                {/* Station Name */}
-                <div className="space-y-2">
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                        Station Name
-                    </label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        defaultValue={initialSettings.name || ''}
-                        placeholder="My Radio Station"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-600"
-                    />
+            <div className="flex gap-8">
+                {/* Left Side: Text Fields (60%) */}
+                <div className="flex-1 space-y-4">
+                    {/* Station Name */}
+                    <div className="space-y-2">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+                            Station Name
+                        </label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            defaultValue={initialSettings.name || ''}
+                            placeholder="My Radio Station"
+                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-600"
+                        />
+                    </div>
+
+                    {/* Description / Tagline */}
+                    <div className="space-y-2">
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-300 flex items-center gap-2">
+                            <FileText className="w-4 h-4 text-gray-500" />
+                            Description / Tagline
+                        </label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            defaultValue={initialSettings.description || ''}
+                            placeholder="The best music in the world..."
+                            rows={3}
+                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-600 resize-none"
+                        />
+                    </div>
+
+                    {/* Contact Email */}
+                    <div className="space-y-2">
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-300 flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-gray-500" />
+                            Contact Email
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            defaultValue={initialSettings.email || ''}
+                            placeholder="contact@station.com"
+                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-600"
+                        />
+                        <p className="text-xs text-gray-500">Used as the owner email for podcast feeds.</p>
+                    </div>
                 </div>
 
-                {/* Description / Tagline */}
-                <div className="space-y-2">
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-300 flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-gray-500" />
-                        Description / Tagline
-                    </label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        defaultValue={initialSettings.description || ''}
-                        placeholder="The best music in the world..."
-                        rows={3}
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-600 resize-none"
-                    />
-                </div>
-
-                {/* Contact Email */}
-                <div className="space-y-2">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-300 flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-gray-500" />
-                        Contact Email
-                    </label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        defaultValue={initialSettings.email || ''}
-                        placeholder="contact@station.com"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-600"
-                    />
-                    <p className="text-xs text-gray-500">Used as the owner email for podcast feeds.</p>
-                </div>
-
-                {/* Station Artwork */}
-                <div className="space-y-2">
+                {/* Right Side: Cover Image (40%, Square Aspect) */}
+                <div className="w-80 flex-shrink-0 space-y-2">
                     <label className="block text-sm font-medium text-gray-300 flex items-center gap-2">
                         <ImageIcon className="w-4 h-4 text-gray-500" />
                         Default Artwork
                     </label>
-                    <div className="mt-1">
+                    <div className="aspect-square w-full">
                         <ImageUpload value={logoUrl} onChange={setLogoUrl} />
                     </div>
                     <p className="text-xs text-gray-500">Fallback image for shows without their own cover art.</p>
@@ -131,7 +134,7 @@ export default function StationIdentityForm({ initialSettings }: StationIdentity
                 <button
                     type="submit"
                     disabled={isSaving}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-sm font-medium text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isSaving ? (
                         <>Saving...</>
