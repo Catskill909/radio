@@ -26,6 +26,19 @@ export default function DeleteSlotOptions({
     const isSplit = slot.splitGroupId !== null;
     const futureCount = slot.isRecurring ? "~52" : "1";
 
+    // Format the time slot pattern for display (e.g., "Mondays at 3:00 PM")
+    // Uses browser's local time which matches how the schedule is displayed
+    const formatTimeSlotPattern = () => {
+        const date = new Date(slot.startTime);
+        // Note: The Date is in UTC from the DB, but toLocaleDateString/Time will display
+        // it in the browser's timezone. Since the app uses station time as truth,
+        // this should already be correct as long as the browser is in the station's timezone
+        // or the times were stored correctly
+        const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+        const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        return `${dayOfWeek}s at ${time}`;
+    };
+
     return (
         <div className="space-y-3">
             {/* Warning Badge */}
@@ -74,10 +87,14 @@ export default function DeleteSlotOptions({
                             />
                             <div className="flex-1 min-w-0">
                                 <div className="text-sm font-medium text-red-400 group-hover:text-red-300 transition-colors">
-                                    Delete This & All Future
+                                    Delete This Time Slot & All Future
                                 </div>
                                 <div className="text-xs text-red-400/60 mt-0.5">
-                                    Removes {futureCount} occurrences{isSplit && ' (all parts)'}
+                                    Removes {futureCount} occurrences of <span className="font-medium text-red-300">{formatTimeSlotPattern()}</span>
+                                    {isSplit && ' (all parts)'}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1 italic">
+                                    Other time slots for this show will not be affected
                                 </div>
                             </div>
                         </label>

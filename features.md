@@ -57,6 +57,13 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - **Single Instance**: Delete just one specific show (automatically handles both parts of split shows)
   - **This & All Future**: Delete the current show and all future recurring instances
   - Visual warnings for complex deletions (split/recurring) and impact preview
+- **Time-Slot-Specific Deletion** 🆕
+  - Delete individual time slots without affecting other rebroadcasts of the same show
+  - **Example**: If "Talk Radio" airs Monday 3pm, Monday 11pm (rebroadcast), and Tuesday 3pm, deleting Monday 3pm only removes that specific time slot
+  - Pattern matching based on day-of-week + time-of-day in station timezone
+  - Clear UI messaging: "Delete This Time Slot & All Future - Removes ~52 occurrences of Mondays at 3:00 PM"
+  - Preserves other time slots: "Other time slots for this show will not be affected"
+  - Critical for radio schedules with multiple daily airings and rebroadcasts
 
 ---
 

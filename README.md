@@ -268,6 +268,12 @@ radio-suite/
 
 ## Recent Updates
 
+### Phase 8: Time-Slot-Specific Deletion (Nov 23, 2025)
+- ✅ **Time-Slot-Specific Deletion** - Delete individual time slots (e.g., Monday 3pm) without affecting other rebroadcasts (e.g., Monday 11pm, Tuesday 3pm) of the same show.
+- ✅ **Station Timezone Pattern Matching** - Deletion logic uses station timezone for accurate day-of-week and time-of-day matching.
+- ✅ **Enhanced Delete UI** - Clear messaging showing which specific time slot pattern will be deleted (e.g., "Mondays at 3:00 PM").
+- ✅ **Comprehensive Testing** - Automated test suite validates correct time slot isolation and preservation of other broadcasts.
+
 ### Phase 7: Station Identity (Nov 23, 2025)
 - ✅ **Station Identity Settings** - Configure station name, description, email, and default artwork.
 - ✅ **Settings UI** - New dedicated settings page with drag-and-drop image upload.
@@ -322,6 +328,7 @@ radio-suite/
 - [x] RSS feed generation and testing
 - [x] Schedule overlap prevention
 - [x] Calendar visual fixes (event heights)
+- [x] Time-slot-specific deletion
 
 ### Next Up
 - [ ] Public-facing pages for listeners

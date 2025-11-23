@@ -483,8 +483,20 @@ export async function deleteScheduleSlot(
         }
     }
 
-    // Handle recurring shows (delete this and future instances)
+    // Handle recurring shows - MATCH BY TIME SLOT PATTERN (day-of-week + time-of-day)
+    // CRITICAL: Use station timezone, not UTC, as the single source of truth
     if (options?.deleteMode === 'this-and-future' && slot.isRecurring) {
+        // Get station timezone utilities
+        const { utcToStationTime } = await import('@/lib/station-time');
+
+        // Extract time pattern from the slot being deleted
+        // Convert UTC time to station time first!
+        const slotDateStation = utcToStationTime(slot.startTime);
+        const dayOfWeek = slotDateStation.getDay();
+        const hourOfDay = slotDateStation.getHours();
+        const minuteOfHour = slotDateStation.getMinutes();
+
+        // Get all future recurring slots for this show
         const futureSlots = await prisma.scheduleSlot.findMany({
             where: {
                 showId: slot.showId,
@@ -493,17 +505,25 @@ export async function deleteScheduleSlot(
             }
         });
 
-        for (const futureSlot of futureSlots) {
-            if (!slotsToDelete.includes(futureSlot.id)) {
-                slotsToDelete.push(futureSlot.id);
+        // Filter by matching time pattern (same day-of-week and time-of-day in STATION timezone)
+        const matchingSlots = futureSlots.filter(futureSlot => {
+            const futureStationTime = utcToStationTime(futureSlot.startTime);
+            return futureStationTime.getDay() === dayOfWeek &&
+                futureStationTime.getHours() === hourOfDay &&
+                futureStationTime.getMinutes() === minuteOfHour;
+        });
+
+        for (const matchingSlot of matchingSlots) {
+            if (!slotsToDelete.includes(matchingSlot.id)) {
+                slotsToDelete.push(matchingSlot.id);
             }
 
             // If deleting both parts, also delete linked splits of future instances
-            if (options?.deleteBothParts && futureSlot.splitGroupId) {
+            if (options?.deleteBothParts && matchingSlot.splitGroupId) {
                 const futureLinked = await prisma.scheduleSlot.findFirst({
                     where: {
-                        splitGroupId: futureSlot.splitGroupId,
-                        id: { not: futureSlot.id }
+                        splitGroupId: matchingSlot.splitGroupId,
+                        id: { not: matchingSlot.id }
                     }
                 });
                 if (futureLinked && !slotsToDelete.includes(futureLinked.id)) {
@@ -522,6 +542,8 @@ export async function deleteScheduleSlot(
 
     revalidatePath("/schedule");
 }
+
+
 
 
 export async function getRecordings() {
