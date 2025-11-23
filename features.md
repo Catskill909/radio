@@ -218,15 +218,19 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 
 ---
 
-## 11. Database & Schema
+## 12. Station Identity & Settings
 
 **Status:** Shipped
 
-- **Core entities**
-  - `Show`, `ScheduleSlot`, `Recording`, `Episode`, `IcecastStream`
-- **Prisma workflow**
-  - SQLite with migrations
-  - Documented migration and backup workflow in `PRISMA_WORKFLOW.md`
+- **Station Identity**
+  - **Station Name**: Global name used for RSS feeds, public pages, and browser titles
+  - **Description/Tagline**: Station tagline or description used in metadata
+  - **Contact Email**: Default owner email for podcast feeds and public contact
+  - **Station Artwork**: Default logo/artwork used as a fallback for shows without their own cover image
+- **Settings Page**
+  - Dedicated settings area for managing station identity
+  - Drag-and-drop image uploader for station logo
+  - Real-time validation and feedback
 
 ---
 
@@ -243,11 +247,6 @@ This section is intentionally lightweight – it is meant to be edited as priori
 ### P1 – Near-Term
 
 - **Enhanced Settings & Station Configuration**
-  - **Station Identity**
-    - Station name for RSS feeds and public pages
-    - Station description/tagline
-    - Default contact email for podcast feed ownership
-    - Default station artwork (fallback for shows without images)
   - **Recording Behavior**
     - Pre-roll buffer: "Start recording X seconds early" to prevent cut-offs
     - Post-roll buffer: "Keep recording X seconds after scheduled end" to catch overruns

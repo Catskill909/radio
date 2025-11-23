@@ -13,6 +13,7 @@ A comprehensive radio station management system for scheduling shows, automated 
 - **Audio playback & editing** – Scrub-enabled audio player across the app plus an in-browser waveform editor to trim, fade, and normalize recordings before publishing.
 - **Podcast feeds** – Global RSS feed and per-show iTunes-compatible RSS feeds that automatically reflect show/episode edits, with in-app copy/open UI.
 - **Stream monitoring** – Icecast streams dashboard with health checks, status badges, bitrate/listener stats, and error diagnostics.
+- **Station Identity** – Configure station name, description, email, and default artwork in Settings; used for RSS feeds and public metadata.
 - **Modern admin UI** – Dark theme, responsive layout, modals, tooltips, Settings page, and keyboard shortcuts in the editor workflows.
 
 ### 🎙️ Show Management
@@ -21,6 +22,11 @@ A comprehensive radio station management system for scheduling shows, automated 
 - Show type categorization (Local/Syndicated Podcast/Music)
 - Cover image support
 - Custom descriptions
+
+### 🆔 Station Identity
+- **Centralized Configuration** - Manage station name, description, and contact info in one place
+- **Default Artwork** - Upload a station logo that serves as a fallback for shows without covers
+- **RSS Integration** - Station details automatically populate podcast feed metadata
 
 ### 📅 Advanced Scheduling
 - **Click-to-add scheduling** with a simple visual calendar
@@ -261,6 +267,11 @@ radio-suite/
 - Publication date: publishedAt
 
 ## Recent Updates
+
+### Phase 7: Station Identity (Nov 23, 2025)
+- ✅ **Station Identity Settings** - Configure station name, description, email, and default artwork.
+- ✅ **Settings UI** - New dedicated settings page with drag-and-drop image upload.
+- ✅ **Database Integration** - Migrated settings to database for reliability and consistency.
 
 ### Phase 6: Midnight Support & Smart Delete (Nov 23, 2025)
 - ✅ **Midnight-Crossing Support** - Shows spanning across midnight (e.g., 11 PM - 1 AM) automatically split into linked slots and display correctly across days.
