@@ -263,9 +263,23 @@ async function extendRecurringShows() {
                 const duration = new Date(firstSlot.endTime).getTime() - new Date(firstSlot.startTime).getTime()
                 const slotsToCreate = []
 
+                // ✅ DST-AWARE: Use timezone-aware logic for extension
+                const { add } = require('date-fns');
+                const { toZonedTime, fromZonedTime, format: formatTz } = require('date-fns-tz');
+                const stationTz = getStationTimezone();
+
                 for (let i = 1; i <= 52; i++) {
-                    const newStartTime = new Date(latestSlot.startTime)
-                    newStartTime.setDate(newStartTime.getDate() + (i * 7))
+                    // Convert latest slot to station time
+                    const latestStationStart = toZonedTime(new Date(latestSlot.startTime), stationTz);
+
+                    // Add weeks in station timezone (maintains wall-clock time)
+                    const futureStationStart = add(latestStationStart, { weeks: i });
+
+                    // Convert back to UTC
+                    const newStartTime = fromZonedTime(
+                        formatTz(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                        stationTz
+                    );
                     const newEndTime = new Date(newStartTime.getTime() + duration)
 
                     slotsToCreate.push({

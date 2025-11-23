@@ -56,13 +56,32 @@ export async function createShow(formData: FormData) {
     const slotsToCreate = [];
 
     if (isRecurring) {
+        // ✅ DST-AWARE: Use timezone-aware date arithmetic to maintain wall-clock time
+        const { add } = await import('date-fns');
+        const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+        const { getStationTimezone } = await import('@/lib/station-time');
+        const stationTz = getStationTimezone();
+
         // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
         for (let i = 0; i < 52; i++) {
-            const slotStart = new Date(startDateTime);
-            slotStart.setDate(slotStart.getDate() + (i * 7));
+            // Convert initial UTC time to station timezone
+            const initialStationStart = toZonedTime(startDateTime, stationTz);
+            const initialStationEnd = toZonedTime(endDateTime, stationTz);
 
-            const slotEnd = new Date(endDateTime);
-            slotEnd.setDate(slotEnd.getDate() + (i * 7));
+            // Add weeks in STATION TIMEZONE (maintains wall-clock time across DST)
+            const futureStationStart = add(initialStationStart, { weeks: i });
+            const futureStationEnd = add(initialStationEnd, { weeks: i });
+
+            // Convert back to UTC for database storage
+            // date-fns-tz handles DST offset changes automatically
+            const slotStart = fromZonedTime(
+                format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                stationTz
+            );
+            const slotEnd = fromZonedTime(
+                format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                stationTz
+            );
 
             // Check for overlaps with existing slots
             const overlapping = await checkSlotOverlap(slotStart, slotEnd);
@@ -242,21 +261,34 @@ export async function createScheduleSlot(
         );
 
         if (isRecurring) {
-            // Generate pairs of slots for the next 52 weeks
+            // ✅ DST-AWARE: Generate pairs of slots for the next 52 weeks with timezone logic
+            const { add } = await import('date-fns');
+            const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+
             for (let i = 0; i < 52; i++) {
-                const weekOffset = i * 7;
+                // Convert to station time and add weeks
+                const initialSlot1Start = toZonedTime(startTime, stationTz);
+                const initialMidnight = toZonedTime(midnight, stationTz);
+                const initialSlot2End = toZonedTime(endTime, stationTz);
 
-                // First slot (before midnight)
-                const slot1Start = new Date(startTime);
-                slot1Start.setDate(slot1Start.getDate() + weekOffset);
-                const slot1End = new Date(midnight);
-                slot1End.setDate(slot1End.getDate() + weekOffset);
+                const futureSlot1Start = add(initialSlot1Start, { weeks: i });
+                const futureMidnight = add(initialMidnight, { weeks: i });
+                const futureSlot2End = add(initialSlot2End, { weeks: i });
 
-                // Second slot (after midnight)
-                const slot2Start = new Date(midnight);
-                slot2Start.setDate(slot2Start.getDate() + weekOffset);
-                const slot2End = new Date(endTime);
-                slot2End.setDate(slot2End.getDate() + weekOffset);
+                // Convert back to UTC
+                const slot1Start = fromZonedTime(
+                    format(futureSlot1Start, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
+                const slot1End = fromZonedTime(
+                    format(futureMidnight, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
+                const slot2Start = slot1End; // Midnight is the boundary
+                const slot2End = fromZonedTime(
+                    format(futureSlot2End, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
 
                 // Check for overlaps
                 const overlap1 = await checkSlotOverlap(slot1Start, slot1End);
@@ -416,20 +448,39 @@ export async function updateScheduleSlot(
         },
     });
 
-    // If recurring was just enabled, create additional weekly slots
+    // If toggling recurring ON, generate future slots
     if (isRecurring && !existingSlot.isRecurring) {
+        // ✅ DST-AWARE: Generate future slots with timezone logic
+        const { add } = await import('date-fns');
+        const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+        const { getStationTimezone } = await import('@/lib/station-time');
+        const stationTz = getStationTimezone();
+
+        const duration = endTime.getTime() - startTime.getTime();
         const slotsToCreate = [];
 
-        // Generate slots for the next 51 weeks (starting from week 2, since week 1 already exists)
+        // Generate 51 additional weeks (slot 0 is the updated existing one)
         for (let i = 1; i < 52; i++) {
-            const slotStart = new Date(startTime);
-            slotStart.setDate(slotStart.getDate() + (i * 7));
+            // Convert to station time
+            const initialStationStart = toZonedTime(startTime, stationTz);
+            const initialStationEnd = toZonedTime(endTime, stationTz);
 
-            const slotEnd = new Date(endTime);
-            slotEnd.setDate(slotEnd.getDate() + (i * 7));
+            // Add weeks in station timezone
+            const futureStationStart = add(initialStationStart, { weeks: i });
+            const futureStationEnd = add(initialStationEnd, { weeks: i });
 
-            // Check for overlaps with existing slots
-            const overlapping = await checkSlotOverlap(slotStart, slotEnd);
+            // Convert back to UTC
+            const slotStart = fromZonedTime(
+                format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                stationTz
+            );
+            const slotEnd = fromZonedTime(
+                format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                stationTz
+            );
+
+            // Check for overlaps
+            const overlapping = await checkSlotOverlap(slotStart, slotEnd, id);
             if (overlapping) {
                 throw new Error(
                     `Cannot create recurring slots: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
