@@ -986,32 +986,22 @@ export async function deleteRecording(id: string) {
 }
 
 export async function getStationSettings() {
-    const fs = await import("fs");
-    const path = await import("path");
+    const settings = await prisma.stationSettings.findUnique({
+        where: { id: 'station' }
+    });
 
-    const settingsPath = path.join(process.cwd(), "station-settings.json");
-
-    let timezone = "UTC";
-
-    try {
-        if (fs.existsSync(settingsPath)) {
-            const raw = fs.readFileSync(settingsPath, "utf-8");
-            const parsed = JSON.parse(raw);
-
-            if (parsed && typeof parsed.timezone === "string" && parsed.timezone.trim() !== "") {
-                timezone = parsed.timezone;
-            }
-        } else {
-            const resolved = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            if (resolved && typeof resolved === "string" && resolved.trim() !== "") {
-                timezone = resolved;
-            }
-        }
-    } catch (error) {
-        console.error("Failed to read station settings:", error);
+    if (!settings) {
+        // Return defaults if no settings exist
+        return {
+            timezone: 'UTC',
+            name: 'My Radio Station',
+            description: null,
+            email: null,
+            logoUrl: null
+        };
     }
 
-    return { timezone };
+    return settings;
 }
 
 export async function updateStationTimezoneAction(formData: FormData) {
@@ -1021,20 +1011,51 @@ export async function updateStationTimezoneAction(formData: FormData) {
         return;
     }
 
-    const fs = await import("fs");
-    const path = await import("path");
-    const settingsPath = path.join(process.cwd(), "station-settings.json");
-
-    try {
-        fs.writeFileSync(
-            settingsPath,
-            JSON.stringify({ timezone }, null, 2),
-            "utf-8"
-        );
-    } catch (error) {
-        console.error("Failed to write station settings:", error);
-    }
+    await prisma.stationSettings.upsert({
+        where: { id: 'station' },
+        update: { timezone },
+        create: {
+            id: 'station',
+            timezone
+        }
+    });
 
     revalidatePath("/settings");
     revalidatePath("/schedule");
+}
+
+export async function updateStationIdentityAction(formData: FormData) {
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    const email = formData.get('email') as string;
+    const logoUrl = formData.get('logoUrl') as string;
+
+    console.log('Updating Station Identity:', { name, description, email, logoUrl });
+
+    try {
+        await prisma.stationSettings.upsert({
+            where: { id: 'station' },
+            update: {
+                name,
+                description,
+                email,
+                logoUrl,
+            },
+            create: {
+                id: 'station',
+                timezone: 'UTC',
+                name,
+                description,
+                email,
+                logoUrl,
+            },
+        });
+        console.log('Station Identity updated successfully');
+    } catch (error) {
+        console.error('Error updating Station Identity:', error);
+        throw error;
+    }
+
+    revalidatePath('/settings');
+    revalidatePath('/'); // Revalidate home in case it's used there
 }

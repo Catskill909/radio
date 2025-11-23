@@ -93,8 +93,12 @@ model IcecastStream {
 }
 
 model StationSettings {
-  id        String   @id @default("station")
-  timezone  String   @default("UTC")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default("station")
+  timezone    String   @default("UTC")
+  name        String?  @default("My Radio Station")
+  description String?
+  email       String?
+  logoUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
