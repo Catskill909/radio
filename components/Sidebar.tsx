@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Radio, Calendar, Mic, Rss, ChevronLeft, ChevronRight, Menu, Waves } from "lucide-react";
+import { Radio, Calendar, Mic, Rss, ChevronLeft, ChevronRight, Menu, Waves, HelpCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { clsx } from "clsx";
 import { Tooltip } from "./Tooltip";
@@ -25,6 +25,7 @@ export default function Sidebar() {
         { href: "/recordings", label: "Recordings", icon: Mic },
         { href: "/episodes", label: "Episodes", icon: Rss },
         { href: "/settings", label: "Settings", icon: Menu },
+        { href: "/help", label: "Help & Support", icon: HelpCircle },
     ];
 
     return (
@@ -74,7 +75,7 @@ export default function Sidebar() {
                 )}
             </div>
 
-            <nav className="flex-1 px-3 space-y-2">
+            <nav className="flex-1 px-3 space-y-2 flex flex-col">
                 {links.map((link) => {
                     const Icon = link.icon;
                     const isActive = pathname.startsWith(link.href);
@@ -100,7 +101,6 @@ export default function Sidebar() {
                             </Link>
                         </Tooltip>
                     );
-
                 })}
             </nav>
         </aside>
