@@ -65,44 +65,54 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                         key={recording.id}
                         className="bg-gray-800 border border-gray-700 rounded-xl p-4 hover:border-gray-600 transition-colors"
                     >
-                        <div className="flex flex-col gap-4">
-                            {/* Header Row */}
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1.5">
-                                        <FileAudio className="w-4 h-4 text-blue-400" />
-                                        <h2 className="text-lg font-semibold">
-                                            {recording.scheduleSlot?.show?.title || "Unknown Show"}
-                                        </h2>
-                                        {getStatusBadge(recording.status)}
-                                    </div>
+                        <div className="flex items-center gap-4">
+                            {/* Left: Metadata */}
+                            <div className="w-1/3 min-w-[300px] flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                    <FileAudio className="w-4 h-4 text-blue-400 shrink-0" />
+                                    <h2 className="text-base font-semibold truncate" title={recording.scheduleSlot?.show?.title}>
+                                        {recording.scheduleSlot?.show?.title || "Unknown Show"}
+                                    </h2>
+                                    {getStatusBadge(recording.status)}
+                                </div>
 
-                                    <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-400">
-                                        {recording.scheduleSlot?.show?.host && (
-                                            <span>Host: {recording.scheduleSlot.show.host}</span>
-                                        )}
-                                        <span>
-                                            {format(new Date(recording.startTime), "PPP")}
-                                        </span>
+                                <div className="flex flex-col text-xs text-gray-400 gap-0.5 pl-6">
+                                    {recording.scheduleSlot?.show?.host && (
+                                        <span className="truncate">Host: {recording.scheduleSlot.show.host}</span>
+                                    )}
+                                    <div className="flex gap-2">
+                                        <span>{format(new Date(recording.startTime), "PPP")}</span>
                                         <span>
                                             {format(new Date(recording.startTime), "p")} - {recording.endTime ? format(new Date(recording.endTime), "p") : '...'}
                                         </span>
                                     </div>
-
-                                    {/* Compact Published Badge */}
-                                    {recording.episode && (
-                                        <div className="mt-1.5 inline-flex items-center gap-1.5 text-green-400 text-xs bg-green-900/20 px-2.5 py-0.5 rounded-full border border-green-900/50">
-                                            <Check className="w-3 h-3" />
-                                            <span>Published: {recording.episode.title}</span>
-                                        </div>
-                                    )}
                                 </div>
 
-                                <div className="flex items-start gap-2">
+                                {/* Published Badge */}
+                                {recording.episode && (
+                                    <div className="ml-6 mt-1 inline-flex items-center gap-1.5 text-green-400 text-xs bg-green-900/20 px-2 py-0.5 rounded-full border border-green-900/50 w-fit">
+                                        <Check className="w-3 h-3" />
+                                        <span className="truncate max-w-[200px]">Published: {recording.episode.title}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Right: Audio Player & Actions */}
+                            <div className="flex-1 flex items-center gap-3 min-w-0">
+                                {recording.status === "COMPLETED" && (
+                                    <div className="flex-1 min-w-0">
+                                        <AudioPlayer
+                                            src={`/api/audio/${recording.filePath}`}
+                                            title={recording.scheduleSlot?.show?.title}
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="flex items-center gap-2 shrink-0 ml-2">
                                     {recording.status === "COMPLETED" && !recording.episode && (
                                         <Link
                                             href={`/recordings/${recording.id}/publish`}
-                                            className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-sm font-medium text-white transition-all"
+                                            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-xs font-medium text-white transition-all whitespace-nowrap"
                                         >
                                             Publish
                                         </Link>
@@ -117,16 +127,6 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                                     </button>
                                 </div>
                             </div>
-
-                            {/* Audio Player Row */}
-                            {recording.status === "COMPLETED" && (
-                                <div className="w-full">
-                                    <AudioPlayer
-                                        src={`/api/audio/${recording.filePath}`}
-                                        title={recording.scheduleSlot?.show?.title}
-                                    />
-                                </div>
-                            )}
                         </div>
                     </div>
                 ))}
