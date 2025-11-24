@@ -306,6 +306,8 @@ From the above inspiration, prioritize:
 
 **Description:** Vertical scrolling list of shows in chronological order
 
+![List View Mockup](docs/images/mobile_list_view.png)
+
 **Layout:**
 ```
 [Now On Air] ━━━━━━━━━━━━━━━━━
@@ -353,6 +355,8 @@ From the above inspiration, prioritize:
 ### Approach 3: Swipeable Cards (Story-Style)
 
 **Description:** Instagram Stories / Tinder-style card stack
+
+![Swipeable Cards Mockup](docs/images/mobile_swipeable_cards.png)
 
 **Layout:**
 - Full-screen cards, one show per view
@@ -471,6 +475,8 @@ From the above inspiration, prioritize:
 
 **Description:** Multiple views accessible via bottom tabs
 
+![Hybrid Tabs Mockup](docs/images/mobile_hybrid_tabs.png)
+
 **Tabs:**
 1. **"Now"** - Current show + next 3 shows (list)
 2. **"Today"** - Full day schedule (compressed timeline or list)
@@ -556,17 +562,154 @@ From the above inspiration, prioritize:
 
 ## Proposed MVP Approach
 
-**Primary View:** **Hybrid Tabs** (Approach 5)
-- Start with **"Now"** tab (most common use case)
-- Add **"Today"** list view
-- Phase 2: Add **"Week"** overview
+### 🌟 **FINALIZED MOBILE DESIGN** (Innovative!)
 
-**Experimental Alternative:** **Swipeable Cards** (Approach 3)
-- Build as A/B test option
-- Could be toggled via settings: "Card View" vs "List View"
-- Gather user feedback to determine preferred default
+**Primary View:** **Collapsing Header + Sticky Day Tabs**
 
-**Long-Term Vision:** Add **Voice Control** (Approach 6) as accessibility feature
+This approach combines the best elements from multiple patterns into something genuinely new for radio station UX.
+
+**Evolution:**
+
+![Sticky Day Tabs Initial Design](docs/images/mobile_day_tabs_sticky.png)
+
+*Initial concept: Sticky day tabs with full schedule list*
+
+---
+
+#### **Core Components:**
+
+![Header Expanded State](docs/images/mobile_header_expanded.png)
+
+**1. Dynamic Collapsing Header**
+- **Expanded State (Default):**
+  - Full "NOW PLAYING" card with large artwork
+  - Show title, host, time remaining
+  - Play/Pause button
+  - Sticky day tabs below (Mon | Tue | Wed | Thu | Fri | Sat | Sun)
+  - Takes ~40% of screen
+
+- **Collapsed State (On Scroll Up):**
+
+![Header Collapsed State](docs/images/mobile_header_collapsed.png)
+
+  - Mini player bar at top (60px)
+  - Small thumbnail + show title + play/stop icon
+  - Day tabs hidden
+  - NOW PLAYING card hidden
+  - **Maximizes schedule browsing space** (shows 5-6 more shows)
+
+- **Pull Down to Restore:**
+  - Swipe down anywhere to expand header
+  - Smooth animation transitions
+  - All controls/context restored
+
+**2. Sticky Day Navigation**
+- Horizontal scrollable day tabs: Mon | Tue | Wed | Thu | Fri | Sat | Sun
+- Active day highlighted
+- Tap to instantly switch days
+- Stays fixed during vertical scroll (when expanded)
+- Hides during collapsed mode for maximum space
+
+**3. Daily Schedule List**
+- Vertical scrolling list of shows for selected day
+- Large tap targets (show cards)
+- Each card shows:
+  - Show artwork thumbnail
+  - Title and host
+  - Time range
+  - **Tap card → Opens full show modal**
+- "NOW ON AIR" card highlighted (when viewing today)
+
+**4. Show Detail Modal**
+- Triggered by tapping any show card
+- Overlay modal with:
+  - Large show artwork
+  - Full description
+  - Host bio
+  - Tags, category, metadata
+  - RSS feed link
+  - Social/aggregator links (when available)
+  - Latest episodes with players
+  - Schedule recurrence info
+- Maintains player state (music keeps playing)
+- Easy dismiss (swipe down or tap X)
+
+---
+
+#### **Interaction Flow:**
+
+```
+App Opens → Today's Schedule (Header Expanded)
+              ↓
+User Scrolls Up → Header Collapses, More Shows Visible
+              ↓
+User Taps "Wed" → Wednesday's Schedule Loads
+              ↓
+User Scrolls Down → Header Re-Expands
+              ↓
+User Taps Show Card → Show Modal Opens
+              ↓
+User Taps "Listen" → Stream Starts, Modal Closes
+```
+
+---
+
+#### **Why This Works:**
+
+✅ **Space Efficiency** - Collapsed header gains 40% more browsing space  
+✅ **Always-On Player** - Never more than a tap away  
+✅ **Full Week Access** - Day tabs make any day instantly reachable  
+✅ **Gesture-Based** - Natural mobile interactions (scroll, swipe, tap)  
+✅ **Context on Demand** - Pull down to see full NOW PLAYING anytime  
+✅ **Modal Deep Dives** - Tap show for all details without losing player  
+✅ **Innovative** - Haven't seen radio stations do this collapsing pattern  
+
+---
+
+#### **Implementation Notes:**
+
+**Scroll Behavior:**
+- Threshold: 50px scroll up = collapse trigger
+- Spring animation (300ms ease-out)
+- Debounced to prevent jitter
+- Pull-to-refresh still works (different gesture)
+
+**Day Switching:**
+- Instant content swap (no page reload)
+- Cache adjacent days for smooth transitions
+- Auto-select "Today" on app load
+- Persist selected day in session
+
+**Player State:**
+- Remains playing through all navigation
+- Sticky across modals, day changes, scrolling
+- Visual feedback: pulsing play icon when active
+
+**Accessibility:**
+- Keyboard nav: Tab to cycle through shows, Enter to open modal
+- Screen reader announces day changes
+- High contrast mode support
+- Minimum 44px tap targets
+
+---
+
+### **Desktop Version:**
+
+For desktop, use the traditional approach:
+- Full week grid view (no need for day tabs)
+- Sidebar with persistent NOW PLAYING card
+- Hover tooltips on schedule blocks with "More Info" button
+- Click show → Open modal (same as mobile)
+
+---
+
+### **Next Phase Enhancements:**
+
+1. **Swipeable Days** - Swipe left/right to change days (in addition to tabs)
+2. **Time Jump** - "Jump to Now" button always visible
+3. **Search** - Quick show/host search overlay
+4. **Favorites** - Star shows to highlight in schedule (localStorage, no account needed)
+5. **PWA Install** - "Add to Home Screen" prompt for app-like experience
 
 ---
 
