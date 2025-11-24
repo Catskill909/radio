@@ -25,12 +25,44 @@ This document outlines the vision and requirements for a **public-facing listene
 **Description:**  
 A visual weekly/daily schedule grid showing what's on-air now and upcoming shows.
 
+**Interaction Pattern (Two-Tier):**
+
+**Tier 1 - Hover Tooltip (Quick Info):**
+- Shows on hover/tap over schedule block
+- Minimal, non-intrusive display
+- Contents:
+  - Show title
+  - Show type badge (Local/Syndicated/Music)
+  - Time range (e.g., "7:15 PM - 7:25 PM")
+  - Duration (e.g., "10 minutes")
+  - Host name
+  - **"More Info" button** (opens full modal)
+
+**Tier 2 - Full Show Modal (Detailed Info):**
+- Triggered by "More Info" button in tooltip OR direct click on schedule block
+- Modal overlay with comprehensive show information
+- Contents:
+  - Large show artwork
+  - Full description
+  - Host bio/info
+  - All metadata (tags, category, explicit flag)
+  - RSS feed link
+  - Social/aggregator links (Apple Podcasts, Spotify, etc.)
+  - Latest episodes (if available) with players
+  - Schedule recurrence info ("Airs weekly on Mondays at 3:00 PM")
+
+**Rationale:**
+- Prevents UI clutter for short shows (5-10 minute slots)
+- Scalable for stations with hundreds of schedule blocks
+- Progressive disclosure - users get quick info first, deep dive on demand
+- Maintains player state during modal navigation (SPA benefit)
+
 **Features:**
 - Read-only version of the admin calendar view
 - Shows current time indicator (station timezone)
 - Color-coded show blocks with show artwork thumbnails
-- Hover effects showing basic show info (title, host, time)
-- Click to open detailed show modal
+- Smooth modal transitions
+- Keyboard accessible (Esc to close, Tab navigation)
 
 **Backend Integration:**
 - Use existing `ScheduleSlot` data with `Show` relations
@@ -234,6 +266,310 @@ From the above inspiration, prioritize:
    - One-click subscribe to Apple Podcasts, Spotify, etc. (when aggregator URLs are added)
    - Copy RSS feed URL button
 
+---
+
+## Mobile Layout Exploration
+
+### The Challenge
+
+**Problem:** Dense schedule information (24 hours × 7 days = 168 time slots) in a ~375px wide viewport  
+**Goal:** Intuitive navigation, quick scanning, minimal scrolling, clear "what's on now"
+
+---
+
+### Approach 1: Traditional Grid (Compressed)
+
+**Description:** Mini version of desktop calendar grid
+
+**Layout:**
+- Horizontal scroll for days (swipe left/right)
+- Vertical scroll for hours
+- Compressed time blocks (15-min = ~20px height)
+- Show titles truncated to 1-2 lines
+
+**Pros:**
+- Familiar pattern (Google Calendar, Outlook)
+- Shows entire day structure at a glance
+- Easy to see show timing/duration
+
+**Cons:**
+- ❌ Requires precise tapping on tiny blocks
+- ❌ Lots of scrolling (vertical + horizontal)
+- ❌ Hard to read truncated show names
+- ❌ Not ideal for 5-10 minute shows
+
+**Verdict:** Works for desktop, struggles on mobile
+
+---
+
+### Approach 2: List View (Time-Based)
+
+**Description:** Vertical scrolling list of shows in chronological order
+
+**Layout:**
+```
+[Now On Air] ━━━━━━━━━━━━━━━━━
+┌─────────────────────────────┐
+│ 🎵 Morning Show             │
+│ 6:00 AM - 9:00 AM          │
+│ with DJ Sarah              │
+│ [▶ Listen] [More Info]     │
+└─────────────────────────────┘
+
+[Up Next]
+┌─────────────────────────────┐
+│ News Brief                  │
+│ 9:00 AM - 9:15 AM (15 min) │
+│ Local News                  │
+└─────────────────────────────┘
+
+┌─────────────────────────────┐
+│ Coffee Talk                 │
+│ 9:15 AM - 10:00 AM         │
+│ with Mike & Lisa           │
+└─────────────────────────────┘
+```
+
+**Pros:**
+- ✅ Clean, scannable
+- ✅ Large tap targets
+- ✅ Shows full titles
+- ✅ Works great for "what's coming up"
+
+**Cons:**
+- ⚠️ Hard to see overall week structure
+- ⚠️ Can't easily jump to specific day/time
+- ⚠️ Long list for 24-hour stations
+
+**Enhancements:**
+- Sticky "Now Playing" header
+- Day selector tabs at top
+- "Jump to time" quick nav
+
+**Verdict:** Good for "what's on today," less good for browsing full week
+
+---
+
+### Approach 3: Swipeable Cards (Story-Style)
+
+**Description:** Instagram Stories / Tinder-style card stack
+
+**Layout:**
+- Full-screen cards, one show per view
+- Swipe up/down to navigate through schedule
+- Current show always centered
+- Previous/next shows visible at edges
+
+**Interaction:**
+- Swipe up: Next show
+- Swipe down: Previous show
+- Tap card: Expand to full modal
+- Tap "Listen Live": Start stream
+
+**Visual:**
+```
+     ┌───────────┐
+     │ Prev Show │ (Peeking from top, 20% visible)
+     └───────────┘
+┌─────────────────────────────┐
+│                             │
+│   [Large Show Artwork]      │
+│                             │
+│   🎵 The Morning Show        │
+│   with DJ Sarah             │
+│                             │
+│   ● ON AIR NOW              │
+│   6:00 AM - 9:00 AM         │
+│   2h 15m remaining          │
+│                             │
+│   [━━━━━━━━▱▱▱▱▱▱] 75%     │
+│                             │
+│   [▶ Listen Live]           │
+│   [More Info]               │
+│                             │
+└─────────────────────────────┘
+     ┌───────────┐
+     │ Next Show │ (Peeking from bottom, 20% visible)
+     └───────────┘
+```
+
+**Pros:**
+- ✅ Beautiful, immersive
+- ✅ Focus on one show at a time
+- ✅ Natural mobile gesture (swipe)
+- ✅ Great for discovery
+- ✅ Large artwork showcase
+
+**Cons:**
+- ⚠️ Can't see multiple shows at once
+- ⚠️ Harder to navigate to specific time/day
+- ⚠️ Unconventional for schedule viewing
+
+**Enhancements:**
+- Mini timeline scrubber at bottom
+- "Jump to Now" button always visible
+- Haptic feedback on hour boundaries
+
+**Verdict:** 🌟 **Innovative, engaging** - could be groundbreaking for radio schedule UX
+
+---
+
+### Approach 4: Timeline Scroll (Horizontal)
+
+**Description:** Horizontal timeline with current time always centered
+
+**Layout:**
+- Infinite horizontal scroll
+- Time markers every hour
+- Show blocks sized by duration
+- Auto-centers on "now"
+
+**Visual:**
+```
+       Past ←  NOW  → Future
+    ┌────┬────┬────┬────┬────┐
+5PM │    │    │█ N │    │    │
+    │    │    │█ O │    │    │
+6PM │    │    │█ W │    │    │
+    │    │    │█   │    │    │
+7PM │    │    │█ █ │    │    │
+    │    │  █ │█ █ │ █  │    │
+8PM │    │  █ │█ █ │ █  │    │
+    └────┴────┴────┴────┴────┘
+         ↑           ↑
+     Previous     Next
+      Shows       Show
+```
+
+**Interaction:**
+- Swipe left: See future shows
+- Swipe right: See past shows
+- Tap block: Show tooltip → More Info
+- Always auto-recenters on "now" after 3 seconds
+
+**Pros:**
+- ✅ Unique, spatial
+- ✅ Clear sense of time progression
+- ✅ "Now" always visible
+- ✅ Natural scrolling
+
+**Cons:**
+- ⚠️ Hard to see show titles in blocks
+- ⚠️ Limited vertical space for details
+- ⚠️ Only shows current day (or few hours)
+
+**Enhancements:**
+- Day selector to jump to different days
+- Pinch to zoom (see more/less time)
+- Show artwork thumbnails in blocks
+
+**Verdict:** Cool concept, may need refinement for usability
+
+---
+
+### Approach 5: Hybrid - Tab-Based Navigation
+
+**Description:** Multiple views accessible via bottom tabs
+
+**Tabs:**
+1. **"Now"** - Current show + next 3 shows (list)
+2. **"Today"** - Full day schedule (compressed timeline or list)
+3. **"Week"** - Week overview (mini grid, tap day to expand)
+4. **"Shows"** - Browse all shows A-Z (separate from schedule)
+
+**"Now" Tab Layout:**
+```
+┌─────────────────────────────┐
+│      ● LIVE NOW             │
+│  ┌─────────────────────────┐│
+│  │ [🎵 Show Artwork]       ││
+│  │ The Morning Show        ││
+│  │ with DJ Sarah           ││
+│  │ Ends at 9:00 AM (2h 15m)││
+│  │ [▶ Listen] [More Info]  ││
+│  └─────────────────────────┘│
+│                             │
+│      Up Next                │
+│  ┌─────────────────────────┐│
+│  │ News Brief              ││
+│  │ 9:00 AM - 9:15 AM       ││
+│  └─────────────────────────┘│
+│  ┌─────────────────────────┐│
+│  │ Coffee Talk             ││
+│  │ 9:15 AM - 10:00 AM      ││
+│  └─────────────────────────┘│
+└─────────────────────────────┘
+```
+
+**Pros:**
+- ✅ Best of all worlds
+- ✅ Users choose their preferred view
+- ✅ "Now" tab optimized for quick listen
+- ✅ Week tab for power users
+
+**Cons:**
+- ⚠️ More complex to build
+- ⚠️ Users might miss features in other tabs
+
+**Verdict:** 🌟 **Safe, versatile** - covers all use cases
+
+---
+
+### Approach 6: AI/Voice-First (Experimental)
+
+**Description:** Conversational interface with voice control
+
+**Interaction:**
+- Home screen shows "Now Playing" + simple schedule
+- Floating mic button: "What's on tonight at 8pm?"
+- Voice response: "At 8 PM, it's Jazz Hour with Dave"
+- Follow-up: "Tell me more" → Full show info
+- "Play it" → Starts stream (if live) or plays episode
+
+**Pros:**
+- ✅ Hands-free (great for driving, cooking)
+- ✅ Natural language queries
+- ✅ Accessibility win
+- ✅ Future-forward
+
+**Cons:**
+- ⚠️ Requires speech recognition/NLU
+- ⚠️ Not always practical (quiet environments)
+- ⚠️ Fallback to touch is still needed
+
+**Verdict:** 🚀 **Cutting-edge** - could be Phase 2 enhancement
+
+---
+
+## Mobile Layout Recommendation Matrix
+
+| Approach | Ease of Use | Info Density | Innovation | Implementation |
+|----------|-------------|--------------|------------|----------------|
+| Grid (Compressed) | ⭐⭐ | ⭐⭐⭐⭐ | ⭐ | Easy |
+| List View | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | Easy |
+| Swipeable Cards | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ | Medium |
+| Timeline Scroll | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ | Medium |
+| Hybrid Tabs | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | Hard |
+| Voice-First | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Very Hard |
+
+---
+
+## Proposed MVP Approach
+
+**Primary View:** **Hybrid Tabs** (Approach 5)
+- Start with **"Now"** tab (most common use case)
+- Add **"Today"** list view
+- Phase 2: Add **"Week"** overview
+
+**Experimental Alternative:** **Swipeable Cards** (Approach 3)
+- Build as A/B test option
+- Could be toggled via settings: "Card View" vs "List View"
+- Gather user feedback to determine preferred default
+
+**Long-Term Vision:** Add **Voice Control** (Approach 6) as accessibility feature
+
+---
+
 ### Medium-Term (P2)
 
 1. **iCal Export**
@@ -264,27 +600,28 @@ From the above inspiration, prioritize:
 
 ### Longer-Term (P3)
 
-1. **Listener Profiles**
-   - Create accounts to favorite shows
-   - Subscribe to show-specific notifications
-   - Personalized "My Shows" page
-
-2. **Real-Time Listener Count**
+1. **Real-Time Listener Count**
    - Display current listener count from Icecast stats
    - Privacy-aware geographic breakdown (country-level only)
 
-3. **Live Chat During Shows**
+2. **Live Chat During Shows**
    - Real-time chat for listeners during live broadcasts
    - Requires WebSocket infrastructure
+   - Anonymous chat (no account required)
 
-4. **Mobile App (PWA)**
+3. **Mobile App (PWA)**
    - Progressive Web App for install-to-home-screen experience
-   - Push notifications for favorite shows starting
    - Offline schedule caching
+   - Background audio playback
 
-5. **Multi-Language Support**
+4. **Multi-Language Support**
    - Internationalization (i18n) for station UI
    - Show descriptions in multiple languages
+
+5. **Advanced Analytics Dashboard**
+   - Listener metrics and trends
+   - Popular shows/episodes
+   - Peak listening times
 
 ---
 
@@ -306,11 +643,19 @@ From the above inspiration, prioritize:
 
 ### Technical Architecture
 
-- **Next.js SSR/SSG**: Server-side render schedule for SEO
+- **Next.js with Client-Side Routing**: SPA behavior with smooth transitions between views
+- **Modal-Based Navigation**: Show details, episode players open in modals (keeps player state alive)
+- **Deep Linking Support**: Direct URLs open modals (e.g., `/shows/morning-show` loads schedule page + opens modal)
 - **API Routes**: Public API endpoints separate from admin endpoints
-- **Caching**: Cache schedule data (revalidate every 5-10 minutes)
-- **CDN-Friendly**: Static assets and pages should be CDN-compatible
-- **SEO Optimized**: Meta tags, structured data (Schema.org for events/shows)
+- **Caching Strategy**: 
+  - Schedule data: 5-10 minute cache with SWR pattern
+  - "Now Playing": 30-60 second polling
+  - Episode lists: 15 minute cache
+- **SEO Considerations**: 
+  - Server-side render initial schedule for search engines
+  - Meta tags and Open Graph for social sharing
+  - Structured data (Schema.org) for shows/events
+- **CDN-Friendly**: Static assets optimized for CDN delivery
 
 ---
 
@@ -364,6 +709,56 @@ From the above inspiration, prioritize:
    - How often to refresh schedule data? (Every 5 min, 15 min?)
    - Cache "now playing" data? (30-60 seconds?)
    - Use SWR (stale-while-revalidate) pattern?
+
+---
+
+## Development \u0026 Testing Considerations
+
+### Mock Data Strategy
+
+During development, the schedule will not be fully populated, which affects the "Now Playing" display and related features.
+
+**Approach:**
+- **Placeholder Handling**: When no show is currently scheduled, display fallback content:
+  - Default station artwork (from Station Identity settings)
+  - "No show currently scheduled" or custom message
+  - Optional: Display station tagline/description
+  - Live stream player still functional (if stream is online)
+
+**Testing Real Data:**
+- Move/create shows in the schedule to align with current station time for testing
+- Example: Schedule a test show for the next 15 minutes to see "Now Playing" populate
+- Test edge cases:
+  - Show ending soon (time remaining display)
+  - Show just started (elapsed time)
+  - Midnight-crossing shows (split slots)
+  - Back-to-back shows (transition between shows)
+
+**API Fallback Behavior:**
+```javascript
+// Example: /api/public/now-playing response when no show scheduled
+{
+  "currentShow": null,
+  "nextShow": {
+    "title": "Morning Show",
+    "host": "DJ Mike",
+    "startTime": "2025-11-24T06:00:00Z",
+    "artwork": "/uploads/shows/morning-show.jpg"
+  },
+  "stationInfo": {
+    "name": "WXYZ Radio",
+    "tagline": "Your Community Voice",
+    "defaultArtwork": "/uploads/station/logo.png"
+  }
+}
+```
+
+### Development Workflow
+
+1. **Seed Data**: Consider creating a seed script to populate schedule with sample shows
+2. **Time Travel Testing**: Allow dev mode to override "current time" for testing different schedule states
+3. **Stream Mocking**: Mock Icecast stream health checks to test online/offline states
+4. **Responsive Testing**: Test on mobile devices (iOS Safari, Android Chrome)
 
 ---
 
