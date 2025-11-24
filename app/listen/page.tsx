@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { addDays, startOfDay, subDays } from 'date-fns';
 import CollapsingHeader from './components/CollapsingHeader';
 import TopPlayerBar from './components/TopPlayerBar'; // Desktop Header
@@ -69,21 +69,21 @@ export default function ListenPage() {
         setIsPlaying(!isPlaying);
     };
 
-    const handleShowClick = (showId: string) => {
+    const handleShowClick = useCallback((showId: string) => {
         console.log("Opening show:", showId); // Debug
         setSelectedShowId(showId);
         setIsModalOpen(true);
-    };
+    }, []);
 
-    const handleCloseModal = () => {
+    const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
         setTimeout(() => setSelectedShowId(null), 300);
-    };
+    }, []);
 
-    const handlePlayEpisode = (episode: Episode) => {
+    const handlePlayEpisode = useCallback((episode: Episode) => {
         setCurrentEpisodeId(episode.id);
         console.log('Playing episode:', episode.title);
-    };
+    }, []);
 
     return (
         <div className="min-h-screen bg-black text-white pb-20">

@@ -3,9 +3,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    props: { params: Promise<{ id: string }> }
 ) {
     try {
+        const params = await props.params;
         const { id } = params;
 
         // Fetch show
@@ -40,7 +41,7 @@ export async function GET(
                 status: 'COMPLETED',
             },
             include: {
-                Episode: true,
+                episode: true,
             },
             orderBy: {
                 startTime: 'desc',
@@ -49,14 +50,14 @@ export async function GET(
         });
 
         const episodes = recordings
-            .filter(rec => rec.Episode && rec.Episode.publishedAt)
+            .filter(rec => rec.episode && rec.episode.publishedAt)
             .map(rec => ({
-                id: rec.Episode!.id,
-                title: rec.Episode!.title,
-                publishedAt: rec.Episode!.publishedAt!.toISOString(),
-                duration: rec.Episode!.duration || 0,
+                id: rec.episode!.id,
+                title: rec.episode!.title,
+                publishedAt: rec.episode!.publishedAt!.toISOString(),
+                duration: rec.episode!.duration || 0,
                 audioPath: rec.filePath,
-                coverImage: rec.Episode!.imageUrl || show.image || '',
+                coverImage: rec.episode!.imageUrl || show.image || '',
             }));
 
         // Get schedule info
