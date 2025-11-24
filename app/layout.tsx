@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
+import ClientLayout from "@/components/ClientLayout";
 
 export const metadata: Metadata = {
   title: "Radio Suite",
@@ -20,13 +20,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body suppressHydrationWarning>
-        <div className="flex h-screen bg-gray-900 text-white">
-          <Sidebar />
-          {/* Main Content */}
-          <main className="flex-1 overflow-auto bg-gray-950 p-8">
-            {children}
-          </main>
-        </div>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
       </body>
     </html>
   );

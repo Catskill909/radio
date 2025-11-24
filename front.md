@@ -718,11 +718,101 @@ User Taps "Listen" → Stream Starts, Modal Closes
 
 ### **Desktop Version:**
 
-For desktop, use the traditional approach:
-- Full week grid view (no need for day tabs)
-- Sidebar with persistent NOW PLAYING card
-- Hover tooltips on schedule blocks with "More Info" button
-- Click show → Open modal (same as mobile)
+Desktop layout maximizes screen real estate with a full-width calendar grid and compact top player bar.
+
+---
+
+#### **Main Desktop View:**
+
+![Desktop Main View](docs/images/desktop_main_view.png)
+
+**Layout Structure:**
+
+**1. Compact NOW PLAYING Top Bar**
+- Horizontal bar spanning full width (~80-100px tall)
+- Sticky at top when scrolling
+- Layout (left to right):
+  - Station logo
+  - Small show artwork thumbnail
+  - Show title + host name
+  - "LIVE" badge (when applicable)
+  - Time remaining
+  - Play/Pause button
+- Dark gray background, muted colors
+- Always visible, never collapses
+
+**2. Full-Width Calendar Grid**
+- 7 columns (Monday - Sunday)
+- Time rows (6 AM - 10 PM, customizable)
+- Show blocks with muted pastel colors
+- Each block displays:
+  - Show title
+  - Time range (on hover)
+- Current time indicator (red line across grid)
+- Hover interaction: Tooltip with quick info + "More Info" button
+
+**3. Hover Tooltip Interaction**
+- Appears on show block hover
+- Displays:
+  - Show title
+  - Show type badge
+  - Time range
+  - Duration
+  - Host name
+  - "More Info" button
+- Click "More Info" or show block → Opens modal
+
+---
+
+#### **Desktop Show Modal:**
+
+![Desktop Show Modal - Wide Layout](docs/images/desktop_show_modal_wide.png)
+
+**Modal Specifications:**
+
+- **Dimensions:** 900px wide, two-column horizontal layout
+- **Position:** Centered overlay
+- **Background:** Dimmed calendar + top bar still visible
+- **Scrollable:** Right panel (episodes) scrolls if needed
+
+**Two-Column Layout:**
+
+**LEFT COLUMN (40% width):**
+1. **Show Artwork** - Large square at top
+2. **Show Title** - White, prominent
+3. **Host Name** - Gray, smaller
+4. **Show Type Badge** - Muted blue-gray pill
+5. **Tags** - Gray pill badges (Jazz, Soul, R&B, etc.)
+6. **Schedule Info** - "Airs: Mondays at 6:00 AM"
+7. **RSS Feed** - Link with copy button
+8. **Description** - Multi-line paragraph at bottom
+
+**RIGHT COLUMN (60% width):**
+1. **"Latest Episodes" Heading**
+2. **Episode Cards** - Horizontal rectangular cards stacked vertically
+   - Each card: Thumbnail (left) | Title + Date (middle) | Play button (right)
+   - 4-5 episodes visible
+   - Scrollable if more episodes
+   - Same card design as mobile
+
+**Design Notes:**
+- **Wide layout maximizes desktop screen space**
+- Left column: Show identity and metadata
+- Right column: Dedicated episode browsing area
+- Muted color scheme (no bright buttons)
+- Consistent card design across mobile and desktop
+- Dark theme throughout
+
+---
+
+#### **Key Desktop UX Decisions:**
+
+✅ **Top Bar vs Sidebar** - Horizontal bar maximizes vertical space for calendar  
+✅ **Full Week View** - Desktop users can see entire week at once  
+✅ **Hover Tooltips** - Quick info without opening modal  
+✅ **Vertical Episode Cards** - Stacked layout uses desktop's vertical space efficiently  
+✅ **Persistent Player** - Top bar stays visible even when modal is open  
+✅ **Modal Scrolling** - Tall modals scroll internally, background stays dimmed
 
 ---
 
