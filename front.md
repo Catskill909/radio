@@ -621,18 +621,27 @@ This approach combines the best elements from multiple patterns into something g
 - "NOW ON AIR" card highlighted (when viewing today)
 
 **4. Show Detail Modal**
+
+![Show Detail Modal](docs/images/mobile_show_modal.png)
+
+*Note: Mockup shows design concept; in implementation, avoid bright accent buttons and keep mini player visible on top*
+
 - Triggered by tapping any show card
-- Overlay modal with:
+- Full-screen overlay modal (dimmed background)
+- **Mini player remains visible at top** (sticky, above modal)
+- Scrollable content:
   - Large show artwork
+  - Show title, host, type badge
   - Full description
-  - Host bio
-  - Tags, category, metadata
-  - RSS feed link
-  - Social/aggregator links (when available)
-  - Latest episodes with players
-  - Schedule recurrence info
-- Maintains player state (music keeps playing)
+  - Tags/category pills
+  - Schedule recurrence info ("Airs Mondays at 6:00 AM")
+  - RSS feed link with copy button
+  - Latest episodes section:
+    - Episode cards with thumbnails
+    - Episode titles and dates
+    - Individual play buttons per episode
 - Easy dismiss (swipe down or tap X)
+- Color scheme: Muted, consistent with dark theme (no bright orange/accent buttons)
 
 ---
 
