@@ -92,7 +92,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                                 {recording.episode && (
                                     <div className="ml-6 mt-1 inline-flex items-center gap-1.5 text-green-400 text-xs bg-green-900/20 px-2 py-0.5 rounded-full border border-green-900/50 w-fit">
                                         <Check className="w-3 h-3" />
-                                        <span className="truncate max-w-[200px]">Published: {recording.episode.title}</span>
+                                        <span>Published: {recording.episode.title}</span>
                                     </div>
                                 )}
                             </div>
