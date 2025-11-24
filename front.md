@@ -622,9 +622,9 @@ This approach combines the best elements from multiple patterns into something g
 
 **4. Show Detail Modal**
 
-![Show Detail Modal](docs/images/mobile_show_modal.png)
+![Show Detail Modal - V2](docs/images/mobile_show_modal_v2.png)
 
-*Note: Mockup shows design concept; in implementation, avoid bright accent buttons and keep mini player visible on top*
+*Final design: Live stream player on top, horizontal scrolling episode cards (thumbnail left, info middle, play right)*
 
 - Triggered by tapping any show card
 - Full-screen overlay modal (dimmed background)
@@ -637,11 +637,25 @@ This approach combines the best elements from multiple patterns into something g
   - Schedule recurrence info ("Airs Mondays at 6:00 AM")
   - RSS feed link with copy button
   - Latest episodes section:
-    - Episode cards with thumbnails
-    - Episode titles and dates
-    - Individual play buttons per episode
+    - **Horizontal scrolling** row of rectangular episode cards
+    - Card layout: Thumbnail (left) | Title + Date (middle) | Play button (right)
+    - Swipe left/right to browse episodes
+    - Partial next card visible (scroll affordance)
 - Easy dismiss (swipe down or tap X)
 - Color scheme: Muted, consistent with dark theme (no bright orange/accent buttons)
+
+**Reference Design for Episode Cards:**
+
+![Episode Card Layout Reference](docs/images/episode_card_reference.png)
+
+*Above: Reference design showing the horizontal rectangular episode card layout. Each episode card displays thumbnail on the left, episode title and date in the middle, and a play button on the right. This layout is space-efficient and familiar to podcast/music app users.*
+
+**Key Design Decisions:**
+- **Horizontal Rectangles** over square cards maximize screen space and show more info
+- **Left-to-Right Flow** matches natural reading order: Image → Info → Action
+- **Consistent with Podcast Apps** (Apple Podcasts, Spotify) reduces learning curve
+- **Play Button Right-Aligned** makes thumb-friendly interaction on mobile
+- **Scrollable Row** allows browsing many episodes without vertical scroll fatigue
 
 ---
 
