@@ -274,6 +274,7 @@ This section is intentionally lightweight – it is meant to be edited as priori
       - Customizable bitrate for transcoded recordings (e.g., 128k vs 192k vs 256k)
       - Option to force transcoding even for compatible streams (e.g., to normalize bitrate)
       - _Note: Default behavior remains "copy from source" for MP3 streams to ensure zero quality loss and minimal CPU overhead._
+- **Aggregator URL fields (future)** – Optional fields on Show setup/edit forms for Apple Podcasts, Spotify, Amazon Music, TuneIn Radio, iHeartRadio, Podcast Index (basic fields only). When populated, corresponding icons/links appear in the front‑end; otherwise they are hidden.
 - **Public-facing listener pages**
   - Public show pages with latest episodes and embedded players
   - Simple station home page ("On Air Now" + upcoming schedule)
