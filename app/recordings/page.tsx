@@ -11,7 +11,7 @@ export default async function RecordingsPage() {
                 <h1 className="text-3xl font-bold">Recordings</h1>
                 <Link
                     href="/episodes"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-sm font-medium text-white transition-all"
                 >
                     View Published Episodes
                 </Link>

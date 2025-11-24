@@ -32,14 +32,20 @@ export async function GET(
         const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
         const chunkSize = (end - start) + 1;
 
-        // Read only the requested chunk
-        const file = fs.openSync(filePath, "r");
-        const buffer = Buffer.alloc(chunkSize);
-        fs.readSync(file, buffer, 0, chunkSize, start);
-        fs.closeSync(file);
+        // Create read stream for the specific range
+        const fileStream = fs.createReadStream(filePath, { start, end });
+
+        // Convert stream to ReadableStream for NextResponse
+        const stream = new ReadableStream({
+            start(controller) {
+                fileStream.on("data", (chunk) => controller.enqueue(chunk));
+                fileStream.on("end", () => controller.close());
+                fileStream.on("error", (err) => controller.error(err));
+            },
+        });
 
         // Return 206 Partial Content
-        return new NextResponse(buffer, {
+        return new NextResponse(stream, {
             status: 206,
             headers: {
                 "Content-Range": `bytes ${start}-${end}/${fileSize}`,
@@ -49,10 +55,18 @@ export async function GET(
             },
         });
     } else {
-        // No range requested, send full file
-        const fileBuffer = fs.readFileSync(filePath);
+        // No range requested, stream full file
+        const fileStream = fs.createReadStream(filePath);
 
-        return new NextResponse(fileBuffer, {
+        const stream = new ReadableStream({
+            start(controller) {
+                fileStream.on("data", (chunk) => controller.enqueue(chunk));
+                fileStream.on("end", () => controller.close());
+                fileStream.on("error", (err) => controller.error(err));
+            },
+        });
+
+        return new NextResponse(stream, {
             headers: {
                 "Content-Type": "audio/mpeg",
                 "Content-Length": fileSize.toString(),

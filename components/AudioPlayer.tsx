@@ -12,7 +12,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import AudioPlayerLib from 'react-h5-audio-player'
 import 'react-h5-audio-player/lib/styles.css'
 import './AudioPlayer.css'
@@ -23,10 +23,37 @@ interface AudioPlayerProps {
 }
 
 export default function AudioPlayer({ src, title }: AudioPlayerProps) {
+    const [playerKey, setPlayerKey] = useState(src)
+    const playerRef = useRef<AudioPlayerLib>(null)
+    const hasLoadedRef = useRef(false)
+
+    const handleLoadedMetaData = () => {
+        // Standard event handling
+        if (!hasLoadedRef.current) {
+            hasLoadedRef.current = true
+            setPlayerKey(`${src}_loaded_${Date.now()}`)
+        }
+    }
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const audio = playerRef.current?.audio.current
+            if (audio && audio.readyState >= 1 && !hasLoadedRef.current) {
+                // Metadata loaded but event missed/ignored? Force remount!
+                hasLoadedRef.current = true
+                setPlayerKey(`${src}_loaded_${Date.now()}`)
+                clearInterval(interval)
+            }
+        }, 500)
+
+        return () => clearInterval(interval)
+    }, [src])
+
     return (
         <div className="w-full audio-player-wrapper">
             <AudioPlayerLib
-                key={src}
+                ref={playerRef}
+                key={playerKey}
                 src={src}
                 autoPlay={false}
                 showJumpControls={false}
@@ -34,6 +61,7 @@ export default function AudioPlayer({ src, title }: AudioPlayerProps) {
                 customAdditionalControls={[]}
                 customVolumeControls={[]}
                 preload="auto"
+                onLoadedMetaData={handleLoadedMetaData}
             />
         </div>
     )
