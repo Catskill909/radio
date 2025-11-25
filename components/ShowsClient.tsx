@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { getShows, deleteShow } from "@/app/actions"
 import Link from "next/link"
-import { Plus, Edit, Trash2, Rss } from "lucide-react"
+import { Plus, Edit, Trash2, Rss, Search, X } from "lucide-react"
 import DeleteConfirmModal from "@/components/DeleteConfirmModal"
 import EditShowModal from "@/components/EditShowModal"
 import EditShowForm from "@/components/EditShowForm"
@@ -42,6 +42,21 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [rssModalOpen, setRssModalOpen] = useState(false)
     const [selectedShow, setSelectedShow] = useState<Show | null>(null)
+    const [searchQuery, setSearchQuery] = useState('')
+
+    // Filter shows based on search query
+    const filteredShows = useMemo(() => {
+        if (!searchQuery.trim()) return shows
+
+        const query = searchQuery.toLowerCase()
+        return shows.filter(show =>
+            show.title.toLowerCase().includes(query) ||
+            show.host?.toLowerCase().includes(query) ||
+            show.description?.toLowerCase().includes(query) ||
+            show.type.toLowerCase().includes(query) ||
+            show.tags?.toLowerCase().includes(query)
+        )
+    }, [shows, searchQuery])
 
     const handleDelete = async () => {
         if (selectedShow) {
@@ -66,8 +81,37 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
                     </Link>
                 </div>
 
+                {/* Search Box */}
+                <div className="relative max-w-2xl">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Search className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search shows by title, host, type, or tags..."
+                        className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-11 pr-11 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-all"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    )}
+                </div>
+
+                {/* Results count when searching */}
+                {searchQuery && (
+                    <p className="text-sm text-gray-400">
+                        Found {filteredShows.length} {filteredShows.length === 1 ? 'show' : 'shows'}
+                    </p>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {shows.map((show) => (
+                    {filteredShows.map((show) => (
                         <div
                             key={show.id}
                             className="bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden hover:border-[#444] transition-all shadow-md flex flex-col"
@@ -138,9 +182,12 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
                         </div>
                     ))}
 
-                    {shows.length === 0 && (
+                    {filteredShows.length === 0 && (
                         <div className="col-span-full text-center py-12 text-gray-500">
-                            No shows created yet. Click "Create Show" to get started.
+                            {searchQuery
+                                ? `No shows found matching "${searchQuery}"`
+                                : 'No shows created yet. Click "Create Show" to get started.'
+                            }
                         </div>
                     )}
                 </div>
