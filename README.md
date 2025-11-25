@@ -14,6 +14,7 @@ A comprehensive radio station management system for scheduling shows, automated 
 - **Audio playback & editing** – Scrub-enabled audio player across the app plus an in-browser waveform editor to trim, fade, and normalize recordings before publishing.
 - **Podcast feeds** – Global RSS feed and per-show iTunes-compatible RSS feeds that automatically reflect show/episode edits, with in-app copy/open UI.
 - **Stream monitoring** – Icecast streams dashboard with health checks, status badges, bitrate/listener stats, and error diagnostics.
+- **Live streaming** – Configure active audio stream in Settings; public listen page with live player, loading indicators, and buffering feedback.
 - **Station Identity** – Configure station name, description, email, and default artwork in Settings; used for RSS feeds and public metadata.
 - **Modern admin UI** – Dark theme, responsive layout, modals, tooltips, Settings page, and keyboard shortcuts in the editor workflows.
 
@@ -87,6 +88,13 @@ A comprehensive radio station management system for scheduling shows, automated 
 - Automatic health checks every 30 seconds plus manual refresh
 - Live metadata: status, bitrate, format, listeners, genre, and last-checked time
 - Inline error messages and stale-data indicators when streams are unhealthy
+
+### 📻 Live Streaming & Listen Page
+- **Stream Configuration** – Select active audio stream from available Icecast streams in Settings
+- **Public Listen Page** – Dedicated `/listen` route with schedule and live player
+- **Unified Audio Player Card** – Right-aligned player with show artwork, title, host, time remaining, and play/pause controls
+- **Loading Indicators** – Spinner during stream buffering with visual feedback
+- **Responsive Design** – Desktop and mobile layouts with collapsing headers
 
 ## Tech Stack
 
@@ -269,6 +277,13 @@ radio-suite/
 
 ## Recent Updates
 
+### Phase 9: Live Streaming & Public Listen Page (Nov 25, 2025)
+- ✅ **Stream Configuration** - New "Station Audio Stream" setting to select the active stream for public playback
+- ✅ **Public Listen Page** - Beautiful `/listen` page with weekly schedule, day tabs, and live player
+- ✅ **Unified Audio Player** - Redesigned top player as a single card with artwork, metadata, time remaining with clock icon, and play/pause button
+- ✅ **Loading States** - Visual spinner during stream buffering with proper event handling
+- ✅ **Database Integration** - Added `streamUrl` to `StationSettings` model with proper migrations
+
 ### Phase 8: Time-Slot-Specific Deletion (Nov 23, 2025)
 - ✅ **Time-Slot-Specific Deletion** - Delete individual time slots (e.g., Monday 3pm) without affecting other rebroadcasts (e.g., Monday 11pm, Tuesday 3pm) of the same show.
 - ✅ **Station Timezone Pattern Matching** - Deletion logic uses station timezone for accurate day-of-week and time-of-day matching.
@@ -330,9 +345,11 @@ radio-suite/
 - [x] Schedule overlap prevention
 - [x] Calendar visual fixes (event heights)
 - [x] Time-slot-specific deletion
+- [x] Live streaming configuration and player
+- [x] Public listen page with schedule
 
 ### Next Up
-- [ ] Public-facing pages for listeners
+- [ ] Enhanced public-facing pages (show details, host bios)
 - [ ] Recording dashboard with status monitoring
 - [ ] Batch episode editing
 

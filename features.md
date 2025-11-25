@@ -86,6 +86,33 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 - **Integration with shows**
   - Streams populate the recording source dropdown for shows
   - Recording source stored with shows and used by the recorder service
+  - Active stream URL configurable in Settings for public playback
+
+---
+
+## 3.5 Live Streaming & Public Listen Page
+
+**Status:** Shipped
+
+- **Stream configuration**
+  - "Station Audio Stream" setting in Settings page
+  - Select active stream from available Icecast streams for public playback
+  - Persisted to database in `StationSettings.streamUrl`
+- **Public listen page (`/listen`)**
+  - Weekly schedule with day tabs (7-day view)
+  - Clickable show cards with detail modals
+  - Desktop and mobile responsive layouts
+- **Unified audio player**
+  - Right-aligned card design with all elements consolidated
+  - Show artwork, title, host with LIVE badge
+  - Time Remaining display with clock icon in styled pill
+  - Large play/pause button
+  - Loading spinner during stream buffering (3-4 second initial connect)
+  - Proper audio event handling (`loadstart`, `canplay`, `error`)
+- **Schedule integration**
+  - "Now Playing" metadata fetched from `/api/public/now-playing`
+  - Time remaining countdown based on schedule
+  - Show details and artwork displayed in player
 
 ---
 
@@ -239,6 +266,9 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Dedicated settings area for managing station identity
   - Drag-and-drop image uploader for station logo
   - Real-time validation and feedback
+  - **Station Timezone**: Global timezone setting with live clock
+  - **Station Audio Stream**: Select active Icecast stream for public listen page
+  - Two-column grid layout for timezone and stream settings
 
 ---
 
@@ -275,9 +305,10 @@ This section is intentionally lightweight – it is meant to be edited as priori
       - Option to force transcoding even for compatible streams (e.g., to normalize bitrate)
       - _Note: Default behavior remains "copy from source" for MP3 streams to ensure zero quality loss and minimal CPU overhead._
 - **Aggregator URL fields (future)** – Optional fields on Show setup/edit forms for Apple Podcasts, Spotify, Amazon Music, TuneIn Radio, iHeartRadio, Podcast Index (basic fields only). When populated, corresponding icons/links appear in the front‑end; otherwise they are hidden.
-- **Public-facing listener pages**
-  - Public show pages with latest episodes and embedded players
-  - Simple station home page ("On Air Now" + upcoming schedule)
+- **Enhanced public listen experience**
+  - Show detail pages with episode archives
+  - Host bio pages with all shows by that host
+  - Embedded schedule widgets for external websites
 - **Recording dashboard**
   - Real-time view of what is recording now
   - Timeline of upcoming recordings and recent failures
