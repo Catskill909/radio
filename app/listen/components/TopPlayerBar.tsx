@@ -1,17 +1,17 @@
-'use client';
-
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Clock, Loader2 } from 'lucide-react';
 import { NowPlayingData } from './types';
 
 interface TopPlayerBarProps {
     nowPlaying: NowPlayingData | null;
     isPlaying: boolean;
+    isLoadingStream: boolean;
     onPlayPause: () => void;
 }
 
 export default function TopPlayerBar({
     nowPlaying,
     isPlaying,
+    isLoadingStream,
     onPlayPause
 }: TopPlayerBarProps) {
     if (!nowPlaying) return null;
@@ -22,11 +22,11 @@ export default function TopPlayerBar({
     const subtitle = currentShow?.host ? `with ${currentShow.host}` : stationInfo.tagline;
 
     return (
-        <div className="fixed top-0 left-0 right-0 h-[80px] bg-gray-900 border-b border-gray-800 z-40 flex items-center px-6 justify-between">
-            {/* Left: Station & Show Info */}
-            <div className="flex items-center gap-4">
+        <div className="fixed top-0 left-0 right-0 h-[100px] bg-black z-40 flex items-center justify-end px-6">
+            {/* Unified Player Card - Right Aligned */}
+            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center gap-4 shadow-lg">
                 {/* Logo/Artwork */}
-                <div className="relative w-12 h-12 rounded-md overflow-hidden shadow-sm">
+                <div className="relative w-14 h-14 rounded-lg overflow-hidden shadow-md flex-shrink-0">
                     <img
                         src={artwork}
                         alt={title}
@@ -34,37 +34,46 @@ export default function TopPlayerBar({
                     />
                 </div>
 
-                {/* Text Info */}
-                <div className="flex flex-col justify-center">
+                {/* Metadata */}
+                <div className="flex flex-col justify-center min-w-[200px]">
                     <div className="flex items-center gap-2">
-                        <h2 className="text-white font-bold text-lg leading-tight">{title}</h2>
+                        <h2 className="text-white font-bold text-base leading-tight">{title}</h2>
                         {currentShow && (
                             <span className="bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded animate-pulse">
                                 LIVE
                             </span>
                         )}
                     </div>
-                    <p className="text-gray-400 text-sm">{subtitle}</p>
+                    <p className="text-gray-400 text-sm mt-0.5">{subtitle}</p>
                 </div>
-            </div>
 
-            {/* Right: Controls & Time */}
-            <div className="flex items-center gap-6">
+                {/* Time Remaining */}
                 {currentShow?.timeRemaining && (
-                    <div className="text-right hidden sm:block">
-                        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Time Remaining</p>
-                        <p className="text-blue-400 font-mono font-bold">{currentShow.timeRemaining}m</p>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                        <Clock className="w-4 h-4 text-blue-400" />
+                        <div className="flex flex-col">
+                            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium leading-none">
+                                Time Left
+                            </span>
+                            <span className="text-blue-400 font-mono font-bold text-lg leading-tight">
+                                {currentShow.timeRemaining}m
+                            </span>
+                        </div>
                     </div>
                 )}
 
+                {/* Play/Pause Button */}
                 <button
                     onClick={onPlayPause}
-                    className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-white/10"
+                    disabled={isLoadingStream}
+                    className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-white/10 flex-shrink-0 disabled:opacity-70 disabled:cursor-wait"
                 >
-                    {isPlaying ? (
-                        <Pause className="w-5 h-5 text-black fill-current" />
+                    {isLoadingStream ? (
+                        <Loader2 className="w-6 h-6 text-black animate-spin" />
+                    ) : isPlaying ? (
+                        <Pause className="w-6 h-6 text-black fill-current" />
                     ) : (
-                        <Play className="w-5 h-5 text-black fill-current ml-0.5" />
+                        <Play className="w-6 h-6 text-black fill-current ml-0.5" />
                     )}
                 </button>
             </div>

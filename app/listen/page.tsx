@@ -66,6 +66,7 @@ export default function ListenPage() {
 
     const [streamUrl, setStreamUrl] = useState<string | null>(null);
     const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+    const [isLoadingStream, setIsLoadingStream] = useState(false);
 
     // Fetch Stream URL
     useEffect(() => {
@@ -83,11 +84,28 @@ export default function ListenPage() {
         if (!streamUrl) return;
 
         const audio = new Audio(streamUrl);
-        audio.preload = 'none';
+        audio.preload = 'metadata';
+
+        // Add event listeners for loading states
+        const handleLoadStart = () => setIsLoadingStream(true);
+        const handleCanPlay = () => setIsLoadingStream(false);
+        const handleError = () => {
+            setIsLoadingStream(false);
+            setIsPlaying(false);
+            console.error('Audio stream error');
+        };
+
+        audio.addEventListener('loadstart', handleLoadStart);
+        audio.addEventListener('canplay', handleCanPlay);
+        audio.addEventListener('error', handleError);
+
         setAudioElement(audio);
 
         // Cleanup
         return () => {
+            audio.removeEventListener('loadstart', handleLoadStart);
+            audio.removeEventListener('canplay', handleCanPlay);
+            audio.removeEventListener('error', handleError);
             audio.pause();
             audio.src = '';
         };
@@ -98,15 +116,22 @@ export default function ListenPage() {
         if (!audioElement) return;
 
         if (isPlaying) {
+            setIsLoadingStream(true);
             const playPromise = audioElement.play();
             if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.error("Audio playback failed:", error);
-                    setIsPlaying(false);
-                });
+                playPromise
+                    .then(() => {
+                        setIsLoadingStream(false);
+                    })
+                    .catch(error => {
+                        console.error("Audio playback failed:", error);
+                        setIsPlaying(false);
+                        setIsLoadingStream(false);
+                    });
             }
         } else {
             audioElement.pause();
+            setIsLoadingStream(false);
         }
     }, [isPlaying, audioElement]);
 
@@ -145,9 +170,10 @@ export default function ListenPage() {
                     <TopPlayerBar
                         nowPlaying={nowPlaying}
                         isPlaying={isPlaying}
+                        isLoadingStream={isLoadingStream}
                         onPlayPause={handlePlayPause}
                     />
-                    <div className="pt-[80px] max-w-4xl mx-auto">
+                    <div className="pt-[100px] max-w-4xl mx-auto">
                         <DayTabs
                             selectedDay={selectedDay}
                             onDayChange={setSelectedDay}
