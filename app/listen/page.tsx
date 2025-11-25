@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { addDays, startOfDay, subDays } from 'date-fns';
 import CollapsingHeader from './components/CollapsingHeader';
 import TopPlayerBar from './components/TopPlayerBar'; // Desktop Header
@@ -65,7 +65,7 @@ export default function ListenPage() {
     }, [selectedDay, isDesktop]); // Re-fetch if view mode changes
 
     const [streamUrl, setStreamUrl] = useState<string | null>(null);
-    const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
     const [isLoadingStream, setIsLoadingStream] = useState(false);
 
     // Fetch Stream URL
@@ -79,9 +79,9 @@ export default function ListenPage() {
         });
     }, []);
 
-    // Audio Element Management
+    // Audio Element Management - create once and persist
     useEffect(() => {
-        if (!streamUrl) return;
+        if (!streamUrl || audioRef.current) return;
 
         const audio = new Audio(streamUrl);
         audio.preload = 'metadata';
@@ -99,25 +99,29 @@ export default function ListenPage() {
         audio.addEventListener('canplay', handleCanPlay);
         audio.addEventListener('error', handleError);
 
-        setAudioElement(audio);
+        audioRef.current = audio;
 
-        // Cleanup
+        // Cleanup only on unmount
         return () => {
-            audio.removeEventListener('loadstart', handleLoadStart);
-            audio.removeEventListener('canplay', handleCanPlay);
-            audio.removeEventListener('error', handleError);
-            audio.pause();
-            audio.src = '';
+            if (audioRef.current) {
+                audioRef.current.removeEventListener('loadstart', handleLoadStart);
+                audioRef.current.removeEventListener('canplay', handleCanPlay);
+                audioRef.current.removeEventListener('error', handleError);
+                audioRef.current.pause();
+                audioRef.current.src = '';
+                audioRef.current = null;
+            }
         };
     }, [streamUrl]);
 
     // Play/Pause Logic
     useEffect(() => {
-        if (!audioElement) return;
+        const audio = audioRef.current;
+        if (!audio) return;
 
         if (isPlaying) {
             setIsLoadingStream(true);
-            const playPromise = audioElement.play();
+            const playPromise = audio.play();
             if (playPromise !== undefined) {
                 playPromise
                     .then(() => {
@@ -130,10 +134,10 @@ export default function ListenPage() {
                     });
             }
         } else {
-            audioElement.pause();
+            audio.pause();
             setIsLoadingStream(false);
         }
-    }, [isPlaying, audioElement]);
+    }, [isPlaying]);
 
     // Handlers
     const handlePlayPause = () => {

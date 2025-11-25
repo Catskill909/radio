@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { stationTimeToUTC } from "@/lib/station-time";
 
-export async function createShow(formData: FormData) {
+export async function createShow(formData: FormData, shouldRedirect: boolean = true) {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
     const type = formData.get("type") as string;
@@ -124,7 +124,10 @@ export async function createShow(formData: FormData) {
 
     revalidatePath("/shows");
     revalidatePath("/schedule");
-    redirect("/shows");
+
+    if (shouldRedirect) {
+        redirect("/shows");
+    }
 }
 
 export async function getShows() {

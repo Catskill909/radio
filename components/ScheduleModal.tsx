@@ -168,7 +168,7 @@ export default function ScheduleModal({
         formData.set('recordingSource', recordingSource)
 
         try {
-            await createShow(formData)
+            await createShow(formData, false)
             onClose()
             window.location.reload()
         } catch (error) {
