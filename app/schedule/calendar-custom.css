@@ -180,8 +180,8 @@
 }
 
 .rbc-toolbar button.rbc-active {
-    background: #3b82f6 !important;
-    border-color: #3b82f6 !important;
+    background: transparent !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
     color: #ffffff !important;
 }
 
