@@ -64,8 +64,58 @@ export default function ListenPage() {
             });
     }, [selectedDay, isDesktop]); // Re-fetch if view mode changes
 
+    const [streamUrl, setStreamUrl] = useState<string | null>(null);
+    const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+
+    // Fetch Stream URL
+    useEffect(() => {
+        import('@/app/actions').then(({ getStationSettings }) => {
+            getStationSettings().then((settings: any) => {
+                if (settings.streamUrl) {
+                    setStreamUrl(settings.streamUrl);
+                }
+            });
+        });
+    }, []);
+
+    // Audio Element Management
+    useEffect(() => {
+        if (!streamUrl) return;
+
+        const audio = new Audio(streamUrl);
+        audio.preload = 'none';
+        setAudioElement(audio);
+
+        // Cleanup
+        return () => {
+            audio.pause();
+            audio.src = '';
+        };
+    }, [streamUrl]);
+
+    // Play/Pause Logic
+    useEffect(() => {
+        if (!audioElement) return;
+
+        if (isPlaying) {
+            const playPromise = audioElement.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.error("Audio playback failed:", error);
+                    setIsPlaying(false);
+                });
+            }
+        } else {
+            audioElement.pause();
+        }
+    }, [isPlaying, audioElement]);
+
     // Handlers
     const handlePlayPause = () => {
+        if (!streamUrl) {
+            console.warn("No stream URL configured");
+            return;
+        }
         setIsPlaying(!isPlaying);
     };
 
@@ -83,7 +133,9 @@ export default function ListenPage() {
     const handlePlayEpisode = useCallback((episode: Episode) => {
         setCurrentEpisodeId(episode.id);
         console.log('Playing episode:', episode.title);
-    }, []);
+        // TODO: Handle episode playback (pause live stream if playing)
+        if (isPlaying) setIsPlaying(false);
+    }, [isPlaying]);
 
     return (
         <div className="min-h-screen bg-black text-white pb-20">

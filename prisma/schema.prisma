@@ -99,6 +99,7 @@ model StationSettings {
   description String?
   email       String?
   logoUrl     String?
+  streamUrl   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

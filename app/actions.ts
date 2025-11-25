@@ -1078,7 +1078,8 @@ export async function getStationSettings() {
             name: 'My Radio Station',
             description: null,
             email: null,
-            logoUrl: null
+            logoUrl: null,
+            streamUrl: null
         };
     }
 
@@ -1139,4 +1140,29 @@ export async function updateStationIdentityAction(formData: FormData) {
 
     revalidatePath('/settings');
     revalidatePath('/'); // Revalidate home in case it's used there
+}
+
+export async function updateStationStreamAction(formData: FormData) {
+    // Get stream URL from form data
+    const streamUrl = formData.get("streamUrl");
+
+    if (typeof streamUrl !== "string") {
+        return;
+    }
+
+    // Allow empty string to clear the setting
+    const valueToSave = streamUrl.trim() === "" ? null : streamUrl.trim();
+
+    await prisma.stationSettings.upsert({
+        where: { id: 'station' },
+        update: { streamUrl: valueToSave } as any,
+        create: {
+            id: 'station',
+            timezone: 'UTC',
+            streamUrl: valueToSave
+        } as any
+    });
+
+    revalidatePath("/settings");
+    revalidatePath("/listen"); // Revalidate listen page as it uses this setting
 }
