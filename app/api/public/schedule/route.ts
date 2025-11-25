@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
             where: {
                 startTime: {
                     gte: startDate,
-                    lte: endDate,
+                    lt: endDate, // FIX: Use 'lt' instead of 'lte' to exclude midnight of the next day
                 },
             },
             include: {

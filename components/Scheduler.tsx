@@ -71,13 +71,19 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
         let start = toZonedTime(new Date(slot.startTime), stationTimezone);
         let end = toZonedTime(new Date(slot.endTime), stationTimezone);
 
+        // FIX: Shows starting at exactly midnight (00:00:00) should appear on the NEW day
+        // react-big-calendar groups events by the date of their start time
+        // For midnight shows, we need to ensure they're not grouped with the previous day
+        if (start.getHours() === 0 && start.getMinutes() === 0 && start.getSeconds() === 0) {
+            // Add 1 millisecond so react-big-calendar interprets this as the new day
+            start = new Date(start.getTime() + 1);
+        }
+
         // WORKAROUND: react-big-calendar doesn't render events ending exactly at midnight
-        // For split "first" parts, subtract 1 second from end time for display
-        if (isSplit && slot.splitPosition === 'first') {
-            const endMidnight = new Date(end);
-            if (endMidnight.getHours() === 0 && endMidnight.getMinutes() === 0) {
-                end = new Date(end.getTime() - 1000); // Show as 11:59:59 PM instead of 12:00 AM
-            }
+        // We subtract 1 second from the end time so it renders as 11:59:59 PM on the correct day
+        const endMidnight = new Date(end);
+        if (endMidnight.getHours() === 0 && endMidnight.getMinutes() === 0 && endMidnight.getSeconds() === 0) {
+            end = new Date(end.getTime() - 1000);
         }
 
         return {
@@ -111,30 +117,6 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
             initialSlots.map(convertSlotToEvent)
         )
     }, [initialSlots, convertSlotToEvent])
-
-    // DEBUG: Log event data to console
-    console.log('=== SCHEDULER DEBUG ===')
-    console.log('Total events:', events.length)
-
-    // Find the 12:30 AM event
-    const event1230 = events.find(e => {
-        const hour = e.start.getHours()
-        const minute = e.start.getMinutes()
-        return (hour === 0 || hour === 12) && minute === 30
-    })
-
-    if (event1230) {
-        console.log('12:30 AM EVENT FOUND:', {
-            title: event1230.title,
-            start: event1230.start.toLocaleString(),
-            end: event1230.end.toLocaleString(),
-            duration: (event1230.end.getTime() - event1230.start.getTime()) / 60000 + ' minutes',
-            startTime: event1230.start.getTime(),
-            endTime: event1230.end.getTime()
-        })
-    } else {
-        console.log('12:30 AM event NOT FOUND')
-    }
 
     const [editSlotModalOpen, setEditSlotModalOpen] = useState(false)
     const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)

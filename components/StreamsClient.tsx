@@ -117,7 +117,7 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
                         </button>
                         <button
                             onClick={() => setAddModalOpen(true)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"
                         >
                             <Plus className="w-5 h-5" />
                             Add Stream

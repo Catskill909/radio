@@ -244,9 +244,16 @@ export async function createScheduleSlot(
     const endStation = toZonedTime(endTime, stationTz);
 
     // Check if slot crosses midnight IN STATION TIMEZONE
-    const crossesMidnight = startStation.getDate() !== endStation.getDate() ||
+    let crossesMidnight = startStation.getDate() !== endStation.getDate() ||
         startStation.getMonth() !== endStation.getMonth() ||
         startStation.getFullYear() !== endStation.getFullYear();
+
+    // FIX: If the slot ends EXACTLY at midnight (00:00:00), do not treat it as crossing midnight.
+    // This prevents creating a zero-duration second slot (00:00-00:00) which would falsely overlap
+    // with shows starting at midnight (like BBC World News).
+    if (crossesMidnight && endStation.getHours() === 0 && endStation.getMinutes() === 0 && endStation.getSeconds() === 0 && endStation.getMilliseconds() === 0) {
+        crossesMidnight = false;
+    }
 
     if (crossesMidnight) {
         // Generate a unique group ID for linked slots
@@ -335,10 +342,10 @@ export async function createScheduleSlot(
             const overlap2 = await checkSlotOverlap(midnight, endTime);
 
             if (overlap1) {
-                throw new Error(`First half of time slot overlaps with existing show: ${overlap1.show.title}`);
+                throw new Error(`Cannot schedule show: Time slot conflicts with "${overlap1.show.title}" (scheduled ${overlap1.startTime.toLocaleString()} - ${overlap1.endTime.toLocaleString()})`);
             }
             if (overlap2) {
-                throw new Error(`Second half of time slot overlaps with existing show: ${overlap2.show.title}`);
+                throw new Error(`Cannot schedule show: Time slot conflicts with "${overlap2.show.title}" (scheduled ${overlap2.startTime.toLocaleString()} - ${overlap2.endTime.toLocaleString()})`);
             }
 
             slotsToCreate.push(
@@ -395,7 +402,7 @@ export async function createScheduleSlot(
             // Single slot - check for overlap
             const overlapping = await checkSlotOverlap(startTime, endTime);
             if (overlapping) {
-                throw new Error(`Time slot overlaps with existing show: ${overlapping.show.title}`);
+                throw new Error(`Cannot schedule show: Time slot conflicts with "${overlapping.show.title}" (scheduled ${overlapping.startTime.toLocaleString()} - ${overlapping.endTime.toLocaleString()})`);
             }
 
             slotsToCreate.push({
