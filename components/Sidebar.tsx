@@ -96,7 +96,7 @@ export default function Sidebar() {
                                 )}
                             >
                                 <i className={clsx(link.icon, "w-5 flex-shrink-0 text-center")} style={{ fontSize: '1.25rem' }} />
-                                {!isCollapsed && <span>{link.label}</span>}
+                                {!isCollapsed && <span className="font-['Barlow_Semi_Condensed'] font-semibold tracking-wide">{link.label}</span>}
                             </Link>
                         </Tooltip>
                     );
