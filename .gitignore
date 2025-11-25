@@ -53,3 +53,7 @@ dev.db*
 
 # Keep backups local only
 *.SAFE_BACKUP_*
+
+# Uploads and recordings - large media files
+/public/uploads/
+/recordings/

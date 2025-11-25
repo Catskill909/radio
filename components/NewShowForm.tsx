@@ -19,9 +19,39 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [recordingEnabled, setRecordingEnabled] = useState(false);
     const [recordingSource, setRecordingSource] = useState("");
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const handleSubmit = async (formData: FormData) => {
-        // Convert date/time to the format expected by server action
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+
+        // Validate required fields
+        const newErrors: Record<string, string> = {};
+
+        const title = formData.get("title") as string;
+        const type = formData.get("type") as string;
+
+        if (!title || title.trim() === "") {
+            newErrors.title = "Show title is required";
+        }
+
+        if (!type) {
+            newErrors.type = "Please select a show type";
+        }
+
+        // If there are errors, show them and don't submit
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            // Scroll to first error
+            const firstErrorField = document.querySelector('[data-error="true"]');
+            firstErrorField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        // Clear any previous errors
+        setErrors({});
+
+        // Convert date/time to the format expected by server action (if provided)
         if (startDate && startTime) {
             const dateStr = startDate.toISOString().split('T')[0];
             const timeStr = startTime.toTimeString().split(' ')[0].substring(0, 5);
@@ -48,21 +78,27 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
 
             {/* Form - Grid Layout */}
             <div className="flex-1 overflow-y-auto p-6">
-                <form action={handleSubmit} className="max-w-5xl mx-auto">
+                <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
                     <div className="grid grid-cols-12 gap-4">
                         {/* Title - Span 8 */}
                         <div className="col-span-12 md:col-span-8 space-y-1.5">
                             <label htmlFor="title" className="block text-sm font-medium text-gray-300">
-                                Show Title
+                                Show Title <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
                                 id="title"
                                 name="title"
-                                required
-                                className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                data-error={!!errors.title}
+                                className={`w-full bg-gray-900 border rounded-md px-3 py-2 focus:ring-2 focus:border-transparent outline-none transition-all text-sm ${errors.title
+                                    ? 'border-red-500 focus:ring-red-500'
+                                    : 'border-gray-700 focus:ring-blue-500'
+                                    }`}
                                 placeholder="e.g. Morning Jazz"
                             />
+                            {errors.title && (
+                                <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+                            )}
                         </div>
 
                         {/* Host - Span 4 */}
@@ -208,25 +244,28 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                         {/* Show Type - Span 12 but compact grid inside */}
                         <div className="col-span-12 space-y-1.5">
                             <label className="block text-sm font-medium text-gray-300">
-                                Show Type
+                                Show Type <span className="text-red-500">*</span>
                             </label>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-error={!!errors.type}>
                                 {["Local Podcast", "Syndicated Podcast", "Local Music", "Syndicated Music"].map((type) => (
                                     <label
                                         key={type}
-                                        className="flex items-center gap-2 p-2.5 bg-gray-900 border border-gray-700 rounded-md cursor-pointer hover:border-gray-500 transition-colors"
+                                        className={`flex items-center gap-2 p-2.5 bg-gray-900 border rounded-md cursor-pointer hover:border-gray-500 transition-colors ${errors.type ? 'border-red-500' : 'border-gray-700'
+                                            }`}
                                     >
                                         <input
                                             type="radio"
                                             name="type"
                                             value={type}
-                                            required
                                             className="text-blue-600 focus:ring-blue-500 bg-gray-800 border-gray-600 w-3.5 h-3.5"
                                         />
                                         <span className="text-xs font-medium">{type}</span>
                                     </label>
                                 ))}
                             </div>
+                            {errors.type && (
+                                <p className="text-red-500 text-xs mt-1">{errors.type}</p>
+                            )}
                         </div>
 
                         {/* Start Date - Span 4 */}
@@ -234,8 +273,7 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                             <DateTimePicker
                                 selected={startDate}
                                 onChange={setStartDate}
-                                label="Start Date"
-                                required
+                                label="Start Date (Optional)"
                                 minDate={new Date()}
                             />
                         </div>
@@ -245,8 +283,7 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                             <DateTimePicker
                                 selected={startTime}
                                 onChange={setStartTime}
-                                label="Start Time"
-                                required
+                                label="Start Time (Optional)"
                                 timeOnly
                                 showTimeSelect
                             />
@@ -255,7 +292,7 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                         {/* Duration - Span 4 */}
                         <div className="col-span-12 md:col-span-4 space-y-1.5">
                             <label htmlFor="duration" className="block text-sm font-medium text-gray-300">
-                                Duration (min)
+                                Duration (min) - Optional
                             </label>
                             <input
                                 type="number"
@@ -264,7 +301,6 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                                 defaultValue="60"
                                 min="15"
                                 step="15"
-                                required
                                 className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
                             />
                         </div>

@@ -47,77 +47,80 @@ export async function createShow(formData: FormData) {
         },
     });
 
-    // Calculate initial start and end time
-    // ✅ STATION TIMEZONE: Interpret user input as station-local time, convert to UTC for DB
-    const startDateTime = stationTimeToUTC(startDateStr, startTimeStr);
-    const endDateTime = new Date(startDateTime.getTime() + durationMins * 60000);
+    // Only create schedule slots if scheduling info is provided
+    if (startDateStr && startTimeStr && !isNaN(durationMins) && durationMins > 0) {
+        // Calculate initial start and end time
+        // ✅ STATION TIMEZONE: Interpret user input as station-local time, convert to UTC for DB
+        const startDateTime = stationTimeToUTC(startDateStr, startTimeStr);
+        const endDateTime = new Date(startDateTime.getTime() + durationMins * 60000);
 
-    // Generate slots
-    const slotsToCreate = [];
+        // Generate slots
+        const slotsToCreate = [];
 
-    if (isRecurring) {
-        // ✅ DST-AWARE: Use timezone-aware date arithmetic to maintain wall-clock time
-        const { add } = await import('date-fns');
-        const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
-        const { getStationTimezone } = await import('@/lib/station-time');
-        const stationTz = getStationTimezone();
+        if (isRecurring) {
+            // ✅ DST-AWARE: Use timezone-aware date arithmetic to maintain wall-clock time
+            const { add } = await import('date-fns');
+            const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+            const { getStationTimezone } = await import('@/lib/station-time');
+            const stationTz = getStationTimezone();
 
-        // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
-        for (let i = 0; i < 52; i++) {
-            // Convert initial UTC time to station timezone
-            const initialStationStart = toZonedTime(startDateTime, stationTz);
-            const initialStationEnd = toZonedTime(endDateTime, stationTz);
+            // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
+            for (let i = 0; i < 52; i++) {
+                // Convert initial UTC time to station timezone
+                const initialStationStart = toZonedTime(startDateTime, stationTz);
+                const initialStationEnd = toZonedTime(endDateTime, stationTz);
 
-            // Add weeks in STATION TIMEZONE (maintains wall-clock time across DST)
-            const futureStationStart = add(initialStationStart, { weeks: i });
-            const futureStationEnd = add(initialStationEnd, { weeks: i });
+                // Add weeks in STATION TIMEZONE (maintains wall-clock time across DST)
+                const futureStationStart = add(initialStationStart, { weeks: i });
+                const futureStationEnd = add(initialStationEnd, { weeks: i });
 
-            // Convert back to UTC for database storage
-            // date-fns-tz handles DST offset changes automatically
-            const slotStart = fromZonedTime(
-                format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                stationTz
-            );
-            const slotEnd = fromZonedTime(
-                format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                stationTz
-            );
+                // Convert back to UTC for database storage
+                // date-fns-tz handles DST offset changes automatically
+                const slotStart = fromZonedTime(
+                    format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
+                const slotEnd = fromZonedTime(
+                    format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
 
-            // Check for overlaps with existing slots
-            const overlapping = await checkSlotOverlap(slotStart, slotEnd);
+                // Check for overlaps with existing slots
+                const overlapping = await checkSlotOverlap(slotStart, slotEnd);
+                if (overlapping) {
+                    throw new Error(
+                        `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+                    );
+                }
+
+                slotsToCreate.push({
+                    showId: show.id,
+                    startTime: slotStart,
+                    endTime: slotEnd,
+                    isRecurring: true,
+                });
+            }
+        } else {
+            // Single slot - check for overlap
+            const overlapping = await checkSlotOverlap(startDateTime, endDateTime);
             if (overlapping) {
                 throw new Error(
-                    `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+                    `Time slot overlaps with existing show: ${overlapping.show.title}`
                 );
             }
 
             slotsToCreate.push({
                 showId: show.id,
-                startTime: slotStart,
-                endTime: slotEnd,
-                isRecurring: true,
+                startTime: startDateTime,
+                endTime: endDateTime,
+                isRecurring: false,
             });
         }
-    } else {
-        // Single slot - check for overlap
-        const overlapping = await checkSlotOverlap(startDateTime, endDateTime);
-        if (overlapping) {
-            throw new Error(
-                `Time slot overlaps with existing show: ${overlapping.show.title}`
-            );
-        }
 
-        slotsToCreate.push({
-            showId: show.id,
-            startTime: startDateTime,
-            endTime: endDateTime,
-            isRecurring: false,
+        await prisma.scheduleSlot.createMany({
+            data: slotsToCreate,
         });
     }
-
-    await prisma.scheduleSlot.createMany({
-        data: slotsToCreate,
-    });
 
     revalidatePath("/shows");
     revalidatePath("/schedule");
