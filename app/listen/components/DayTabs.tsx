@@ -28,8 +28,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
 
     return (
         <div
-            className="sticky top-[60px] z-30 bg-black/95 backdrop-blur border-b border-gray-800"
-            style={{ top: '60px' }} // Height of collapsed header
+            className="sticky top-[100px] z-30 bg-black/95 backdrop-blur border-b border-gray-800"
         >
             <div
                 ref={scrollRef}

@@ -14,9 +14,9 @@ interface ScheduleCardProps {
 
 export default function ScheduleCard({ slot, isLive, onShowClick }: ScheduleCardProps) {
     const isDesktop = useMediaQuery('(min-width: 1024px)');
-    // Offset: Desktop = 80px (Header) + 60px (Tabs) + 10px (Padding) = 150px
+    // Offset: Desktop = 100px (TopPlayerBar) + 70px (DayTabs) + 50px (Buffer for red border) = 220px
     // Mobile = 60px (Header) + 60px (Tabs) + 10px (Padding) = 130px
-    const scrollOffset = isDesktop ? 150 : 130;
+    const scrollOffset = isDesktop ? 220 : 130;
 
     const scrollRef = useOnAirScroll({ isLive, offset: scrollOffset });
 

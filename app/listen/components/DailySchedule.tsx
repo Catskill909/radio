@@ -31,7 +31,7 @@ export default function DailySchedule({ slots, isLoading, onShowClick }: DailySc
     const now = new Date();
 
     return (
-        <div className="px-4 pt-4 space-y-3 pb-[80vh]">
+        <div className="px-4 pt-6 space-y-3 pb-[80vh]">
             {slots.map((slot) => {
                 const startTime = new Date(slot.startTime);
                 const endTime = new Date(slot.endTime);
