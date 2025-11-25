@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Radio, Calendar, Mic, Rss, ChevronLeft, ChevronRight, Menu, Waves, HelpCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Radio } from "lucide-react";
 import { useState, useEffect } from "react";
 import { clsx } from "clsx";
 import { Tooltip } from "./Tooltip";
@@ -19,13 +19,13 @@ export default function Sidebar() {
     }, [pathname]);
 
     const links = [
-        { href: "/shows", label: "Shows", icon: Radio },
-        { href: "/schedule", label: "Schedule", icon: Calendar },
-        { href: "/streams", label: "Streams", icon: Waves },
-        { href: "/recordings", label: "Recordings", icon: Mic },
-        { href: "/episodes", label: "Episodes", icon: Rss },
-        { href: "/settings", label: "Settings", icon: Menu },
-        { href: "/help", label: "Help & Support", icon: HelpCircle },
+        { href: "/shows", label: "Shows", icon: "fa-solid fa-radio" },
+        { href: "/schedule", label: "Schedule", icon: "fa-solid fa-calendar-days" },
+        { href: "/streams", label: "Streams", icon: "fa-solid fa-water" },
+        { href: "/recordings", label: "Recordings", icon: "fa-solid fa-microphone" },
+        { href: "/episodes", label: "Episodes", icon: "fa-solid fa-podcast" },
+        { href: "/settings", label: "Settings", icon: "fa-solid fa-bars" },
+        { href: "/help", label: "Help & Support", icon: "fa-solid fa-circle-question" },
     ];
 
     return (
@@ -77,7 +77,6 @@ export default function Sidebar() {
 
             <nav className="flex-1 px-3 space-y-2 flex flex-col">
                 {links.map((link) => {
-                    const Icon = link.icon;
                     const isActive = pathname.startsWith(link.href);
                     return (
                         <Tooltip
@@ -89,14 +88,14 @@ export default function Sidebar() {
                             <Link
                                 href={link.href}
                                 className={clsx(
-                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors whitespace-nowrap overflow-hidden",
+                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 whitespace-nowrap overflow-hidden",
                                     isActive
-                                        ? "bg-white/5 text-white"
-                                        : "text-gray-400 hover:bg-white/5 hover:text-white",
+                                        ? "bg-white/10 text-white shadow-[0_2px_4px_rgba(0,0,0,0.2),0_1px_2px_rgba(0,0,0,0.1)] transform translate-y-[-1px]"
+                                        : "text-gray-400 hover:bg-white/5 hover:text-white hover:shadow-sm",
                                     isCollapsed ? "justify-center" : ""
                                 )}
                             >
-                                <Icon className="w-5 h-5 flex-shrink-0" />
+                                <i className={clsx(link.icon, "w-5 flex-shrink-0 text-center")} style={{ fontSize: '1.25rem' }} />
                                 {!isCollapsed && <span>{link.label}</span>}
                             </Link>
                         </Tooltip>
