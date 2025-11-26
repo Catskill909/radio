@@ -1,11 +1,24 @@
+'use client'
+
+import { useState } from 'react';
 import { HelpCircle, BookOpen, Mail, ExternalLink } from 'lucide-react';
+import HelpBrowserModal from '@/components/HelpBrowserModal';
+import HelpFAQ from '@/components/HelpFAQ';
 
 export default function HelpPage() {
+    const [browserOpen, setBrowserOpen] = useState(false);
+    const [selectedArticleId, setSelectedArticleId] = useState<string>('welcome');
+
+    const handleBrowseClick = (articleId: string = 'welcome') => {
+        setSelectedArticleId(articleId)
+        setBrowserOpen(true)
+    }
+
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col p-6 overflow-y-auto">
             <div className="mb-6">
                 <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
-                    <HelpCircle className="w-10 h-10 text-blue-400" />
+                    <HelpCircle className="w-10 h-10 text-indigo-400" />
                     Help & Support
                 </h1>
                 <p className="text-gray-400 mt-2">
@@ -13,41 +26,68 @@ export default function HelpPage() {
                 </p>
             </div>
 
-            <div className="flex-1 overflow-y-auto pb-8">
+            <div className="flex-1 pb-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Getting Started */}
-                    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                    <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <BookOpen className="w-6 h-6 text-blue-400" />
+                            <BookOpen className="w-6 h-6 text-indigo-400" />
                             <h2 className="text-xl font-semibold">Getting Started</h2>
                         </div>
                         <p className="text-gray-400 mb-4">
                             Learn the basics of setting up and managing your radio station.
                         </p>
-                        <ul className="space-y-2 text-gray-300">
+                        <ul className="space-y-2 text-gray-300 mb-4">
                             <li className="flex items-start gap-2">
-                                <span className="text-blue-400 mt-1">•</span>
-                                <span>Setting up your station identity and timezone</span>
+                                <span className="text-indigo-400 mt-1">•</span>
+                                <button
+                                    onClick={() => handleBrowseClick('welcome')}
+                                    className="text-left hover:text-indigo-400 transition-colors hover:underline"
+                                >
+                                    Welcome to Radio Suite
+                                </button>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-blue-400 mt-1">•</span>
-                                <span>Creating and managing shows</span>
+                                <span className="text-indigo-400 mt-1">•</span>
+                                <button
+                                    onClick={() => handleBrowseClick('creating-your-first-show')}
+                                    className="text-left hover:text-indigo-400 transition-colors hover:underline"
+                                >
+                                    Creating Your First Show
+                                </button>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-blue-400 mt-1">•</span>
-                                <span>Scheduling your programming</span>
+                                <span className="text-indigo-400 mt-1">•</span>
+                                <button
+                                    onClick={() => handleBrowseClick('scheduling-basics')}
+                                    className="text-left hover:text-indigo-400 transition-colors hover:underline"
+                                >
+                                    Scheduling Basics
+                                </button>
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="text-blue-400 mt-1">•</span>
-                                <span>Recording and publishing episodes</span>
+                                <span className="text-indigo-400 mt-1">•</span>
+                                <button
+                                    onClick={() => handleBrowseClick('recording-configuration')}
+                                    className="text-left hover:text-indigo-400 transition-colors hover:underline"
+                                >
+                                    Recording Configuration
+                                </button>
                             </li>
                         </ul>
+                        <button
+                            onClick={() => handleBrowseClick('welcome')}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-indigo-500/50 hover:border-indigo-500 bg-transparent hover:bg-indigo-500/5 text-white font-medium transition-all text-sm"
+                        >
+                            <BookOpen className="w-4 h-4" />
+                            Browse All Articles
+                        </button>
                     </div>
 
                     {/* Documentation */}
-                    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                    <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <ExternalLink className="w-6 h-6 text-blue-400" />
+                            <ExternalLink className="w-6 h-6 text-indigo-400" />
                             <h2 className="text-xl font-semibold">Documentation</h2>
                         </div>
                         <p className="text-gray-400 mb-4">
@@ -72,9 +112,9 @@ export default function HelpPage() {
                     </div>
 
                     {/* Support */}
-                    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                    <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <Mail className="w-6 h-6 text-blue-400" />
+                            <Mail className="w-6 h-6 text-indigo-400" />
                             <h2 className="text-xl font-semibold">Contact Support</h2>
                         </div>
                         <p className="text-gray-400 mb-4">
@@ -83,7 +123,7 @@ export default function HelpPage() {
                         <div className="space-y-3">
                             <div className="flex items-center gap-2 text-gray-300">
                                 <Mail className="w-4 h-4 text-gray-500" />
-                                <a href="mailto:support@radiosuite.app" className="hover:text-blue-400 transition-colors">
+                                <a href="mailto:support@radiosuite.app" className="hover:text-indigo-400 transition-colors">
                                     support@radiosuite.app
                                 </a>
                             </div>
@@ -94,15 +134,15 @@ export default function HelpPage() {
                     </div>
 
                     {/* FAQ */}
-                    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                    <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <HelpCircle className="w-6 h-6 text-blue-400" />
+                            <HelpCircle className="w-6 h-6 text-indigo-400" />
                             <h2 className="text-xl font-semibold">Frequently Asked Questions</h2>
                         </div>
                         <div className="space-y-4">
                             <details className="group">
                                 <summary className="cursor-pointer text-gray-300 font-medium hover:text-white transition-colors list-none flex items-center gap-2">
-                                    <span className="text-blue-400">›</span>
+                                    <span className="text-indigo-400">›</span>
                                     How do I export my RSS feed?
                                 </summary>
                                 <p className="text-gray-400 mt-2 ml-5 text-sm">
@@ -111,26 +151,33 @@ export default function HelpPage() {
                             </details>
                             <details className="group">
                                 <summary className="cursor-pointer text-gray-300 font-medium hover:text-white transition-colors list-none flex items-center gap-2">
-                                    <span className="text-blue-400">›</span>
+                                    <span className="text-indigo-400">›</span>
                                     Can I schedule recurring shows?
                                 </summary>
                                 <p className="text-gray-400 mt-2 ml-5 text-sm">
-                                    Yes! When creating a schedule slot, select "Recurring" and choose your desired frequency (daily, weekly, etc.).
+                                    Yes! When creating a schedule slot, enable "Repeats Weekly?" to generate recurring instances automatically.
                                 </p>
                             </details>
                             <details className="group">
                                 <summary className="cursor-pointer text-gray-300 font-medium hover:text-white transition-colors list-none flex items-center gap-2">
-                                    <span className="text-blue-400">›</span>
+                                    <span className="text-indigo-400">›</span>
                                     How do I connect to Icecast?
                                 </summary>
                                 <p className="text-gray-400 mt-2 ml-5 text-sm">
-                                    Go to the Streams page and add your Icecast server details including the mount point, host, and port. The system will verify the connection.
+                                    Go to the Streams page and add your Icecast server details including the stream URL. The system will verify the connection.
                                 </p>
                             </details>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Full-Screen Help Browser */}
+            <HelpBrowserModal
+                isOpen={browserOpen}
+                onClose={() => setBrowserOpen(false)}
+                initialArticleId={selectedArticleId}
+            />
         </div>
     );
 }

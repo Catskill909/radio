@@ -9,6 +9,7 @@ import EditShowModal from "@/components/EditShowModal"
 import EditShowForm from "@/components/EditShowForm"
 import { RssFeedModal } from "@/components/RssFeedModal"
 import { Tooltip } from "@/components/Tooltip"
+import HelpIcon from '@/components/HelpIcon'
 
 interface Show {
     id: string
@@ -71,7 +72,10 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
         <>
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-4xl font-bold" style={{ fontFamily: 'Oswald, sans-serif' }}>Shows</h1>
+                    <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
+                        Shows
+                        <HelpIcon articleId="creating-your-first-show" tooltip="Learn about creating shows" />
+                    </h1>
                     <Link
                         href="/shows/new"
                         className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"

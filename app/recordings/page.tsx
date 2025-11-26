@@ -1,20 +1,18 @@
-import { getRecordings } from "@/app/actions";
-import Link from "next/link";
-import RecordingsList from "@/components/RecordingsList";
+import { getRecordings } from '@/app/actions';
+import RecordingsList from '@/components/RecordingsList';
+import HelpIcon from '@/components/HelpIcon';
 
 export default async function RecordingsPage() {
     const recordings = await getRecordings();
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold">Recordings</h1>
-                <Link
-                    href="/episodes"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-sm font-medium text-white transition-all"
-                >
-                    View Published Episodes
-                </Link>
+        <div className="p-6">
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
+                    Recordings
+                    <HelpIcon articleId="recording-configuration" tooltip="Learn about recordings" />
+                </h1>
+                <p className="text-gray-400 mt-1">Manage your station's automated recordings</p>
             </div>
 
             <RecordingsList recordings={recordings} />
