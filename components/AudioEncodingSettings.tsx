@@ -233,7 +233,6 @@ export default function AudioEncodingSettings({ initialSettings }: AudioEncoding
             <div className="mt-4 p-3 bg-blue-900/20 border border-blue-800/30 rounded-lg">
                 <p className="text-xs text-blue-300">
                     <strong>Note:</strong> Recording quality settings will apply to all future recordings. Existing recordings will not be affected.
-                    You must restart the recorder service for changes to take effect.
                 </p>
             </div>
         </div>

@@ -112,60 +112,32 @@ async function startRecording(slot: any) {
     const audioSampleRate = settings?.audioSampleRate
     const audioVBR = settings?.audioVBR ?? true
 
-    // Check stream format to decide on transcoding
-    let useTranscoding = false;
-    try {
-        await new Promise<void>((resolve) => {
-            ffmpeg.ffprobe(sourceUrl, (err, metadata) => {
-                if (!err && metadata && metadata.streams) {
-                    const audioStream = metadata.streams.find(s => s.codec_type === 'audio');
-                    // If codec is not mp3, we must transcode to fit in .mp3 container
-                    if (audioStream && audioStream.codec_name !== 'mp3') {
-                        console.log(`Stream codec is ${audioStream.codec_name}, enabling transcoding to ${audioCodec}`)
-                        useTranscoding = true;
-                    }
-                } else {
-                    console.warn(`Could not probe stream ${sourceUrl}, defaulting to transcoding for safety`)
-                    useTranscoding = true;
-                }
-                resolve();
-            });
-        });
-    } catch (e) {
-        console.error(`Error probing stream, defaulting to transcoding:`, e);
-        useTranscoding = true;
-    }
-
+    // Always apply encoding settings from database to respect user preferences
     const command = ffmpeg(sourceUrl)
 
-    if (useTranscoding) {
-        // Apply encoding settings from database
-        command.audioCodec(audioCodec)
+    command.audioCodec(audioCodec)
 
-        // Apply bitrate for lossy codecs (not FLAC)
-        if (audioCodec !== 'flac') {
-            if (audioVBR) {
-                // Variable Bitrate
-                command.audioBitrate(`${audioBitrate}k`)
-            } else {
-                // Constant Bitrate
-                command.audioBitrate(`${audioBitrate}k`).audioQuality(0)
-            }
+    // Apply bitrate for lossy codecs (not FLAC)
+    if (audioCodec !== 'flac') {
+        if (audioVBR) {
+            // Variable Bitrate
+            command.audioBitrate(`${audioBitrate}k`)
+        } else {
+            // Constant Bitrate
+            command.audioBitrate(`${audioBitrate}k`).audioQuality(0)
         }
-
-        // Apply sample rate if specified
-        if (audioSampleRate) {
-            command.audioFrequency(audioSampleRate)
-        }
-
-        console.log(`Encoding with: ${audioCodec} @ ${audioBitrate}kbps (${audioVBR ? 'VBR' : 'CBR'})${audioSampleRate ? ` ${audioSampleRate}Hz` : ''}`)
-    } else {
-        command.audioCodec('copy')
     }
+
+    // Apply sample rate if specified
+    if (audioSampleRate) {
+        command.audioFrequency(audioSampleRate)
+    }
+
+    console.log(`Encoding with: ${audioCodec} @ ${audioBitrate}kbps (${audioVBR ? 'VBR' : 'CBR'})${audioSampleRate ? ` ${audioSampleRate}Hz` : ''}`)
 
     command
         .on('start', (commandLine) => {
-            console.log(`FFmpeg started for ${slot.show.title} (Transcoding: ${useTranscoding})`)
+            console.log(`FFmpeg started for ${slot.show.title}`)
             console.log(`Command: ${commandLine}`)
         })
         .on('error', async (err) => {
