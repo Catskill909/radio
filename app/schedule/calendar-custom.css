@@ -148,10 +148,12 @@
     background-color: rgba(59, 130, 246, 0.05) !important;
 }
 
-/* Current Time Indicator */
+/* Current Time Indicator - Thicker with subtle glow (SAFE: only visual properties) */
 .rbc-current-time-indicator {
     background-color: #ef4444 !important;
-    height: 2px !important;
+    height: 4px !important;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6) !important;
+    border-radius: 2px !important;
 }
 
 /* Toolbar */
