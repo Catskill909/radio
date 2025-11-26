@@ -347,7 +347,7 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                         <div className="col-span-12 pt-4">
                             <button
                                 type="submit"
-                                className="w-full md:w-auto px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md transition-colors shadow-lg hover:shadow-blue-500/20 text-sm"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"
                             >
                                 Create Show
                             </button>

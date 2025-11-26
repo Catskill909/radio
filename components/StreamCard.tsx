@@ -133,7 +133,7 @@ export default function StreamCard({ stream, onEdit }: StreamCardProps) {
                     {/* Toggle Switch */}
                     <button
                         onClick={handleToggle}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isEnabled ? 'bg-blue-600' : 'bg-gray-600'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isEnabled ? 'bg-gray-600' : 'bg-gray-700'
                             }`}
                     >
                         <span
@@ -232,7 +232,7 @@ export default function StreamCard({ stream, onEdit }: StreamCardProps) {
                     </button>
                     <button
                         onClick={onEdit}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
                     >
                         <Edit className="w-4 h-4" />
                         Edit
