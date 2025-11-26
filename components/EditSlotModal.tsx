@@ -149,7 +149,10 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                     <input
                                         type="number"
                                         value={duration}
-                                        onChange={(e) => setDuration(parseInt(e.target.value))}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            setDuration(val === '' ? '' as any : parseInt(val));
+                                        }}
                                         min="15"
                                         step="15"
                                         className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
