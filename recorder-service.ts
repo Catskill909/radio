@@ -246,7 +246,7 @@ async function handleRecordingCompletion(recording: any, slot: any, filePath: st
             audioCodec: settings?.audioCodec || null,
             audioBitrate: settings?.audioBitrate || null,
             audioSampleRate: settings?.audioSampleRate || null,
-        },
+        } as any,
     })
 
     // Auto-publish as episode
