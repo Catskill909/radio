@@ -64,6 +64,20 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Clear UI messaging: "Delete This Time Slot & All Future - Removes ~52 occurrences of Mondays at 3:00 PM"
   - Preserves other time slots: "Other time slots for this show will not be affected"
   - Critical for radio schedules with multiple daily airings and rebroadcasts
+- **User-Friendly Error Handling** 🆕
+  - **Error Modals**: Schedule conflicts and validation errors display in informative modal dialogs instead of React error screens
+  - **Conflict Details**: Shows conflicting show name, time range, and week number (for recurring shows)
+  - **Actionable Suggestions**: Context-specific tips for resolving issues:
+    - "Choose a different time slot"
+    - "Adjust the duration to avoid the conflict"
+    - "Uncheck 'Repeat Weekly' to schedule only this week"
+  - **Enhanced Edit Modal Errors**: EditSlotModal displays errors with icon, title, and helpful suggestions section
+  - **Consistent Design**: Error modals match the app's dark theme and modal styling
+  - **Error Types Handled**:
+    - Single slot overlaps
+    - Recurring slot overlaps (immediate and future weeks)
+    - Midnight-crossing overlaps
+    - Validation errors (zero duration, invalid times)
 
 ---
 

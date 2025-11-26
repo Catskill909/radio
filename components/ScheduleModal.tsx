@@ -133,7 +133,8 @@ export default function ScheduleModal({
             onClose()
             window.location.reload() // Refresh to show new slot
         } catch (error) {
-            console.error('Failed to schedule show:', error)
+            // Use console.warn so expected business errors (overlaps) don't trigger the red React error overlay
+            console.warn('Failed to schedule show:', error)
             setErrorMessage(error instanceof Error ? error.message : 'Failed to schedule show')
             setErrorModalOpen(true)
         }
@@ -178,7 +179,8 @@ export default function ScheduleModal({
             onClose()
             window.location.reload()
         } catch (error) {
-            console.error('Failed to create and schedule show:', error)
+            // Use console.warn so expected business errors (overlaps, validation) don't trigger the red React error overlay
+            console.warn('Failed to create and schedule show:', error)
             setErrorMessage(error instanceof Error ? error.message : 'Failed to create and schedule show')
             setErrorModalOpen(true)
         }

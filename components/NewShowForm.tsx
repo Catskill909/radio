@@ -20,6 +20,7 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
     const [recordingEnabled, setRecordingEnabled] = useState(false);
     const [recordingSource, setRecordingSource] = useState("");
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -50,6 +51,7 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
 
         // Clear any previous errors
         setErrors({});
+        setSubmitError(null);
 
         // Convert date/time to the format expected by server action (if provided)
         if (startDate && startTime) {
@@ -60,7 +62,13 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
             formData.set('startTime', timeStr);
         }
 
-        await createShow(formData);
+        try {
+            await createShow(formData);
+        } catch (error) {
+            // Use console.warn so expected business errors (like schedule overlaps) don't trigger the red React error overlay in dev
+            console.warn("Failed to create show:", error);
+            setSubmitError(error instanceof Error ? error.message : "Failed to create show");
+        }
     };
 
     return (
@@ -79,6 +87,12 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
             {/* Form - Grid Layout */}
             <div className="flex-1 overflow-y-auto p-6">
                 <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
+                    {submitError && (
+                        <div className="mb-4 bg-red-500/10 border border-red-500/40 text-red-200 text-sm rounded-md px-4 py-3">
+                            {submitError}
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-12 gap-4">
                         {/* Title - Span 8 */}
                         <div className="col-span-12 md:col-span-8 space-y-1.5">

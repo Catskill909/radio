@@ -36,6 +36,10 @@ A comprehensive radio station management system for scheduling shows, automated 
 - Week and day views
 - Visual indicators for recurring shows
 - Click events to create and edit shows directly from the calendar
+- **User-friendly error handling** – Schedule conflicts and validation errors display in helpful modal dialogs with:
+  - Clear conflict details (conflicting show name and time)
+  - Actionable suggestions for resolution
+  - No more React error screens or basic browser alerts
 
 ### ⏰ Station Time (One Truth)
 - Set a single **station timezone** in Settings (e.g. `America/New_York`).
@@ -288,6 +292,20 @@ radio-suite/
 - Publication date: publishedAt
 
 ## Recent Updates
+
+### Phase 10.5: Schedule Error Handling UX (Nov 26, 2025)
+- ✅ **User-Friendly Error Modals** - Replaced React error screens and browser alerts with informative modal dialogs
+  - Schedule conflict detection with conflicting show details (name, time)
+  - Actionable suggestions for resolving conflicts
+  - Enhanced error display in EditSlotModal with icon and helpful tips
+  - Reusable ScheduleErrorModal component
+- ✅ **Error Parsing Utilities** - Structured error information extraction
+  - Parse error type (overlap, validation, general)
+  - Extract conflicting show details and week numbers
+  - Context-specific suggestions based on error type
+- ✅ **Bug Fixes**
+  - Fixed NaN error when clearing duration input fields
+  - Proper handling of empty number inputs across schedule modals
 
 ### Phase 10: Audio Encoding Quality & UI Refinements (Nov 25, 2025)
 - ✅ **Configurable Audio Encoding** - Control recording quality from Settings page
