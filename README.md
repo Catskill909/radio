@@ -51,6 +51,18 @@ A comprehensive radio station management system for scheduling shows, automated 
 - Recording status tracking (PENDING/RECORDING/COMPLETED/FAILED)
 - **Auto-publishing** - Recordings automatically become podcast episodes
 - **Automatic recurring extension** – Background job extends recurring shows as they approach the end of their scheduled horizon so long-running series never silently fall off the calendar.
+- **Smart transcoding**: Automatically detects stream format and transcodes when needed
+- **Configurable quality**: Control encoding settings from Settings page
+
+### 🎛️ Audio Encoding Quality
+- **Codec selection** - MP3, AAC, Opus, or FLAC
+- **Bitrate control** - 64-320 kbps with visual slider
+- **Sample rate options** - Auto, 22.05kHz, 44.1kHz, 48kHz
+- **VBR/CBR toggle** - Variable vs constant bitrate encoding
+- **Quality presets** - Quick configs for Voice, Music, or Archival quality
+- **File size estimates** - Real-time calculation per hour of recording
+- **Recording metadata** - New recordings track quality settings used
+- **Quality badges** - Recordings view displays codec, bitrate, and sample rate
 
 ### 🎧 Audio Playback
 - **Custom audio player** with play/pause controls
@@ -277,6 +289,28 @@ radio-suite/
 
 ## Recent Updates
 
+### Phase 10: Audio Encoding Quality & UI Refinements (Nov 25, 2025)
+- ✅ **Configurable Audio Encoding** - Control recording quality from Settings page
+  - Codec selection: MP3, AAC, Opus, FLAC
+  - Bitrate control: 64-320 kbps with slider
+  - Sample rate options: Auto, 22.05kHz, 44.1kHz, 48kHz
+  - VBR/CBR toggle for optimal compression
+  - Quality presets: Voice (96kbps), Music (192kbps), Archival (lossless)
+  - Real-time file size estimates per hour of recording
+- ✅ **Recording Quality Metadata** - New recordings track encoding settings
+  - Quality badges in recordings view (codec, bitrate, sample rate)
+  - Database fields added to `Recording` model
+  - Recorder service saves quality info on completion
+- ✅ **UI Aesthetic Refinements** - Consistent darker design language
+  - Stream cards: Changed bright blue edit buttons to darker gray
+  - Stream cards: Changed blue toggle switches to gray
+  - New show form: Changed bright blue button to bordered style
+  - Settings icon: Changed to Font Awesome gear icon (fa-gear)
+- ✅ **Enhanced Settings UX** - Improved visual feedback
+  - Save button highlights blue with pulse animation when changes detected
+  - Asterisk indicator for unsaved changes
+  - Green confirmation after successful save
+
 ### Phase 9: Live Streaming & Public Listen Page (Nov 25, 2025)
 - ✅ **Stream Configuration** - New "Station Audio Stream" setting to select the active stream for public playback
 - ✅ **Public Listen Page** - Beautiful `/listen` page with weekly schedule, day tabs, and live player
@@ -347,11 +381,15 @@ radio-suite/
 - [x] Time-slot-specific deletion
 - [x] Live streaming configuration and player
 - [x] Public listen page with schedule
+- [x] Configurable audio encoding quality (codec, bitrate, sample rate)
+- [x] Recording quality tracking and badges
 
 ### Next Up
 - [ ] Enhanced public-facing pages (show details, host bios)
 - [ ] Recording dashboard with status monitoring
 - [ ] Batch episode editing
+- [ ] Per-show encoding overrides
+- [ ] Recording pre/post-roll buffers
 
 ### Future Enhancements
 - [ ] Enhance recorder service with error recovery and retry logic

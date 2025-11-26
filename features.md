@@ -116,7 +116,7 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 
 ---
 
-## 4. Automated Recording & Recorder Service
+### 🎬 Automated Recording & Recorder Service
 
 **Status:** Shipped (base flow), recorder service available as a script
 
@@ -132,11 +132,45 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Updates recording status in the database
   - Uses the station-wide timezone consistently with the calendar "now" marker
   - **Smart Transcoding**: Automatically detects stream format (e.g., AAC) and transcodes to MP3 if necessary, or uses direct stream copy for MP3 sources
+  - **Configurable Encoding**: Applies quality settings from Settings page (codec, bitrate, sample rate, VBR/CBR)
 - **Automatic recurring extension**
   - Recurring shows are extended automatically in the background as they approach the end of their scheduled horizon (no manual upkeep required for long-running programs)
 - **Recording lifecycle**
   - Statuses: PENDING, RECORDING, COMPLETED, FAILED
   - Recordings link to schedule slots and shows
+  - Quality metadata saved on completion (codec, bitrate, sample rate)
+
+---
+
+## 4.5. Audio Encoding Quality
+
+**Status:** Shipped
+
+- **Settings UI**
+  - **Codec selector** - MP3 (libmp3lame), AAC, Opus (libopus), FLAC
+  - **Bitrate slider** - 64 to 320 kbps with real-time value display
+  - **Sample rate dropdown** - Auto (from source), 22.05kHz, 44.1kHz, 48kHz
+  - **VBR/CBR toggle** - Variable bitrate (recommended) vs Constant bitrate
+  - **Quality presets** - Quick configurations:
+    - Voice: 96kbps MP3, 22.05kHz (podcasts, talk shows)
+    - Music: 192kbps MP3, Auto sample rate (recommended default)
+    - Archival: FLAC lossless, 48kHz (maximum quality)
+  - **File size calculator** - Real-time estimates per hour of recording
+  - **Unsaved changes indicator** - Save button pulses blue with asterisk when settings modified
+  - **Database persistence** - Settings stored in `StationSettings` table
+- **Recorder integration**
+  - Encoding settings applied during recording start
+  - Falls back to safe defaults (192kbps MP3 VBR) if settings unavailable
+  - Quality parameters logged in console for debugging
+- **Recording metadata tracking**
+  - New recordings save quality settings used: `audioCodec`, `audioBitrate`, `audioSampleRate`
+  - Database fields added to `Recording` model
+  - Quality badges displayed in recordings view
+  - Existing recordings unaffected (no retroactive metadata)
+- **Display in recordings view**
+  - Quality badges show codec (MP3/AAC/Opus/FLAC), bitrate, and sample rate
+  - Example: `[MP3] [192 kbps] [48.0 kHz]`
+  - Badges only appear for recordings with quality metadata
 
 ---
 
@@ -239,17 +273,24 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 **Status:** Shipped
 
 - **Layout & navigation**
-  - Sidebar navigation for Shows, Schedule, Streams, Recordings, Episodes
+  - Sidebar navigation for Shows, Schedule, Streams, Recordings, Episodes, Settings
   - Auto-collapse of sidebar on Schedule for maximum calendar space
-  - Settings page for station-wide configuration (currently timezone with live station clock, more to come)
+  - Settings page for station-wide configuration (timezone, stream, audio encoding quality)
+  - **Icon updates** - Settings uses Font Awesome gear icon (fa-gear)
 - **Theming & components**
   - Dark theme with TailwindCSS
   - Custom modals for create/edit/delete confirmation
   - Tooltips on calendar events and sidebar when collapsed
   - Date/time pickers with dark theme
-- **Feedback & diagnostics**
+- **UI aesthetic refinements**
+  - Consistent darker color palette across buttons and controls
+  - Stream cards with darker gray edit buttons and toggle switches
+  - Bordered button style for Create Show actions
+- **Enhanced feedback & UX**
   - Inline error banners in editors and modals
   - Status badges, spinners, and stale-data indicators across the app
+  - **Unsaved changes detection** - Save buttons highlight blue with pulse animation when changes made
+  - Success confirmations with green highlighting
 
 ---
 
@@ -268,7 +309,11 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Real-time validation and feedback
   - **Station Timezone**: Global timezone setting with live clock
   - **Station Audio Stream**: Select active Icecast stream for public listen page
-  - Two-column grid layout for timezone and stream settings
+  - **Audio Encoding Quality**: Configure recording quality (codec, bitrate, sample rate, VBR/CBR)
+    - Quality presets for quick configuration
+    - Real-time file size estimates
+    - Unsaved changes detection with visual feedback
+  - Two-column grid layout for optimal space utilization
 
 ---
 
@@ -300,10 +345,10 @@ This section is intentionally lightweight – it is meant to be edited as priori
   - **Episode Publishing Controls**
     - Toggle auto-publish recordings on/off (currently always enabled)
     - Default episode numbering scheme: sequential vs date-based vs manual
-    - **Transcoding & Stream Settings**
-      - Customizable bitrate for transcoded recordings (e.g., 128k vs 192k vs 256k)
-      - Option to force transcoding even for compatible streams (e.g., to normalize bitrate)
-      - _Note: Default behavior remains "copy from source" for MP3 streams to ensure zero quality loss and minimal CPU overhead._
+  - **Advanced Encoding Options** (future enhancements)
+    - Per-show encoding overrides (different quality per show)
+    - Real-time bitrate adjustment during recording
+    - Multiple simultaneous quality levels (high-quality archive + lower podcast version)
 - **Aggregator URL fields (future)** – Optional fields on Show setup/edit forms for Apple Podcasts, Spotify, Amazon Music, TuneIn Radio, iHeartRadio, Podcast Index (basic fields only). When populated, corresponding icons/links appear in the front‑end; otherwise they are hidden.
 - **Enhanced public listen experience**
   - Show detail pages with episode archives
