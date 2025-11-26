@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import path from 'path'
+import { helpArticles } from '@/lib/help-articles'
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
@@ -11,24 +12,14 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        // Map article IDs to file paths
-        const articlePaths: Record<string, string> = {
-            'welcome': 'content/help/getting-started/welcome.md',
-            'creating-your-first-show': 'content/help/getting-started/creating-your-first-show.md',
-            'scheduling-basics': 'content/help/getting-started/scheduling-basics.md',
-            'recording-configuration': 'content/help/recording/recording-configuration.md',
-            'station-timezone': 'content/help/settings/station-timezone.md',
-            'adding-icecast-streams': 'content/help/recording/adding-icecast-streams.md',
-            'publishing-episodes': 'content/help/podcasting/publishing-episodes.md',
-            'recurring-shows': 'content/help/scheduling/recurring-shows.md',
-        }
-
-        const filePath = articlePaths[articleId]
-        if (!filePath) {
+        const article = helpArticles[articleId]
+        if (!article) {
             return NextResponse.json({ error: 'Article not found' }, { status: 404 })
         }
 
-        const fullPath = path.join(process.cwd(), filePath)
+        // Remove leading slash if present to ensure path.join works correctly with process.cwd()
+        const relativePath = article.filePath.startsWith('/') ? article.filePath.slice(1) : article.filePath
+        const fullPath = path.join(process.cwd(), relativePath)
         const content = await readFile(fullPath, 'utf-8')
 
         // Extract frontmatter and content

@@ -93,6 +93,33 @@ export const helpArticles: Record<string, HelpArticle> = {
         relatedTopics: ['publishing-episodes', 'creating-your-first-show'],
         keywords: ['rss', 'feed', 'itunes', 'spotify', 'distribution']
     },
+    'stream-health-monitoring': {
+        id: 'stream-health-monitoring',
+        title: 'Stream Health Monitoring',
+        category: 'Recording & Quality',
+        order: 4,
+        filePath: '/content/help/recording/stream-health-monitoring.md',
+        relatedTopics: ['adding-icecast-streams', 'troubleshooting-audio'],
+        keywords: ['health', 'status', 'offline', 'online', 'monitoring']
+    },
+    'public-listen-page': {
+        id: 'public-listen-page',
+        title: 'Public Listen Page',
+        category: 'Getting Started',
+        order: 4,
+        filePath: '/content/help/getting-started/public-listen-page.md',
+        relatedTopics: ['station-identity', 'station-timezone'],
+        keywords: ['listen', 'public', 'player', 'sharing']
+    },
+    'troubleshooting-audio': {
+        id: 'troubleshooting-audio',
+        title: 'Troubleshooting Audio',
+        category: 'Recording & Quality',
+        order: 5,
+        filePath: '/content/help/recording/troubleshooting-audio.md',
+        relatedTopics: ['stream-health-monitoring', 'audio-encoding-quality'],
+        keywords: ['troubleshoot', 'fix', 'problem', 'silence', 'playback']
+    },
     'recurring-shows': {
         id: 'recurring-shows',
         title: 'Recurring Shows & Schedules',
@@ -110,6 +137,42 @@ export const helpArticles: Record<string, HelpArticle> = {
         filePath: '/content/help/scheduling/handling-conflicts.md',
         relatedTopics: ['scheduling-basics', 'recurring-shows'],
         keywords: ['conflict', 'overlap', 'error', 'scheduling']
+    },
+    'user-guide': {
+        id: 'user-guide',
+        title: 'User Guide',
+        category: 'Getting Started',
+        order: 0,
+        filePath: '/content/help/getting-started/user-guide.md',
+        relatedTopics: ['welcome', 'api-reference'],
+        keywords: ['guide', 'index', 'manual', 'documentation']
+    },
+    'api-reference': {
+        id: 'api-reference',
+        title: 'API Reference',
+        category: 'Settings & Configuration',
+        order: 2,
+        filePath: '/content/help/settings/api-reference.md',
+        relatedTopics: ['rss-feed-management', 'user-guide'],
+        keywords: ['api', 'developer', 'endpoints', 'json']
+    },
+    'editing-episodes': {
+        id: 'editing-episodes',
+        title: 'Editing Episodes',
+        category: 'Podcasting',
+        order: 3,
+        filePath: '/content/help/podcasting/editing-episodes.md',
+        relatedTopics: ['publishing-episodes', 'rss-feed-management'],
+        keywords: ['edit', 'update', 'metadata', 'replace audio']
+    },
+    'managing-recordings': {
+        id: 'managing-recordings',
+        title: 'Managing Recordings',
+        category: 'Recording & Quality',
+        order: 6,
+        filePath: '/content/help/recording/managing-recordings.md',
+        relatedTopics: ['recording-configuration', 'publishing-episodes'],
+        keywords: ['download', 'delete', 'publish', 'file']
     }
 }
 

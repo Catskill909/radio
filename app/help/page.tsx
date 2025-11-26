@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { HelpCircle, BookOpen, Mail, ExternalLink } from 'lucide-react';
 import HelpBrowserModal from '@/components/HelpBrowserModal';
-import HelpFAQ from '@/components/HelpFAQ';
 
 export default function HelpPage() {
     const [browserOpen, setBrowserOpen] = useState(false);
@@ -94,20 +93,20 @@ export default function HelpPage() {
                             Comprehensive guides and references for all features.
                         </p>
                         <div className="space-y-3">
-                            <a
-                                href="#"
-                                className="block px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/50 hover:border-gray-600"
+                            <button
+                                onClick={() => handleBrowseClick('user-guide')}
+                                className="w-full text-left block px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/50 hover:border-gray-600"
                             >
                                 <div className="font-medium text-gray-200">User Guide</div>
                                 <div className="text-sm text-gray-400">Complete walkthrough of all features</div>
-                            </a>
-                            <a
-                                href="#"
-                                className="block px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/50 hover:border-gray-600"
+                            </button>
+                            <button
+                                onClick={() => handleBrowseClick('api-reference')}
+                                className="w-full text-left block px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/50 hover:border-gray-600"
                             >
                                 <div className="font-medium text-gray-200">API Reference</div>
                                 <div className="text-sm text-gray-400">Technical documentation for developers</div>
-                            </a>
+                            </button>
                         </div>
                     </div>
 
@@ -130,43 +129,6 @@ export default function HelpPage() {
                             <div className="text-sm text-gray-500">
                                 We typically respond within 24 hours.
                             </div>
-                        </div>
-                    </div>
-
-                    {/* FAQ */}
-                    <div className="bg-gray-900 border border-gray-700 rounded-xl p-6">
-                        <div className="flex items-center gap-3 mb-4">
-                            <HelpCircle className="w-6 h-6 text-indigo-400" />
-                            <h2 className="text-xl font-semibold">Frequently Asked Questions</h2>
-                        </div>
-                        <div className="space-y-4">
-                            <details className="group">
-                                <summary className="cursor-pointer text-gray-300 font-medium hover:text-white transition-colors list-none flex items-center gap-2">
-                                    <span className="text-indigo-400">›</span>
-                                    How do I export my RSS feed?
-                                </summary>
-                                <p className="text-gray-400 mt-2 ml-5 text-sm">
-                                    Your RSS feed is automatically generated for each show. Navigate to the Shows page and click on a show to see its RSS feed URL.
-                                </p>
-                            </details>
-                            <details className="group">
-                                <summary className="cursor-pointer text-gray-300 font-medium hover:text-white transition-colors list-none flex items-center gap-2">
-                                    <span className="text-indigo-400">›</span>
-                                    Can I schedule recurring shows?
-                                </summary>
-                                <p className="text-gray-400 mt-2 ml-5 text-sm">
-                                    Yes! When creating a schedule slot, enable "Repeats Weekly?" to generate recurring instances automatically.
-                                </p>
-                            </details>
-                            <details className="group">
-                                <summary className="cursor-pointer text-gray-300 font-medium hover:text-white transition-colors list-none flex items-center gap-2">
-                                    <span className="text-indigo-400">›</span>
-                                    How do I connect to Icecast?
-                                </summary>
-                                <p className="text-gray-400 mt-2 ml-5 text-sm">
-                                    Go to the Streams page and add your Icecast server details including the stream URL. The system will verify the connection.
-                                </p>
-                            </details>
                         </div>
                     </div>
                 </div>
