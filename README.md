@@ -1,6 +1,15 @@
 # Radio Suite 📻
 
-A comprehensive radio station management system for scheduling shows, automated recording, and podcast distribution.
+**A modern, all-in-one radio station management system.**
+
+Radio Suite combines a powerful **admin dashboard** for scheduling and automation with a beautiful **public-facing listener site**. It handles everything from planning your weekly grid to recording live broadcasts and automatically publishing them as podcasts.
+
+### Key Capabilities:
+- **Public Listener Experience**: A stunning, animated public schedule with a persistent live audio player and "Now Playing" metadata.
+- **Advanced Scheduling**: Visual drag-and-drop calendar with conflict detection, recurring show automation, and timezone awareness.
+- **Automated Recording**: Background service that records shows from Icecast streams, with smart transcoding and configurable quality (MP3/AAC/FLAC).
+- **Podcast Publishing**: Turn recordings into podcast episodes with one click, complete with iTunes-compatible RSS feeds.
+- **Station Management**: comprehensive settings for station identity, stream monitoring, and audio encoding preferences.
 
 ## Features
 
