@@ -100,6 +100,13 @@ model StationSettings {
   email       String?
   logoUrl     String?
   streamUrl   String?
+  
+  // Audio Recording Quality Settings
+  audioCodec      String  @default("libmp3lame")  // "libmp3lame", "aac", "libopus", "flac"
+  audioBitrate    Int     @default(192)           // kbps: 64, 128, 192, 256, 320
+  audioSampleRate Int?                            // 22050, 44100, 48000 (null = auto)
+  audioVBR        Boolean @default(true)          // true = VBR, false = CBR
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

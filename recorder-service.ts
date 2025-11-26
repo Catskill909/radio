@@ -102,6 +102,16 @@ async function startRecording(slot: any) {
         },
     })
 
+    // Get encoding settings from database
+    const settings = await prisma.stationSettings.findUnique({
+        where: { id: 'station' }
+    })
+
+    const audioCodec = settings?.audioCodec || 'libmp3lame'
+    const audioBitrate = settings?.audioBitrate || 192
+    const audioSampleRate = settings?.audioSampleRate
+    const audioVBR = settings?.audioVBR ?? true
+
     // Check stream format to decide on transcoding
     let useTranscoding = false;
     try {
@@ -111,7 +121,7 @@ async function startRecording(slot: any) {
                     const audioStream = metadata.streams.find(s => s.codec_type === 'audio');
                     // If codec is not mp3, we must transcode to fit in .mp3 container
                     if (audioStream && audioStream.codec_name !== 'mp3') {
-                        console.log(`Stream codec is ${audioStream.codec_name}, enabling transcoding to mp3`)
+                        console.log(`Stream codec is ${audioStream.codec_name}, enabling transcoding to ${audioCodec}`)
                         useTranscoding = true;
                     }
                 } else {
@@ -129,7 +139,26 @@ async function startRecording(slot: any) {
     const command = ffmpeg(sourceUrl)
 
     if (useTranscoding) {
-        command.audioCodec('libmp3lame')
+        // Apply encoding settings from database
+        command.audioCodec(audioCodec)
+
+        // Apply bitrate for lossy codecs (not FLAC)
+        if (audioCodec !== 'flac') {
+            if (audioVBR) {
+                // Variable Bitrate
+                command.audioBitrate(`${audioBitrate}k`)
+            } else {
+                // Constant Bitrate
+                command.audioBitrate(`${audioBitrate}k`).audioQuality(0)
+            }
+        }
+
+        // Apply sample rate if specified
+        if (audioSampleRate) {
+            command.audioFrequency(audioSampleRate)
+        }
+
+        console.log(`Encoding with: ${audioCodec} @ ${audioBitrate}kbps (${audioVBR ? 'VBR' : 'CBR'})${audioSampleRate ? ` ${audioSampleRate}Hz` : ''}`)
     } else {
         command.audioCodec('copy')
     }

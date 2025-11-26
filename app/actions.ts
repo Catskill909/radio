@@ -1203,3 +1203,46 @@ export async function updateStationStreamAction(formData: FormData) {
     revalidatePath("/settings");
     revalidatePath("/listen"); // Revalidate listen page as it uses this setting
 }
+
+export async function updateStationSettings(formData: FormData) {
+    // Get audio encoding settings from form data
+    const audioCodec = formData.get("audioCodec");
+    const audioBitrate = formData.get("audioBitrate");
+    const audioSampleRate = formData.get("audioSampleRate");
+    const audioVBR = formData.get("audioVBR");
+
+    const updateData: any = {};
+
+    if (typeof audioCodec === "string") {
+        updateData.audioCodec = audioCodec;
+    }
+
+    if (typeof audioBitrate === "string") {
+        updateData.audioBitrate = parseInt(audioBitrate);
+    }
+
+    if (typeof audioSampleRate === "string") {
+        if (audioSampleRate.trim() === "") {
+            updateData.audioSampleRate = null;
+        } else {
+            updateData.audioSampleRate = parseInt(audioSampleRate);
+        }
+    }
+
+    if (typeof audioVBR === "string") {
+        updateData.audioVBR = audioVBR === "true";
+    }
+
+    await prisma.stationSettings.upsert({
+        where: { id: 'station' },
+        update: updateData,
+        create: {
+            id: 'station',
+            timezone: 'UTC',
+            ...updateData
+        }
+    });
+
+    revalidatePath("/settings");
+}
+

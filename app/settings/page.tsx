@@ -3,6 +3,7 @@ import StationClock from "@/components/StationClock";
 import StationIdentityForm from "@/components/StationIdentityForm";
 import StationTimezoneForm from "@/components/StationTimezoneForm";
 import StationStreamForm from "@/components/StationStreamForm";
+import AudioEncodingSettings from "@/components/AudioEncodingSettings";
 
 export default async function SettingsPage() {
     const settings = await getStationSettings();
@@ -39,6 +40,16 @@ export default async function SettingsPage() {
                         />
                     </div>
                 </div>
+
+                {/* Full Width: Audio Encoding Settings */}
+                <AudioEncodingSettings
+                    initialSettings={{
+                        audioCodec: (settings as any).audioCodec || 'libmp3lame',
+                        audioBitrate: (settings as any).audioBitrate || 192,
+                        audioSampleRate: (settings as any).audioSampleRate || null,
+                        audioVBR: (settings as any).audioVBR ?? true,
+                    }}
+                />
             </div>
         </div>
     );
