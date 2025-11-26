@@ -230,13 +230,22 @@ async function handleRecordingCompletion(recording: any, slot: any, filePath: st
         }
     }
 
+    // Get encoding settings that were used for this recording
+    const settings = await prisma.stationSettings.findUnique({
+        where: { id: 'station' }
+    })
+
     const updatedRecording = await prisma.recording.update({
         where: { id: recording.id },
         data: {
             status: 'COMPLETED',
             endTime: endTime,
             size: size,
-            duration: duration
+            duration: duration,
+            // Save quality metadata
+            audioCodec: settings?.audioCodec || null,
+            audioBitrate: settings?.audioBitrate || null,
+            audioSampleRate: settings?.audioSampleRate || null,
         },
     })
 

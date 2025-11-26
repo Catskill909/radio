@@ -86,6 +86,28 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                                             {format(new Date(recording.startTime), "p")} - {recording.endTime ? format(new Date(recording.endTime), "p") : '...'}
                                         </span>
                                     </div>
+
+                                    {/* Quality Badge */}
+                                    {recording.audioCodec && (
+                                        <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5">
+                                            <span className="bg-gray-700/50 px-1.5 py-0.5 rounded border border-gray-600">
+                                                {recording.audioCodec === 'libmp3lame' ? 'MP3' :
+                                                    recording.audioCodec === 'aac' ? 'AAC' :
+                                                        recording.audioCodec === 'libopus' ? 'Opus' :
+                                                            recording.audioCodec === 'flac' ? 'FLAC' : recording.audioCodec}
+                                            </span>
+                                            {recording.audioBitrate && (
+                                                <span className="bg-gray-700/50 px-1.5 py-0.5 rounded border border-gray-600">
+                                                    {recording.audioBitrate} kbps
+                                                </span>
+                                            )}
+                                            {recording.audioSampleRate && (
+                                                <span className="bg-gray-700/50 px-1.5 py-0.5 rounded border border-gray-600">
+                                                    {(recording.audioSampleRate / 1000).toFixed(1)} kHz
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Published Badge */}

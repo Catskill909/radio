@@ -52,6 +52,12 @@ model Recording {
   createdAt      DateTime      @default(now())
   duration       Int?
   size           Int?
+  
+  // Quality/Encoding metadata
+  audioCodec      String?       // e.g., "libmp3lame", "aac", "flac"
+  audioBitrate    Int?          // kbps
+  audioSampleRate Int?          // Hz
+  
   episode        Episode?
   scheduleSlot   ScheduleSlot? @relation(fields: [scheduleSlotId], references: [id])
 }
