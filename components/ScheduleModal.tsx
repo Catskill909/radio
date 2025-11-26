@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { createScheduleSlot, createShow } from '@/app/actions'
 import ImageUpload from '@/components/ImageUpload'
 import RecordingControls from '@/components/RecordingControls'
+import ScheduleErrorModal from '@/components/ScheduleErrorModal'
 
 interface Show {
     id: string
@@ -51,6 +52,10 @@ export default function ScheduleModal({
     const [selectedShowId, setSelectedShowId] = useState('')
     const [duration, setDuration] = useState(60)
     const [isRecurring, setIsRecurring] = useState(false)
+
+    // Error modal state
+    const [errorModalOpen, setErrorModalOpen] = useState(false)
+    const [errorMessage, setErrorMessage] = useState('')
 
     // New show fields
     const [newShowTitle, setNewShowTitle] = useState('')
@@ -129,7 +134,8 @@ export default function ScheduleModal({
             window.location.reload() // Refresh to show new slot
         } catch (error) {
             console.error('Failed to schedule show:', error)
-            alert(error instanceof Error ? error.message : 'Failed to schedule show')
+            setErrorMessage(error instanceof Error ? error.message : 'Failed to schedule show')
+            setErrorModalOpen(true)
         }
     }
 
@@ -173,7 +179,8 @@ export default function ScheduleModal({
             window.location.reload()
         } catch (error) {
             console.error('Failed to create and schedule show:', error)
-            alert(error instanceof Error ? error.message : 'Failed to create and schedule show')
+            setErrorMessage(error instanceof Error ? error.message : 'Failed to create and schedule show')
+            setErrorModalOpen(true)
         }
     }
 
@@ -564,6 +571,13 @@ export default function ScheduleModal({
                     )}
                 </div>
             </div>
+
+            {/* Error Modal */}
+            <ScheduleErrorModal
+                isOpen={errorModalOpen}
+                onClose={() => setErrorModalOpen(false)}
+                errorMessage={errorMessage}
+            />
         </div>
     )
 }

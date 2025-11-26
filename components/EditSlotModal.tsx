@@ -1,6 +1,6 @@
 'use client'
 
-import { X, Clock, Calendar, Repeat, Trash2 } from 'lucide-react'
+import { X, Clock, Calendar, Repeat, Trash2, AlertCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
@@ -125,8 +125,31 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                             </h3>
 
                             {error && (
-                                <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg text-sm mb-6">
-                                    {error}
+                                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+                                    <div className="flex items-start gap-3">
+                                        <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                                        <div className="flex-1">
+                                            <p className="text-red-300 text-sm font-medium mb-1">Unable to Save Changes</p>
+                                            <p className="text-red-400/90 text-sm leading-relaxed">{error}</p>
+                                            <div className="mt-3 pt-3 border-t border-red-500/20">
+                                                <p className="text-xs text-red-400/70 font-medium mb-1.5">What can you do?</p>
+                                                <ul className="space-y-1 text-xs text-red-400/70">
+                                                    <li className="flex items-start gap-1.5">
+                                                        <span className="text-red-400 mt-0.5">•</span>
+                                                        <span>Choose a different time slot</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-1.5">
+                                                        <span className="text-red-400 mt-0.5">•</span>
+                                                        <span>Adjust the duration to avoid conflicts</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-1.5">
+                                                        <span className="text-red-400 mt-0.5">•</span>
+                                                        <span>Uncheck "Repeat Weekly" if scheduling recurring shows</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
