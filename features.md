@@ -331,6 +331,26 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 
 ---
 
+## 13. In-App Help System
+
+**Status:** Shipped
+
+- **Contextual Help**
+  - **Help Icons**: `?` icons placed strategically next to complex features (e.g., Settings, Schedule)
+  - **Tooltips**: Hover text explaining the purpose of the help icon
+  - **Direct Linking**: Icons open the help browser directly to the relevant article
+- **Help Browser Modal**
+  - **Full-Screen Experience**: Immersive modal for reading documentation without leaving the app
+  - **Markdown Rendering**: Rich text support with headers, lists, code blocks, and images
+  - **Search Functionality**: Real-time search across all help articles
+  - **Sidebar Navigation**: Categorized list of all available help topics
+- **Content Management**
+  - **Markdown-Based**: Help articles stored as Markdown files for easy editing
+  - **Categorized**: Articles grouped by topic (Getting Started, Scheduling, etc.)
+  - **Searchable**: Content indexed for fast retrieval
+
+---
+
 ## Future Features & Roadmap
 
 This section is intentionally lightweight – it is meant to be edited as priorities change.

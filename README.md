@@ -291,102 +291,10 @@ radio-suite/
 - Publishing metadata: title, description, episodeNumber, seasonNumber
 - Publication date: publishedAt
 
-## Recent Updates
-
-### Phase 10.5: Schedule Error Handling UX (Nov 26, 2025)
-- ✅ **User-Friendly Error Modals** - Replaced React error screens and browser alerts with informative modal dialogs
-  - Schedule conflict detection with conflicting show details (name, time)
-  - Actionable suggestions for resolving conflicts
-  - Enhanced error display in EditSlotModal with icon and helpful tips
-  - Reusable ScheduleErrorModal component
-- ✅ **Error Parsing Utilities** - Structured error information extraction
-  - Parse error type (overlap, validation, general)
-  - Extract conflicting show details and week numbers
-  - Context-specific suggestions based on error type
-- ✅ **Bug Fixes**
-  - Fixed NaN error when clearing duration input fields
-  - Proper handling of empty number inputs across schedule modals
-
-### Phase 10: Audio Encoding Quality & UI Refinements (Nov 25, 2025)
-- ✅ **Configurable Audio Encoding** - Control recording quality from Settings page
-  - Codec selection: MP3, AAC, Opus, FLAC
-  - Bitrate control: 64-320 kbps with slider
-  - Sample rate options: Auto, 22.05kHz, 44.1kHz, 48kHz
-  - VBR/CBR toggle for optimal compression
-  - Quality presets: Voice (96kbps), Music (192kbps), Archival (lossless)
-  - Real-time file size estimates per hour of recording
-- ✅ **Recording Quality Metadata** - New recordings track encoding settings
-  - Quality badges in recordings view (codec, bitrate, sample rate)
-  - Database fields added to `Recording` model
-  - Recorder service saves quality info on completion
-- ✅ **UI Aesthetic Refinements** - Consistent darker design language
-  - Stream cards: Changed bright blue edit buttons to darker gray
-  - Stream cards: Changed blue toggle switches to gray
-  - New show form: Changed bright blue button to bordered style
-  - Settings icon: Changed to Font Awesome gear icon (fa-gear)
-- ✅ **Enhanced Settings UX** - Improved visual feedback
-  - Save button highlights blue with pulse animation when changes detected
-  - Asterisk indicator for unsaved changes
-  - Green confirmation after successful save
-
-### Phase 9: Live Streaming & Public Listen Page (Nov 25, 2025)
-- ✅ **Stream Configuration** - New "Station Audio Stream" setting to select the active stream for public playback
-- ✅ **Public Listen Page** - Beautiful `/listen` page with weekly schedule, day tabs, and live player
-- ✅ **Unified Audio Player** - Redesigned top player as a single card with artwork, metadata, time remaining with clock icon, and play/pause button
-- ✅ **Loading States** - Visual spinner during stream buffering with proper event handling
-- ✅ **Database Integration** - Added `streamUrl` to `StationSettings` model with proper migrations
-
-### Phase 8: Time-Slot-Specific Deletion (Nov 23, 2025)
-- ✅ **Time-Slot-Specific Deletion** - Delete individual time slots (e.g., Monday 3pm) without affecting other rebroadcasts (e.g., Monday 11pm, Tuesday 3pm) of the same show.
-- ✅ **Station Timezone Pattern Matching** - Deletion logic uses station timezone for accurate day-of-week and time-of-day matching.
-- ✅ **Enhanced Delete UI** - Clear messaging showing which specific time slot pattern will be deleted (e.g., "Mondays at 3:00 PM").
-- ✅ **Comprehensive Testing** - Automated test suite validates correct time slot isolation and preservation of other broadcasts.
-
-### Phase 7: Station Identity (Nov 23, 2025)
-- ✅ **Station Identity Settings** - Configure station name, description, email, and default artwork.
-- ✅ **Settings UI** - New dedicated settings page with drag-and-drop image upload.
-- ✅ **Database Integration** - Migrated settings to database for reliability and consistency.
-
-### Phase 6: Midnight Support & Smart Delete (Nov 23, 2025)
-- ✅ **Midnight-Crossing Support** - Shows spanning across midnight (e.g., 11 PM - 1 AM) automatically split into linked slots and display correctly across days.
-- ✅ **Smart Delete System** - Granular control to delete single instances or entire recurring series, with automatic handling of split shows.
-- ✅ **Redesigned Edit Modal** - Compact, professional UI with refined color palette and improved information hierarchy.
-
-### Phase 5: Station Timezone & Recurring Automation (Nov 22, 2025)
-- ✅ Global station timezone setting with Settings page and live station clock
-- ✅ Schedule, calendar "now" marker, and recorder service aligned to station time
-- ✅ Recurring shows generate 52 weeks ahead and auto-extend in the background via the recorder service
-
-### Phase 4: Audio Playback, Podcast Feeds & Schedule Enhancements (Nov 21, 2024)
-- ✅ **Audio Player Component** - Custom player with play/pause, progress bar, time display
-- ✅ **Auto-Publishing** - Recordings automatically create podcast episodes
-- ✅ **Podcast RSS Feeds** - Per-show RSS feeds with iTunes metadata
-- ✅ **RSS Feed Modal** - Beautiful dark mode modal with copy-to-clipboard
-- ✅ **Schedule Overlap Prevention** - Backend validation prevents double-booking
-- ✅ **Calendar Visual Fixes** - Events render at correct heights (15-min granularity)
-- ✅ **Hover Tooltips** - Instant tooltips on calendar events showing full details
-- ✅ **CSS Overrides** - Solved min-height bug causing visual overlaps
-
-### Phase 3: Icecast Stream Integration & Recorder Verification
-- ✅ Stream management UI (add, edit, delete, test)
-- ✅ Automatic stream testing and metadata extraction
-- ✅ Integration with show recording source selection  
-- ✅ Recorder service verified working with Icecast streams
-- ✅ URL validation and trimming to prevent connectivity issues
-
-### Phase 2: Full-Screen Layout & Recording Controls
-- ✅ Full-screen grid layout for create show form
-- ✅ Recording on/off toggle switch
-- ✅ Recording source dropdown populated with real streams
-- ✅ Better space utilization with two-column layout
-- ✅ Database schema updated with recording fields
-
-### Phase 1: Enhanced Forms & Scheduling
-- ✅ Modern popup date/time pickers
-- ✅ Host field added to shows
-- ✅ Custom delete confirmation modals
-- ✅ Scrollable edit modal from calendar clicks
-- ✅ Recurring show support with visual indicators
+### ❓ In-App Help System
+- **Contextual Help Icons** - `?` icons throughout the app provide instant access to relevant documentation
+- **Immersive Help Browser** - Read guides, FAQs, and tutorials without leaving the application
+- **Searchable Knowledge Base** - Quickly find answers with real-time search across all help articles
 
 ## Development Roadmap
 
@@ -401,6 +309,7 @@ radio-suite/
 - [x] Public listen page with schedule
 - [x] Configurable audio encoding quality (codec, bitrate, sample rate)
 - [x] Recording quality tracking and badges
+- [x] In-app help system with contextual linking
 
 ### Next Up
 - [ ] Enhanced public-facing pages (show details, host bios)
