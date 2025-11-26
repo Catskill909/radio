@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { addDays, startOfDay, subDays } from 'date-fns';
+import { addDays, startOfDay, subDays, differenceInCalendarDays } from 'date-fns';
 import CollapsingHeader from './components/CollapsingHeader';
 import TopPlayerBar from './components/TopPlayerBar'; // Desktop Header
 import DayTabs from './components/DayTabs';
@@ -27,8 +27,19 @@ export default function ListenPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentEpisodeId, setCurrentEpisodeId] = useState<string | null>(null);
 
-    // Generate next 7 days
-    const days = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i));
+    // View Start Date (for the 7-day window)
+    const [viewStart, setViewStart] = useState<Date>(new Date());
+
+    // Update view window when selected day changes (if outside current window)
+    useEffect(() => {
+        const diff = differenceInCalendarDays(selectedDay, viewStart);
+        if (diff < 0 || diff > 6) {
+            setViewStart(selectedDay);
+        }
+    }, [selectedDay, viewStart]);
+
+    // Generate 7 days based on viewStart
+    const days = Array.from({ length: 7 }, (_, i) => addDays(viewStart, i));
 
     // Fetch Now Playing (Initial + Poll)
     useEffect(() => {
