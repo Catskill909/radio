@@ -199,26 +199,44 @@ async function checkSlotOverlap(
     endTime: Date,
     excludeId?: string
 ) {
+    // Only check slots that are recent or in the future
+    // This prevents old corrupt data from blocking new schedules
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 7); // 7 days in the past
+
     return await prisma.scheduleSlot.findFirst({
         where: {
             ...(excludeId && { id: { not: excludeId } }),
-            OR: [
+            // Filter: Only check slots that overlap with our time range AND are recent/future
+            AND: [
                 {
-                    // New start time falls within existing slot
-                    startTime: { lte: startTime },
-                    endTime: { gt: startTime },
+                    // At least one of the slot's times must be recent/future
+                    OR: [
+                        { startTime: { gte: cutoffDate } },
+                        { endTime: { gte: cutoffDate } }
+                    ]
                 },
                 {
-                    // New end time falls within existing slot
-                    startTime: { lt: endTime },
-                    endTime: { gte: endTime },
-                },
-                {
-                    // New slot completely encompasses existing slot
-                    startTime: { gte: startTime },
-                    endTime: { lte: endTime },
-                },
-            ],
+                    // Standard overlap detection
+                    OR: [
+                        {
+                            // New start time falls within existing slot
+                            startTime: { lte: startTime },
+                            endTime: { gt: startTime },
+                        },
+                        {
+                            // New end time falls within existing slot
+                            startTime: { lt: endTime },
+                            endTime: { gte: endTime },
+                        },
+                        {
+                            // New slot completely encompasses existing slot
+                            startTime: { gte: startTime },
+                            endTime: { lte: endTime },
+                        },
+                    ],
+                }
+            ]
         },
         include: {
             show: true,
@@ -233,6 +251,14 @@ export async function createScheduleSlot(
     sourceUrl?: string,
     isRecurring: boolean = false
 ) {
+    // VALIDATION: Prevent zero-duration slots
+    if (startTime.getTime() === endTime.getTime()) {
+        throw new Error('Cannot create slot: start time and end time are identical (zero duration)');
+    }
+    if (startTime.getTime() > endTime.getTime()) {
+        throw new Error('Cannot create slot: start time is after end time');
+    }
+
     // Get station timezone and conversion utilities
     const { getStationTimezone } = await import('@/lib/station-time');
     const { toZonedTime, fromZonedTime } = await import('date-fns-tz');
@@ -272,6 +298,14 @@ export async function createScheduleSlot(
             `${midnightStation.getFullYear()}-${String(midnightStation.getMonth() + 1).padStart(2, '0')}-${String(midnightStation.getDate()).padStart(2, '0')}T00:00:00`,
             stationTz
         );
+
+        // VALIDATION: Ensure split slots will have non-zero duration
+        if (startTime.getTime() >= midnight.getTime()) {
+            throw new Error('Cannot create midnight-crossing slot: first part would have zero or negative duration. Check timezone settings.');
+        }
+        if (midnight.getTime() >= endTime.getTime()) {
+            throw new Error('Cannot create midnight-crossing slot: second part would have zero or negative duration. Check timezone settings.');
+        }
 
         if (isRecurring) {
             // ✅ DST-AWARE: Generate pairs of slots for the next 52 weeks with timezone logic
