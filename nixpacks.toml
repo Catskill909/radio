@@ -8,4 +8,4 @@ cmds = ['npm ci', 'npm install pm2 -g']
 cmds = ['npm run build']
 
 [start]
-cmd = 'pm2-runtime start ecosystem.config.js'
+cmd = 'npx pm2-runtime start ecosystem.config.js'
