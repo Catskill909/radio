@@ -129,9 +129,18 @@ Radio Suite combines a powerful **admin dashboard** for scheduling and automatio
 - **Backend:** Next.js Server Actions
 - **Database:** SQLite + Prisma ORM
 - **Recording:** FFmpeg (fluent-ffmpeg)
+- **Recording:** FFmpeg (fluent-ffmpeg)
 - **Icons:** lucide-react
 
-## Getting Started
+## 🚀 Deployment
+
+Radio Suite is designed to be deployed as a single container (Monolith) using **Docker** or **Coolify**.
+
+- **Strategy:** "SQLite Everywhere" (Production DB is a persistent file)
+- **Stack:** Next.js + Background Recorder Service (managed by PM2)
+- **Requirements:** Persistent volumes for Data, Recordings, and Uploads.
+
+👉 **[Read the Full Deployment Guide](./docs/DEPLOYMENT_GUIDE.md)**
 
 ### Prerequisites
 

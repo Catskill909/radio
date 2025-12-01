@@ -8,7 +8,7 @@ This is the **simplest, most robust** method because it keeps your production en
 ## 🎯 Strategy: SQLite Everywhere
 
 - **Local:** SQLite (`prisma/dev.db`)
-- **Production:** SQLite (`prisma/dev.db` on a persistent volume)
+- **Production:** SQLite (`/app/data/dev.db` on a persistent volume)
 
 **Benefits:**
 ✅ **Zero Config:** No database servers to manage.
@@ -62,13 +62,13 @@ This installs FFmpeg and PM2.
 nixPkgs = ['nodejs_20', 'ffmpeg-full']
 
 [phases.install]
-cmds = ['npm install', 'npm install pm2 -g']
+cmds = ['npm ci', 'npm install pm2 -g']
 
 [phases.build]
 cmds = ['npx prisma generate', 'npm run build']
 
 [start]
-cmd = 'pm2-runtime start ecosystem.config.js'
+cmd = 'npx pm2-runtime start ecosystem.config.js'
 ```
 
 ### 4. Push to Git
@@ -89,7 +89,8 @@ Go to **Environment Variables** and add:
 
 ```env
 # Point to the database file in the persistent volume
-DATABASE_URL="file:/app/prisma/dev.db"
+# CRITICAL: Must be /app/data, NOT /app/prisma (to avoid hiding schema files)
+DATABASE_URL="file:/app/data/dev.db"
 
 # Your public URL
 NEXT_PUBLIC_BASE_URL="https://your-radio.com"
@@ -101,13 +102,13 @@ NODE_ENV=production
 ### 3. Configure Persistent Storage (CRITICAL)
 Go to **Storages** and add these 3 volumes. This ensures your data survives restarts.
 
-| Name | Source Path (Container) | Destination Path (Host) |
-|------|-------------------------|-------------------------|
-| **Database** | `/app/prisma` | (Managed by Coolify) |
-| **Recordings** | `/app/recordings` | (Managed by Coolify) |
-| **Uploads** | `/app/uploads` | (Managed by Coolify) |
+| Name | Destination Path (Container) | Why? |
+|------|------------------------------|------|
+| **Database** | `/app/data` | Stores `dev.db`. Separated from code to prevent volume conflicts. |
+| **Recordings** | `/app/recordings` | Where the recorder service saves audio files. |
+| **Uploads** | `/app/uploads` | Where user images are saved. Served via Dynamic API. |
 
-**Note:** In Coolify UI, you enter the "Destination Path" as the path inside the container (e.g., `/app/prisma`).
+**⚠️ Important:** Do NOT use `/app/public/uploads` for the volume. We serve files dynamically from `/app/uploads`.
 
 ### 4. Deploy!
 Click **Deploy**.
@@ -124,11 +125,12 @@ Open the **Terminal** in Coolify for your app and run:
 npx prisma migrate deploy
 ```
 
-This creates the `dev.db` file with all your tables.
+This creates the `dev.db` file in `/app/data` with all your tables.
 
 ### 2. Verify
 - Visit your URL.
 - Create a show.
+- Upload an image (verifies `/app/uploads` volume).
 - Check that the show still exists after you redeploy.
 
 ---
@@ -147,12 +149,28 @@ graph TD
     B -- Reads/Writes --> C
     
     subgraph Persistent_Storage
-        D[Prisma Volume]
-        E[Recordings Volume]
-        F[Uploads Volume]
+        D[Data Volume /app/data]
+        E[Recordings Volume /app/recordings]
+        F[Uploads Volume /app/uploads]
     end
     
     C -.-> D
     A -- Saves Audio --> E
+    B -- Saves Audio --> E
     A -- Saves Images --> F
+    A -- Serves Images via API --> F
 ```
+
+## 🔧 Troubleshooting
+
+### "Prisma schema not found"
+- **Cause:** You likely mounted a volume at `/app/prisma`.
+- **Fix:** Move the volume to `/app/data` and update `DATABASE_URL` to `file:/app/data/dev.db`.
+
+### "Images 404 Not Found"
+- **Cause:** Next.js Static Optimization doesn't see runtime files in `public/`.
+- **Fix:** Ensure you are using the Dynamic Serving route (`/app/uploads/[filename]/route.ts`) and the volume is at `/app/uploads`.
+
+### "Column ... does not exist"
+- **Cause:** Database migrations haven't been run.
+- **Fix:** Run `npx prisma migrate deploy` in the Coolify terminal.
