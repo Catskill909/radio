@@ -7,6 +7,8 @@ import AudioEncodingSettings from "@/components/AudioEncodingSettings";
 import SiteBrandingForm from "@/components/SiteBrandingForm";
 import HelpIcon from '@/components/HelpIcon'; // Added import
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
     const settings = await getStationSettings();
     const streams = await getStreams();

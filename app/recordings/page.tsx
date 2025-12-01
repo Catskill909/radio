@@ -2,6 +2,8 @@ import { getRecordings } from '@/app/actions';
 import RecordingsList from '@/components/RecordingsList';
 import HelpIcon from '@/components/HelpIcon';
 
+export const dynamic = 'force-dynamic';
+
 export default async function RecordingsPage() {
     const recordings = await getRecordings();
 
