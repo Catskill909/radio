@@ -5,6 +5,8 @@ import ImageUpload from "@/components/ImageUpload";
 import { redirect } from "next/navigation";
 import EditShowForm from "@/components/EditShowForm";
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditShowPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const show = await getShow(id);
