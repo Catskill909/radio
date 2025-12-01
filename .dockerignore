@@ -1,0 +1,55 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+build
+
+# Database and recordings (will use persistent volumes)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+prisma/*.db*
+dev.db*
+recordings/*
+uploads/*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Development files
+.git
+.gitignore
+README.md
+*.md
+!docs/*
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Testing and scripts
+test-*.ts
+verify-*.ts
+create-immediate-show.ts
+delete-*.ts
+find-overlaps.ts
+fix-*.ts
+fix-*.sh
+list-*.ts
+extend-recurring-shows.ts
+*.SAFE_BACKUP_*
