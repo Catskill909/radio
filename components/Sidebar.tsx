@@ -19,6 +19,7 @@ export default function Sidebar() {
     }, [pathname]);
 
     const links = [
+        { href: "/listen", label: "Site Front", icon: "fa-solid fa-globe", external: true },
         { href: "/shows", label: "Shows", icon: "fa-solid fa-radio" },
         { href: "/schedule", label: "Schedule", icon: "fa-solid fa-calendar-days" },
         { href: "/streams", label: "Streams", icon: "fa-solid fa-water" },
@@ -78,6 +79,13 @@ export default function Sidebar() {
             <nav className="flex-1 px-3 space-y-2 flex flex-col">
                 {links.map((link) => {
                     const isActive = pathname.startsWith(link.href);
+                    const linkContent = (
+                        <>
+                            <i className={clsx(link.icon, "w-5 flex-shrink-0 text-center")} style={{ fontSize: '1.25rem' }} />
+                            {!isCollapsed && <span className="font-['Barlow_Semi_Condensed'] font-semibold tracking-wide">{link.label}</span>}
+                        </>
+                    );
+
                     return (
                         <Tooltip
                             key={link.href}
@@ -85,19 +93,33 @@ export default function Sidebar() {
                             placement="right"
                             disabled={!isCollapsed}
                         >
-                            <Link
-                                href={link.href}
-                                className={clsx(
-                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 whitespace-nowrap overflow-hidden",
-                                    isActive
-                                        ? "bg-white/10 text-white shadow-[0_2px_4px_rgba(0,0,0,0.2),0_1px_2px_rgba(0,0,0,0.1)] transform translate-y-[-1px]"
-                                        : "text-gray-400 hover:bg-white/5 hover:text-white hover:shadow-sm",
-                                    isCollapsed ? "justify-center" : ""
-                                )}
-                            >
-                                <i className={clsx(link.icon, "w-5 flex-shrink-0 text-center")} style={{ fontSize: '1.25rem' }} />
-                                {!isCollapsed && <span className="font-['Barlow_Semi_Condensed'] font-semibold tracking-wide">{link.label}</span>}
-                            </Link>
+                            {link.external ? (
+                                <a
+                                    href={link.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={clsx(
+                                        "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 whitespace-nowrap overflow-hidden",
+                                        "text-gray-400 hover:bg-white/5 hover:text-white hover:shadow-sm",
+                                        isCollapsed ? "justify-center" : ""
+                                    )}
+                                >
+                                    {linkContent}
+                                </a>
+                            ) : (
+                                <Link
+                                    href={link.href}
+                                    className={clsx(
+                                        "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 whitespace-nowrap overflow-hidden",
+                                        isActive
+                                            ? "bg-white/10 text-white shadow-[0_2px_4px_rgba(0,0,0,0.2),0_1px_2px_rgba(0,0,0,0.1)] transform translate-y-[-1px]"
+                                            : "text-gray-400 hover:bg-white/5 hover:text-white hover:shadow-sm",
+                                        isCollapsed ? "justify-center" : ""
+                                    )}
+                                >
+                                    {linkContent}
+                                </Link>
+                            )}
                         </Tooltip>
                     );
                 })}
