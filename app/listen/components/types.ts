@@ -2,6 +2,13 @@ export interface StationInfo {
     name: string;
     tagline: string;
     defaultArtwork: string;
+    // Site Branding
+    siteLogo?: string | null;
+    siteTitle?: string | null;
+    siteTagline?: string | null;
+    showSiteLogo?: boolean;
+    showSiteTitle?: boolean;
+    showSiteTagline?: boolean;
 }
 
 export interface Show {

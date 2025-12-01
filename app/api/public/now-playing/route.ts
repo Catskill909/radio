@@ -58,6 +58,13 @@ export async function GET() {
                 name: settings?.name || 'Radio Station',
                 tagline: settings?.description || '',
                 defaultArtwork: settings?.logoUrl || '/default-logo.png',
+                // Site Branding
+                siteLogo: settings?.siteLogo || null,
+                siteTitle: settings?.siteTitle || null,
+                siteTagline: settings?.siteTagline || null,
+                showSiteLogo: settings?.showSiteLogo ?? true,
+                showSiteTitle: settings?.showSiteTitle ?? true,
+                showSiteTagline: settings?.showSiteTagline ?? true,
             },
             currentShow: null,
             nextShow: null,

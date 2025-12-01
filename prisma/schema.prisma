@@ -107,6 +107,14 @@ model StationSettings {
   logoUrl     String?
   streamUrl   String?
   
+  // Site Branding (Public Front-End)
+  siteLogo        String?  // URL to custom logo image
+  siteTitle       String?  // Custom front-end title
+  siteTagline     String?  // Custom front-end tagline
+  showSiteLogo    Boolean  @default(true)
+  showSiteTitle   Boolean  @default(true)
+  showSiteTagline Boolean  @default(true)
+  
   // Audio Recording Quality Settings
   audioCodec      String  @default("libmp3lame")  // "libmp3lame", "aac", "libopus", "flac"
   audioBitrate    Int     @default(192)           // kbps: 64, 128, 192, 256, 320

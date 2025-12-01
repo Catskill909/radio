@@ -44,6 +44,34 @@ export default function CollapsingHeader({
             >
                 <div className="bg-gradient-to-b from-gray-900 to-black p-6 pb-12 pt-12">
                     <div className="flex flex-col items-center text-center">
+                        {/* Site Branding (Above Artwork) */}
+                        {((stationInfo.showSiteLogo && stationInfo.siteLogo) ||
+                            (stationInfo.showSiteTitle && stationInfo.siteTitle) ||
+                            (stationInfo.showSiteTagline && stationInfo.siteTagline)) && (
+                                <div className="flex flex-col items-center mb-6">
+                                    {stationInfo.showSiteLogo && stationInfo.siteLogo && (
+                                        <img
+                                            src={stationInfo.siteLogo}
+                                            alt="Site Logo"
+                                            className="h-16 w-auto object-contain mb-3 rounded-lg"
+                                        />
+                                    )}
+                                    {stationInfo.showSiteTitle && stationInfo.siteTitle && (
+                                        <h2
+                                            className="text-2xl font-bold text-white"
+                                            style={{ fontFamily: 'Oswald, sans-serif' }}
+                                        >
+                                            {stationInfo.siteTitle}
+                                        </h2>
+                                    )}
+                                    {stationInfo.showSiteTagline && stationInfo.siteTagline && (
+                                        <p className="text-sm text-gray-400 mt-1">
+                                            {stationInfo.siteTagline}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
                         <div className="relative w-48 h-48 mb-6 shadow-2xl rounded-lg overflow-hidden">
                             <img
                                 src={artwork}

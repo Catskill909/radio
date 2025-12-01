@@ -1116,7 +1116,13 @@ export async function getStationSettings() {
             description: null,
             email: null,
             logoUrl: null,
-            streamUrl: null
+            streamUrl: null,
+            siteLogo: null,
+            siteTitle: null,
+            siteTagline: null,
+            showSiteLogo: true,
+            showSiteTitle: true,
+            showSiteTagline: true,
         };
     }
 
@@ -1211,6 +1217,14 @@ export async function updateStationSettings(formData: FormData) {
     const audioSampleRate = formData.get("audioSampleRate");
     const audioVBR = formData.get("audioVBR");
 
+    // Get site branding settings
+    const siteLogo = formData.get("siteLogo");
+    const siteTitle = formData.get("siteTitle");
+    const siteTagline = formData.get("siteTagline");
+    const showSiteLogo = formData.get("showSiteLogo");
+    const showSiteTitle = formData.get("showSiteTitle");
+    const showSiteTagline = formData.get("showSiteTagline");
+
     const updateData: any = {};
 
     if (typeof audioCodec === "string") {
@@ -1233,6 +1247,31 @@ export async function updateStationSettings(formData: FormData) {
         updateData.audioVBR = audioVBR === "true";
     }
 
+    // Site branding fields
+    if (typeof siteLogo === "string") {
+        updateData.siteLogo = siteLogo.trim() || null;
+    }
+
+    if (typeof siteTitle === "string") {
+        updateData.siteTitle = siteTitle.trim() || null;
+    }
+
+    if (typeof siteTagline === "string") {
+        updateData.siteTagline = siteTagline.trim() || null;
+    }
+
+    if (typeof showSiteLogo === "string") {
+        updateData.showSiteLogo = showSiteLogo === "true";
+    }
+
+    if (typeof showSiteTitle === "string") {
+        updateData.showSiteTitle = showSiteTitle === "true";
+    }
+
+    if (typeof showSiteTagline === "string") {
+        updateData.showSiteTagline = showSiteTagline === "true";
+    }
+
     await prisma.stationSettings.upsert({
         where: { id: 'station' },
         update: updateData,
@@ -1244,5 +1283,6 @@ export async function updateStationSettings(formData: FormData) {
     });
 
     revalidatePath("/settings");
+    revalidatePath("/listen"); // Revalidate listen page as it uses branding settings
 }
 

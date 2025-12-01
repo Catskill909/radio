@@ -23,8 +23,43 @@ export default function TopPlayerBar({
 
     return (
         <>
-            <div className="fixed top-0 left-0 right-0 h-[100px] bg-black z-40 flex items-center justify-end px-6">
-                {/* Unified Player Card - Right Aligned */}
+            <div className="fixed top-0 left-0 right-0 h-[100px] bg-black z-40 flex items-center justify-between px-6 gap-6">
+                {/* LEFT SIDE - Site Branding */}
+                {(stationInfo.showSiteLogo && stationInfo.siteLogo) ||
+                    (stationInfo.showSiteTitle && stationInfo.siteTitle) ||
+                    (stationInfo.showSiteTagline && stationInfo.siteTagline) ? (
+                    <div className="flex items-center gap-4">
+                        {stationInfo.showSiteLogo && stationInfo.siteLogo && (
+                            <img
+                                src={stationInfo.siteLogo}
+                                alt="Site Logo"
+                                className="h-12 w-auto md:h-16 object-contain rounded-lg flex-shrink-0"
+                            />
+                        )}
+
+                        {/* Site Title & Tagline */}
+                        {((stationInfo.showSiteTitle && stationInfo.siteTitle) ||
+                            (stationInfo.showSiteTagline && stationInfo.siteTagline)) && (
+                                <div className="flex flex-col">
+                                    {stationInfo.showSiteTitle && stationInfo.siteTitle && (
+                                        <h1
+                                            className="text-2xl md:text-3xl font-bold text-white leading-tight"
+                                            style={{ fontFamily: 'Oswald, sans-serif' }}
+                                        >
+                                            {stationInfo.siteTitle}
+                                        </h1>
+                                    )}
+                                    {stationInfo.showSiteTagline && stationInfo.siteTagline && (
+                                        <p className="text-sm text-gray-400 mt-0.5">
+                                            {stationInfo.siteTagline}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                    </div>
+                ) : null}
+
+                {/* RIGHT SIDE - Unified Player Card */}
                 <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center gap-4 shadow-lg">
                     {/* Logo/Artwork */}
                     <div className="relative w-14 h-14 rounded-lg overflow-hidden shadow-md flex-shrink-0">

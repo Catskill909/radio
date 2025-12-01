@@ -4,6 +4,7 @@ import StationIdentityForm from "@/components/StationIdentityForm";
 import StationTimezoneForm from "@/components/StationTimezoneForm";
 import StationStreamForm from "@/components/StationStreamForm";
 import AudioEncodingSettings from "@/components/AudioEncodingSettings";
+import SiteBrandingForm from "@/components/SiteBrandingForm";
 import HelpIcon from '@/components/HelpIcon'; // Added import
 
 export default async function SettingsPage() {
@@ -27,6 +28,24 @@ export default async function SettingsPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto pb-8 space-y-8">
+                {/* Full Width: Site Branding (Public Front-End) */}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        Site Branding
+                        <HelpIcon articleId="site-branding" tooltip="Customize your station's branding on the public listen page." />
+                    </h2>
+                    <SiteBrandingForm
+                        initialSettings={{
+                            siteLogo: settings.siteLogo as string | null | undefined,
+                            siteTitle: settings.siteTitle as string | null | undefined,
+                            siteTagline: settings.siteTagline as string | null | undefined,
+                            showSiteLogo: settings.showSiteLogo as boolean | undefined,
+                            showSiteTitle: settings.showSiteTitle as boolean | undefined,
+                            showSiteTagline: settings.showSiteTagline as boolean | undefined,
+                        }}
+                    />
+                </section>
+
                 {/* Full Width: Station Identity */}
                 <section>
                     <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
