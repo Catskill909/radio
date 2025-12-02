@@ -24,9 +24,21 @@ export async function GET() {
             // But since we are wiping, keeping IDs ensures the slots link back correctly in the JSON.
         }));
 
+        // Read settings file
+        const settingsPath = path.join(process.cwd(), 'station-settings.json');
+        let settings = {};
+        if (fs.existsSync(settingsPath)) {
+            try {
+                settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+            } catch (e) {
+                console.error("Failed to read settings for export:", e);
+            }
+        }
+
         const exportData = {
             version: 1,
             exportedAt: new Date().toISOString(),
+            settings: settings,
             shows: sanitizedShows,
         };
 

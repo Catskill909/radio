@@ -106,7 +106,22 @@ export async function importData(formData: FormData) {
             timeout: 60000, // 60 second timeout for large imports
         });
 
+        // 6. Restore Settings (if present)
+        if (data.settings) {
+            console.log("Restoring station settings...");
+            const settingsPath = path.join(process.cwd(), 'station-settings.json');
+            try {
+                fs.writeFileSync(settingsPath, JSON.stringify(data.settings, null, 2));
+                console.log("Station settings restored.");
+            } catch (e) {
+                console.error("Failed to restore station settings:", e);
+            }
+        }
+
         revalidatePath("/");
+        revalidatePath("/schedule");
+        revalidatePath("/shows");
+        revalidatePath("/admin");
         return { success: true, message: `Imported ${data.shows.length} shows successfully.` };
 
     } catch (error) {
