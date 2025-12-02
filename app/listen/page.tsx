@@ -92,10 +92,11 @@ export default function ListenPage() {
 
     // Audio Element Management - create once and persist
     useEffect(() => {
-        if (!streamUrl || audioRef.current) return;
+        // Just create the audio element once, don't set src yet
+        if (audioRef.current) return;
 
-        const audio = new Audio(streamUrl);
-        audio.preload = 'metadata';
+        const audio = new Audio();
+        audio.preload = 'none'; // Don't preload anything until requested
 
         // Add event listeners for loading states
         const handleLoadStart = () => setIsLoadingStream(true);
@@ -123,14 +124,21 @@ export default function ListenPage() {
                 audioRef.current = null;
             }
         };
-    }, [streamUrl]);
+    }, []); // Empty dependency array - only run once on mount
 
     // Play/Pause Logic
     useEffect(() => {
         const audio = audioRef.current;
-        if (!audio) return;
+        if (!audio || !streamUrl) return;
 
         if (isPlaying) {
+            // Only set source and play if we are actually trying to play
+            if (audio.src !== streamUrl) {
+                // Add a timestamp to prevent caching if needed, but usually raw stream url is fine
+                // For Shoutcast/Icecast, sometimes adding ?nocache=timestamp helps
+                audio.src = streamUrl;
+            }
+
             setIsLoadingStream(true);
             const playPromise = audio.play();
             if (playPromise !== undefined) {
@@ -145,10 +153,13 @@ export default function ListenPage() {
                     });
             }
         } else {
+            // When pausing, fully disconnect to stop buffering
             audio.pause();
+            audio.src = '';
+            audio.load(); // This forces the browser to release the connection
             setIsLoadingStream(false);
         }
-    }, [isPlaying]);
+    }, [isPlaying, streamUrl]);
 
     // Handlers
     const handlePlayPause = () => {
