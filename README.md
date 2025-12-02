@@ -9,6 +9,7 @@ Radio Suite combines a powerful **admin dashboard** for scheduling and automatio
 - **Advanced Scheduling**: Visual drag-and-drop calendar with conflict detection, recurring show automation, and timezone awareness.
 - **Automated Recording**: Background service that records shows from Icecast streams, with smart transcoding and configurable quality (MP3/AAC/FLAC).
 - **Podcast Publishing**: Turn recordings into podcast episodes with one click, complete with iTunes-compatible RSS feeds.
+- **Import/Export**: Migrate your entire station (shows, schedules, images) between environments with a single ZIP file.
 - **Station Management**: comprehensive settings for station identity, stream monitoring, and audio encoding preferences.
 
 ## Features
@@ -328,6 +329,7 @@ radio-suite/
 - [x] Configurable audio encoding quality (codec, bitrate, sample rate)
 - [x] Recording quality tracking and badges
 - [x] In-app help system with contextual linking
+- [x] Import/Export feature for station migration and backups
 
 ### Next Up
 - [ ] Enhanced public-facing pages (show details, host bios)

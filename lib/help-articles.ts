@@ -173,6 +173,15 @@ export const helpArticles: Record<string, HelpArticle> = {
         filePath: '/content/help/recording/managing-recordings.md',
         relatedTopics: ['recording-configuration', 'publishing-episodes'],
         keywords: ['download', 'delete', 'publish', 'file']
+    },
+    'import-export-data': {
+        id: 'import-export-data',
+        title: 'Import/Export Data',
+        category: 'Settings & Configuration',
+        order: 3,
+        filePath: '/content/help/settings/import-export-data.md',
+        relatedTopics: ['station-settings', 'creating-your-first-show'],
+        keywords: ['import', 'export', 'backup', 'migrate', 'transfer', 'zip']
     }
 }
 

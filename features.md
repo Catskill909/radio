@@ -351,6 +351,38 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 
 ---
 
+## 14. Import/Export \u0026 Data Migration
+
+**Status:** Shipped
+
+- **Export Functionality**
+  - **One-Click Export**: Download all shows, schedules, and images as a single ZIP file
+  - **Automated Packaging**: Creates `data.json` with database records + `images/` folder with artwork
+  - **Sanitized Data**: Automatically removes site-specific settings (recording sources) for clean migration
+  - **Date-Stamped Files**: Export filename includes date for easy version tracking
+- **Import Functionality**
+  - **Replace All Strategy**: Wipes existing shows/schedules and restores from ZIP (clean slate)
+  - **Progress Feedback**: Real-time status messages during 30-60 second import process
+  - **Confirmation Modal**: Critical warning before destructive operation
+  - **Image Restoration**: Extracts and restores all show artwork to uploads directory
+  - **Transaction Safety**: Database operations wrapped in transaction for integrity
+- **UI Integration**
+  - **Settings Page Location**: Data Management card in Settings
+  - **Export Button**: Simple download link to `/api/export`
+  - **Import Button**: File picker with validation and confirmation flow
+  - **Status Display**: Success/error messages with clear feedback
+- **Use Cases**
+  - **Migration**: Move from local development to production
+  - **Backups**: Regular exports for disaster recovery
+  - **Cloning**: Replicate station configuration to new instance
+- **Technical Details**
+  - **ZIP Format**: JSZip library for archive creation/extraction
+  - **File Size Limit**: 100MB maximum (configurable in `next.config.ts`)
+  - **Async Processing**: Image restoration outside database transaction to prevent timeout
+  - **Volume Requirements**: `/app/uploads` persistent volume required in production
+
+---
+
 ## Future Features & Roadmap
 
 This section is intentionally lightweight – it is meant to be edited as priorities change.
