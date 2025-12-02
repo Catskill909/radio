@@ -2,15 +2,17 @@
 
 import { useEffect, useRef } from 'react';
 import { format, isSameDay, addDays, subDays } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface DayTabsProps {
     selectedDay: Date;
     onDayChange: (date: Date) => void;
     days: Date[];
+    stationTimezone: string;
 }
 
-export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps) {
+export default function DayTabs({ selectedDay, onDayChange, days, stationTimezone }: DayTabsProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // Scroll active tab into view
@@ -57,7 +59,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                 >
                     {days.map((date) => {
                         const isActive = isSameDay(date, selectedDay);
-                        const isToday = isSameDay(date, new Date());
+                        const isToday = isSameDay(date, toZonedTime(new Date(), stationTimezone));
 
                         return (
                             <button
