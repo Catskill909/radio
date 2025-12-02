@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { format, isSameDay, addDays, subDays } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 
 interface DayTabsProps {
     selectedDay: Date;
@@ -12,6 +12,10 @@ interface DayTabsProps {
 
 export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const today = new Date();
+
+    // Check if today is in the visible week
+    const isTodayVisible = days.some(day => isSameDay(day, today));
 
     // Scroll active tab into view
     useEffect(() => {
@@ -36,10 +40,13 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
         onDayChange(addDays(selectedDay, 7));
     };
 
+    // Jump back to today
+    const handleBackToToday = () => {
+        onDayChange(today);
+    };
+
     return (
-        <div
-            className="sticky top-[100px] z-30 bg-black/95 backdrop-blur border-b border-gray-800"
-        >
+        <div className="sticky top-[100px] z-30 bg-black/95 backdrop-blur border-b border-gray-800">
             <div className="flex items-center justify-center gap-2 px-4">
                 {/* Previous Week Button */}
                 <button
@@ -50,6 +57,36 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                     <ChevronLeft className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" strokeWidth={3} />
                 </button>
 
+                {/* Back to Today Button - Appears to the left of day tabs when today is not visible */}
+                <div
+                    className={`
+                        transition-all duration-300 ease-in-out
+                        ${isTodayVisible ? 'w-0 opacity-0 overflow-hidden' : 'w-auto opacity-100'}
+                    `}
+                >
+                    <button
+                        onClick={handleBackToToday}
+                        className={`
+                            group flex flex-col items-center justify-center min-w-[60px] h-[68px] py-2 px-3 rounded-xl
+                            bg-gradient-to-br from-gray-800/90 to-gray-900/90
+                            backdrop-blur-xl border border-gray-700/50
+                            hover:border-gray-600 hover:from-gray-700 hover:to-gray-800
+                            transition-all duration-200 ease-out
+                            shadow-lg hover:shadow-xl
+                            transform hover:scale-105
+                            ${isTodayVisible ? 'invisible' : 'visible'}
+                        `}
+                        aria-label="Jump back to today"
+                    >
+                        <span className="text-xs font-medium uppercase tracking-wider text-gray-300 group-hover:text-white transition-colors">
+                            TODAY
+                        </span>
+                        <span className="text-lg font-bold text-white">
+                            {format(today, 'd')}
+                        </span>
+                    </button>
+                </div>
+
                 {/* Day Tabs */}
                 <div
                     ref={scrollRef}
@@ -57,7 +94,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                 >
                     {days.map((date) => {
                         const isActive = isSameDay(date, selectedDay);
-                        const isToday = isSameDay(date, new Date());
+                        const isToday = isSameDay(date, today);
 
                         return (
                             <button
@@ -73,7 +110,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                   `}
                             >
                                 <span className="text-xs font-medium uppercase tracking-wider">
-                                    {isToday ? 'TDY' : format(date, 'EEE')}
+                                    {isToday ? 'TODAY' : format(date, 'EEE')}
                                 </span>
                                 <span className={`text-lg font-bold ${isActive ? 'text-black' : 'text-white'}`}>
                                     {format(date, 'd')}
