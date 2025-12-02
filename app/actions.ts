@@ -409,13 +409,28 @@ export async function createScheduleSlot(
     } else {
         // Same-day slots (existing logic)
         if (isRecurring) {
-            // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
-            for (let i = 0; i < 52; i++) {
-                const slotStart = new Date(startTime);
-                slotStart.setDate(slotStart.getDate() + (i * 7));
+            // ✅ DST-AWARE: Generate slots for the next 52 weeks with timezone logic
+            const { add } = await import('date-fns');
+            const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
 
-                const slotEnd = new Date(endTime);
-                slotEnd.setDate(slotEnd.getDate() + (i * 7));
+            for (let i = 0; i < 52; i++) {
+                // Convert to station time
+                const initialStationStart = toZonedTime(startTime, stationTz);
+                const initialStationEnd = toZonedTime(endTime, stationTz);
+
+                // Add weeks in station timezone
+                const futureStationStart = add(initialStationStart, { weeks: i });
+                const futureStationEnd = add(initialStationEnd, { weeks: i });
+
+                // Convert back to UTC
+                const slotStart = fromZonedTime(
+                    format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
+                const slotEnd = fromZonedTime(
+                    format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
 
                 // Check for overlaps with existing slots
                 const overlapping = await checkSlotOverlap(slotStart, slotEnd);
