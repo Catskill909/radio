@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '100mb', // Increased for large import files (57MB+)
+    },
+  },
 };
 
 export default nextConfig;
