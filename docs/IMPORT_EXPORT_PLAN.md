@@ -1,18 +1,17 @@
 # Import/Export Feature Plan
 
 ## Goal
-Allow users to export their Shows and Schedule data (including images) from one instance and import it into another, or use it for backup/migration.
+Enable full migration of Shows and Schedules between environments (e.g., Local -> Production, or Staging -> Production).
 
-## Strategy: ZIP Archive
-Since shows have associated images (covers), a simple JSON export isn't enough. We will use a **ZIP archive** format.
+## Strategy: ZIP Archive & "Replace All"
+To ensure a clean state and avoid complex conflict resolution, the import will use a **"Replace All"** strategy.
+**Warning:** This will delete ALL existing Shows and Schedule Slots on the target machine before importing.
 
 ### Archive Structure
 ```
-radio-suite-export-2025-12-01.zip
+radio-suite-export.zip
 ├── data.json       # The database records
 └── images/         # The actual image files
-    ├── 1764631146150-face.png
-    └── 1764631557632-beat.png
 ```
 
 ### `data.json` Structure
@@ -25,13 +24,9 @@ radio-suite-export-2025-12-01.zip
       "id": "uuid...",
       "title": "My Show",
       "image": "/uploads/1764631146150-face.png",
-      "scheduleSlots": [
-        {
-          "startTime": "...",
-          "endTime": "...",
-          "isRecurring": true
-        }
-      ]
+      "recordingEnabled": true,
+      "recordingSource": null, // EXCLUDED/CLEARED
+      "scheduleSlots": [...]
     }
   ]
 }
@@ -40,36 +35,33 @@ radio-suite-export-2025-12-01.zip
 ## Implementation Details
 
 ### 1. Export Workflow (Server Action)
-1.  Fetch all `Show` records with their `ScheduleSlot`s.
-2.  Create a JSZip instance.
-3.  Add `data.json`.
-4.  For each show with an `image`:
-    -   Read the file from `process.cwd() + '/uploads/' + filename`.
-    -   Add it to the `images/` folder in the ZIP.
-5.  Return the ZIP stream to the client for download.
+1.  Fetch all `Show` records with `ScheduleSlot`s.
+2.  **Sanitize Data:** Set `recordingSource` to `null` for all shows (as streams are site-specific).
+3.  Create ZIP with `data.json` and referenced images.
+4.  Stream to client.
 
 ### 2. Import Workflow (Server Action)
-1.  Receive ZIP file upload.
-2.  Extract `data.json`.
-3.  **Conflict Resolution:**
-    -   **Shows:** Match by `id`. If exists, update? Or skip? (User preference or default to "Update").
-    -   **Images:** Extract images from ZIP to `process.cwd() + '/uploads/'`.
-4.  **Database Operations:**
-    -   Upsert Shows.
-    -   Re-create ScheduleSlots (Careful: avoid duplicates. Maybe delete existing slots for imported shows first?).
+1.  **Backup (Optional but recommended):** (Maybe later).
+2.  **Wipe Existing Data:**
+    -   `DELETE FROM ScheduleSlot;`
+    -   `DELETE FROM Show;`
+3.  **Process ZIP:**
+    -   Extract images to `/app/uploads`.
+    -   Read `data.json`.
+4.  **Restore Data:**
+    -   Create `Show` records.
+    -   Create `ScheduleSlot` records.
 
 ### 3. UI Changes
--   **Page:** `app/settings/page.tsx` (or a new tab).
--   **Section:** "Data Management".
--   **Buttons:**
-    -   "Export Data" (Download)
-    -   "Import Data" (File Input + Confirmation Modal).
+-   **Settings Page:** New "Data Management" card.
+-   **Export Button:** "Export All Data".
+-   **Import Button:** "Import Data (Replace All)".
+    -   **Critical Warning Modal:** "This will delete all existing shows and schedule slots. Are you sure?"
 
 ## Technical Dependencies
--   `jszip`: For creating/reading ZIP files.
--   `fs`: For file system operations.
+-   `jszip`: `npm install jszip`
+-   `fs/promises`: Standard node lib.
 
-## Risks & Considerations
--   **Large Archives:** If there are many images, the export might be slow or memory-intensive. Stream processing is preferred.
--   **ID Conflicts:** If importing into a DB that already has data, UUID collisions are rare but logical duplicates (same show title) might occur.
--   **Image Paths:** Ensure the import logic correctly maps the image paths in the DB to the restored files.
+## Safety Checks
+-   Ensure we don't delete `StationSettings` or `IcecastStream` configs (only Shows/Schedule).
+-   Validate ZIP structure before wiping data.

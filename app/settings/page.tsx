@@ -5,7 +5,8 @@ import StationTimezoneForm from "@/components/StationTimezoneForm";
 import StationStreamForm from "@/components/StationStreamForm";
 import AudioEncodingSettings from "@/components/AudioEncodingSettings";
 import SiteBrandingForm from "@/components/SiteBrandingForm";
-import HelpIcon from '@/components/HelpIcon'; // Added import
+import HelpIcon from '@/components/HelpIcon';
+import DataManagement from "@/components/DataManagement";
 
 export const dynamic = 'force-dynamic';
 
@@ -80,6 +81,9 @@ export default async function SettingsPage() {
                         />
                     </div>
                 </div>
+
+                {/* Full Width: Data Management (Import/Export) */}
+                <DataManagement />
 
                 {/* Full Width: Audio Encoding Settings */}
                 <AudioEncodingSettings
