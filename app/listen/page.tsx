@@ -78,6 +78,7 @@ export default function ListenPage() {
     const [streamUrl, setStreamUrl] = useState<string | null>(null);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [isLoadingStream, setIsLoadingStream] = useState(false);
+    const [streamError, setStreamError] = useState<string | null>(null);
 
     // Fetch Stream URL
     useEffect(() => {
@@ -85,7 +86,13 @@ export default function ListenPage() {
             getStationSettings().then((settings: any) => {
                 if (settings.streamUrl) {
                     setStreamUrl(settings.streamUrl);
+                    setStreamError(null); // Clear any previous errors
+                } else {
+                    setStreamError('No stream URL configured. Please configure a stream in Settings.');
                 }
+            }).catch(err => {
+                console.error('Failed to load stream settings:', err);
+                setStreamError('Failed to load stream configuration.');
             });
         });
     }, []);
@@ -101,10 +108,17 @@ export default function ListenPage() {
         // Add event listeners for loading states
         const handleLoadStart = () => setIsLoadingStream(true);
         const handleCanPlay = () => setIsLoadingStream(false);
-        const handleError = () => {
+        const handleError = (e: Event) => {
+            const audioElement = e.target as HTMLAudioElement;
+
+            // Ignore errors when src is empty (cleanup/pause)
+            if (!audioElement.src || audioElement.src === '') {
+                return;
+            }
+
+            // Silently handle error - stop loading/playing states
             setIsLoadingStream(false);
             setIsPlaying(false);
-            console.error('Audio stream error');
         };
 
         audio.addEventListener('loadstart', handleLoadStart);
