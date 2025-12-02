@@ -4,6 +4,62 @@
 .rbc-calendar {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: transparent;
+    height: 1600px !important;
+    /* Force height to allow page scroll */
+}
+
+/* Sticky Toolbar */
+/* Sticky Toolbar */
+.rbc-toolbar {
+    position: sticky !important;
+    top: 0;
+    z-index: 1000 !important;
+    /* High z-index */
+    background: #111827 !important;
+    /* Match wrapper background (gray-900) */
+    opacity: 1 !important;
+    /* Force opacity */
+    margin-bottom: 0 !important;
+    padding: 0 16px !important;
+    /* Horizontal padding only */
+    height: 70px !important;
+    /* Fixed height */
+    border-bottom: 1px solid #374151;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-top-left-radius: 0.75rem !important;
+    /* Match rounded-xl */
+    border-top-right-radius: 0.75rem !important;
+    /* Match rounded-xl */
+}
+
+/* Sticky Header Container */
+.rbc-time-header {
+    position: sticky !important;
+    top: 70px;
+    /* Match toolbar height exactly */
+    z-index: 999 !important;
+    /* Just below toolbar */
+    background: #111827 !important;
+    /* Match wrapper background */
+    opacity: 1 !important;
+    /* Force opacity */
+    margin-top: 0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure header cells have background */
+.rbc-header {
+    background: #1f2937 !important;
+    z-index: 41;
+    border-bottom: 1px solid #374151 !important;
+}
+
+/* Corner cell (time gutter header) */
+.rbc-time-header-gutter {
+    background: #1f2937 !important;
+    z-index: 41;
 }
 
 /* Header Styling */

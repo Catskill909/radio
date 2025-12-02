@@ -15,11 +15,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         );
     }
 
+    const isSchedulePage = pathname?.startsWith('/schedule');
+
     return (
         <div className="flex h-screen bg-gray-900 text-white">
             <Sidebar />
             {/* Main Content */}
-            <main className="flex-1 overflow-auto bg-gray-950 p-8">
+            <main className={`flex-1 overflow-auto bg-gray-950 ${isSchedulePage ? '' : 'p-8'}`}>
                 {children}
             </main>
         </div>

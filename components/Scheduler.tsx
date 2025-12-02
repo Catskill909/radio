@@ -173,7 +173,7 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
     return (
         <div className="w-full h-full">
             {/* Full-Width Calendar */}
-            <div className="bg-gray-900 rounded-xl p-4 border border-gray-800 h-full">
+            <div className="bg-gray-900 rounded-xl border border-gray-800 h-full">
                 <BigCalendar
                     localizer={localizer}
                     events={events}

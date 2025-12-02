@@ -15,7 +15,7 @@ export default async function SchedulePage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-950">
-            <div className="p-6 pb-0 flex justify-between items-center shrink-0">
+            <div className="px-8 pt-8 pb-0 flex justify-between items-center shrink-0">
                 <div>
                     <h1 className="text-3xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
                         Schedule
@@ -25,7 +25,7 @@ export default async function SchedulePage() {
                 </div>
             </div>
 
-            <div className="p-6 h-[calc(100vh-100px)]">
+            <div className="px-8">
                 <Scheduler
                     shows={shows}
                     initialSlots={slots}
