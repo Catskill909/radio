@@ -40,25 +40,30 @@ export async function importData(formData: FormData) {
         }
 
         // 4. Restore Images FIRST (outside transaction to avoid timeout)
-        const imagesFolder = zip.folder("images");
-        if (imagesFolder) {
-            console.log("Restoring images...");
-            const imageFiles = Object.keys(imagesFolder.files);
-            for (const filename of imageFiles) {
-                // Skip directories
-                if (imagesFolder.files[filename].dir) continue;
+        console.log("Restoring images...");
+        const imagePromises: Promise<void>[] = [];
 
-                // Only process files in the images/ root (ignore nested if any)
-                const cleanFilename = path.basename(filename);
+        // Iterate through all files in the ZIP looking for images
+        zip.forEach((relativePath, file) => {
+            // Only process files in the images/ directory
+            if (relativePath.startsWith("images/") && !file.dir) {
+                const filename = path.basename(relativePath);
+                const destPath = path.join(uploadsDir, filename);
 
-                const content = await imagesFolder.file(filename)?.async("nodebuffer");
-                if (content) {
-                    const destPath = path.join(uploadsDir, cleanFilename);
+                const promise = file.async("nodebuffer").then((content) => {
                     fs.writeFileSync(destPath, content);
-                }
+                    console.log(`Restored image: ${filename}`);
+                }).catch(err => {
+                    console.error(`Failed to restore image ${filename}:`, err);
+                });
+
+                imagePromises.push(promise);
             }
-            console.log(`Restored ${imageFiles.filter(f => !imagesFolder.files[f].dir).length} images`);
-        }
+        });
+
+        // Wait for all images to be restored
+        await Promise.all(imagePromises);
+        console.log(`Restored ${imagePromises.length} images`);
 
         // 5. Transaction: Wipe & Restore Database
         console.log("Starting database transaction...");

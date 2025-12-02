@@ -8,6 +8,7 @@ export default function DataManagement() {
     const [isImporting, setIsImporting] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+    const [progressText, setProgressText] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -24,18 +25,27 @@ export default function DataManagement() {
         setIsImporting(true);
         setStatus(null);
         setShowConfirm(false);
+        setProgressText("Uploading file...");
 
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        const result = await importData(formData);
+        try {
+            setProgressText("Processing import... This may take up to a minute for large files.");
+            const result = await importData(formData);
 
-        if (result.success) {
-            setStatus({ type: 'success', message: result.message || "Import successful!" });
-            setSelectedFile(null);
-            if (fileInputRef.current) fileInputRef.current.value = "";
-        } else {
-            setStatus({ type: 'error', message: result.error || "Import failed." });
+            if (result.success) {
+                setStatus({ type: 'success', message: result.message || "Import successful!" });
+                setSelectedFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+                setProgressText("");
+            } else {
+                setStatus({ type: 'error', message: result.error || "Import failed." });
+                setProgressText("");
+            }
+        } catch (error) {
+            setStatus({ type: 'error', message: "Import failed: " + (error instanceof Error ? error.message : "Unknown error") });
+            setProgressText("");
         }
 
         setIsImporting(false);
@@ -80,6 +90,14 @@ export default function DataManagement() {
                         </button>
                     </div>
                 </div>
+
+                {/* Progress Text */}
+                {progressText && (
+                    <div className="mt-4 p-3 rounded-lg text-sm bg-blue-900/20 text-blue-300 border border-blue-900/50 flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {progressText}
+                    </div>
+                )}
 
                 {/* Status Message */}
                 {status && (
