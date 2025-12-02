@@ -39,34 +39,38 @@ export async function importData(formData: FormData) {
             fs.mkdirSync(uploadsDir, { recursive: true });
         }
 
-        // 4. Transaction: Wipe & Restore
-        // We do DB operations in a transaction to ensure integrity
+        // 4. Restore Images FIRST (outside transaction to avoid timeout)
+        const imagesFolder = zip.folder("images");
+        if (imagesFolder) {
+            console.log("Restoring images...");
+            const imageFiles = Object.keys(imagesFolder.files);
+            for (const filename of imageFiles) {
+                // Skip directories
+                if (imagesFolder.files[filename].dir) continue;
+
+                // Only process files in the images/ root (ignore nested if any)
+                const cleanFilename = path.basename(filename);
+
+                const content = await imagesFolder.file(filename)?.async("nodebuffer");
+                if (content) {
+                    const destPath = path.join(uploadsDir, cleanFilename);
+                    fs.writeFileSync(destPath, content);
+                }
+            }
+            console.log(`Restored ${imageFiles.filter(f => !imagesFolder.files[f].dir).length} images`);
+        }
+
+        // 5. Transaction: Wipe & Restore Database
+        console.log("Starting database transaction...");
         await prisma.$transaction(async (tx) => {
             // A. Wipe Data
+            console.log("Deleting existing data...");
             // Delete slots first due to foreign key constraints (Cascade should handle it, but being explicit is safer)
             await tx.scheduleSlot.deleteMany({});
             await tx.show.deleteMany({});
 
-            // B. Restore Images
-            const imagesFolder = zip.folder("images");
-            if (imagesFolder) {
-                const imageFiles = Object.keys(imagesFolder.files);
-                for (const filename of imageFiles) {
-                    // Skip directories
-                    if (imagesFolder.files[filename].dir) continue;
-
-                    // Only process files in the images/ root (ignore nested if any)
-                    const cleanFilename = path.basename(filename);
-
-                    const content = await imagesFolder.file(filename)?.async("nodebuffer");
-                    if (content) {
-                        const destPath = path.join(uploadsDir, cleanFilename);
-                        fs.writeFileSync(destPath, content);
-                    }
-                }
-            }
-
-            // C. Restore Shows & Slots
+            // B. Restore Shows & Slots
+            console.log(`Restoring ${data.shows.length} shows...`);
             for (const show of data.shows) {
                 const { slots, ...showData } = show;
 
@@ -92,6 +96,9 @@ export async function importData(formData: FormData) {
                     });
                 }
             }
+            console.log("Database transaction completed");
+        }, {
+            timeout: 60000, // 60 second timeout for large imports
         });
 
         revalidatePath("/");
