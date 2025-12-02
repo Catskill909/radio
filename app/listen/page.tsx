@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { addDays, startOfDay, subDays, differenceInCalendarDays } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
 import CollapsingHeader from './components/CollapsingHeader';
 import TopPlayerBar from './components/TopPlayerBar'; // Desktop Header
 import DayTabs from './components/DayTabs';
@@ -13,37 +12,10 @@ import { useMediaQuery } from './hooks/useMediaQuery';
 import { NowPlayingData, ScheduleSlot, Episode } from './components/types';
 
 export default function ListenPage() {
-    // Fetch station timezone first
-    const [stationTimezone, setStationTimezone] = useState<string>('America/New_York');
-    const [isTimezoneLoaded, setIsTimezoneLoaded] = useState(false);
-
-    // Fetch timezone on mount
-    useEffect(() => {
-        const fetchTimezone = async () => {
-            try {
-                const settingsModule = await import('@/app/actions');
-                const settings = await settingsModule.getStationSettings();
-                if (settings.timezone) {
-                    setStationTimezone(settings.timezone);
-                }
-            } catch (error) {
-                console.error('Error fetching timezone:', error);
-            } finally {
-                setIsTimezoneLoaded(true);
-            }
-        };
-        fetchTimezone();
-    }, []);
-
-    // Helper function to get current time in station timezone
-    const getStationNow = useCallback(() => {
-        return toZonedTime(new Date(), stationTimezone);
-    }, [stationTimezone]);
-
-    // State - Initialize with UTC, will update once timezone loads
+    // State
     const [nowPlaying, setNowPlaying] = useState<NowPlayingData | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [selectedDay, setSelectedDay] = useState<Date>(() => new Date());
+    const [selectedDay, setSelectedDay] = useState<Date>(new Date());
     const [scheduleSlots, setScheduleSlots] = useState<ScheduleSlot[]>([]);
     const [loadingSchedule, setLoadingSchedule] = useState(false);
 
@@ -56,16 +28,7 @@ export default function ListenPage() {
     const [currentEpisodeId, setCurrentEpisodeId] = useState<string | null>(null);
 
     // View Start Date (for the 7-day window)
-    const [viewStart, setViewStart] = useState<Date>(() => new Date());
-
-    // Update selectedDay and viewStart to station time once timezone is loaded
-    useEffect(() => {
-        if (isTimezoneLoaded) {
-            const stationNow = getStationNow();
-            setSelectedDay(stationNow);
-            setViewStart(stationNow);
-        }
-    }, [isTimezoneLoaded, getStationNow]);
+    const [viewStart, setViewStart] = useState<Date>(new Date());
 
     // Update view window when selected day changes (if outside current window)
     useEffect(() => {
@@ -230,13 +193,11 @@ export default function ListenPage() {
                             selectedDay={selectedDay}
                             onDayChange={setSelectedDay}
                             days={days}
-                            stationTimezone={stationTimezone}
                         />
                         <DailySchedule
                             slots={scheduleSlots}
                             isLoading={loadingSchedule}
                             onShowClick={handleShowClick}
-                            stationTimezone={stationTimezone}
                         />
                     </div>
                 </>
@@ -252,13 +213,11 @@ export default function ListenPage() {
                         selectedDay={selectedDay}
                         onDayChange={setSelectedDay}
                         days={days}
-                        stationTimezone={stationTimezone}
                     />
                     <DailySchedule
                         slots={scheduleSlots}
                         isLoading={loadingSchedule}
                         onShowClick={handleShowClick}
-                        stationTimezone={stationTimezone}
                     />
                 </>
             )}

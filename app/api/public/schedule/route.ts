@@ -15,15 +15,17 @@ export async function GET(request: NextRequest) {
         });
         const timezone = settings?.timezone || 'America/New_York';
 
-        // Default to current week if no params provided
+        // Parse dates as UTC (database stores UTC)
         let startDate: Date;
         let endDate: Date;
 
         if (startParam && endParam) {
-            startDate = toZonedTime(new Date(startParam), timezone);
-            endDate = toZonedTime(new Date(endParam), timezone);
+            // Client sends ISO strings - parse them as-is (they're already UTC)
+            startDate = new Date(startParam);
+            endDate = new Date(endParam);
         } else {
-            const now = toZonedTime(new Date(), timezone);
+            // Default to current day in UTC
+            const now = new Date();
             startDate = startOfDay(now);
             endDate = endOfDay(addDays(now, 6));
         }

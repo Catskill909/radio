@@ -11,8 +11,8 @@ export async function GET() {
         });
         const timezone = settings?.timezone || 'America/New_York';
 
-        // Get current time in station timezone
-        const now = toZonedTime(new Date(), timezone);
+        // Get current time in UTC (database stores UTC)
+        const now = new Date();
 
         // Find current show
         const currentSlot = await prisma.scheduleSlot.findFirst({

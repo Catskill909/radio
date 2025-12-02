@@ -1,36 +1,34 @@
 'use client';
 
-import { parseISO, isPast } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
-import ScheduleCard from './ScheduleCard';
 import { ScheduleSlot } from './types';
+import ScheduleCard from './ScheduleCard';
 
 interface DailyScheduleProps {
     slots: ScheduleSlot[];
     isLoading: boolean;
     onShowClick: (showId: string) => void;
-    stationTimezone: string;
 }
 
-export default function DailySchedule({ slots, isLoading, onShowClick, stationTimezone }: DailyScheduleProps) {
+export default function DailySchedule({ slots, isLoading, onShowClick }: DailyScheduleProps) {
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="p-8 text-center text-gray-500 animate-pulse">
+                Loading schedule...
             </div>
         );
     }
 
     if (slots.length === 0) {
         return (
-            <div className="text-center py-12 text-gray-400">
-                No shows scheduled for this day
+            <div className="p-12 text-center text-gray-500">
+                <p>No shows scheduled for this day.</p>
             </div>
         );
     }
 
-    // We use toZonedTime here, relying on the parent's re-render (every minute) to update this.
-    const now = toZonedTime(new Date(), stationTimezone);
+    // Check if a show is currently live
+    // Backend returns UTC times, browser Date comparison works correctly
+    const now = new Date();
 
     return (
         <div className="px-4 pt-6 space-y-3 pb-[80vh]">
