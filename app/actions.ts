@@ -6,127 +6,134 @@ import { redirect } from "next/navigation";
 import { stationTimeToUTC } from "@/lib/station-time";
 
 export async function createShow(formData: FormData, shouldRedirect: boolean = true) {
-    const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
-    const type = formData.get("type") as string;
-    const host = (formData.get("host") as string) || null;
-    const email = (formData.get("email") as string) || null;
-    const author = (formData.get("author") as string) || null;
-    const category = (formData.get("category") as string) || null;
-    const tags = (formData.get("tags") as string) || null;
-    const explicit = formData.get("explicit") === "true";
-    const image = (formData.get("image") as string) || null;
-    const recordingEnabled = formData.get("recordingEnabled") === "true";
-    const recordingSource = (formData.get("recordingSource") as string) || null;
-    const language = (formData.get("language") as string) || "en-us";
-    const copyright = (formData.get("copyright") as string) || null;
-    const link = (formData.get("link") as string) || null;
+    try {
+        const title = formData.get("title") as string;
+        const description = formData.get("description") as string;
+        const type = formData.get("type") as string;
+        const host = (formData.get("host") as string) || null;
+        const email = (formData.get("email") as string) || null;
+        const author = (formData.get("author") as string) || null;
+        const category = (formData.get("category") as string) || null;
+        const tags = (formData.get("tags") as string) || null;
+        const explicit = formData.get("explicit") === "true";
+        const image = (formData.get("image") as string) || null;
+        const recordingEnabled = formData.get("recordingEnabled") === "true";
+        const recordingSource = (formData.get("recordingSource") as string) || null;
+        const language = (formData.get("language") as string) || "en-us";
+        const copyright = (formData.get("copyright") as string) || null;
+        const link = (formData.get("link") as string) || null;
 
-    const startDateStr = formData.get("startDate") as string;
-    const startTimeStr = formData.get("startTime") as string;
-    const durationMins = parseInt(formData.get("duration") as string);
-    const isRecurring = formData.get("isRecurring") === "true";
+        const startDateStr = formData.get("startDate") as string;
+        const startTimeStr = formData.get("startTime") as string;
+        const durationMins = parseInt(formData.get("duration") as string);
+        const isRecurring = formData.get("isRecurring") === "true";
 
-    const show = await prisma.show.create({
-        data: {
-            title,
-            description,
-            type,
-            host,
-            email,
-            author,
-            category,
-            tags,
-            explicit,
-            image,
-            recordingEnabled,
-            recordingSource,
-            language,
-            copyright,
-            link,
-        },
-    });
+        const show = await prisma.show.create({
+            data: {
+                title,
+                description,
+                type,
+                host,
+                email,
+                author,
+                category,
+                tags,
+                explicit,
+                image,
+                recordingEnabled,
+                recordingSource,
+                language,
+                copyright,
+                link,
+            },
+        });
 
-    // Only create schedule slots if scheduling info is provided
-    if (startDateStr && startTimeStr && !isNaN(durationMins) && durationMins > 0) {
-        // Calculate initial start and end time
-        // ✅ STATION TIMEZONE: Interpret user input as station-local time, convert to UTC for DB
-        const startDateTime = stationTimeToUTC(startDateStr, startTimeStr);
-        const endDateTime = new Date(startDateTime.getTime() + durationMins * 60000);
+        // Only create schedule slots if scheduling info is provided
+        if (startDateStr && startTimeStr && !isNaN(durationMins) && durationMins > 0) {
+            // Calculate initial start and end time
+            // ✅ STATION TIMEZONE: Interpret user input as station-local time, convert to UTC for DB
+            const startDateTime = stationTimeToUTC(startDateStr, startTimeStr);
+            const endDateTime = new Date(startDateTime.getTime() + durationMins * 60000);
 
-        // Generate slots
-        const slotsToCreate = [];
+            // Generate slots
+            const slotsToCreate = [];
 
-        if (isRecurring) {
-            // ✅ DST-AWARE: Use timezone-aware date arithmetic to maintain wall-clock time
-            const { add } = await import('date-fns');
-            const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
-            const { getStationTimezone } = await import('@/lib/station-time');
-            const stationTz = getStationTimezone();
+            if (isRecurring) {
+                // ✅ DST-AWARE: Use timezone-aware date arithmetic to maintain wall-clock time
+                const { add } = await import('date-fns');
+                const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+                const { getStationTimezone } = await import('@/lib/station-time');
+                const stationTz = getStationTimezone();
 
-            // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
-            for (let i = 0; i < 52; i++) {
-                // Convert initial UTC time to station timezone
-                const initialStationStart = toZonedTime(startDateTime, stationTz);
-                const initialStationEnd = toZonedTime(endDateTime, stationTz);
+                // Generate slots for the next 52 weeks (1 year) - radio shows run indefinitely
+                for (let i = 0; i < 52; i++) {
+                    // Convert initial UTC time to station timezone
+                    const initialStationStart = toZonedTime(startDateTime, stationTz);
+                    const initialStationEnd = toZonedTime(endDateTime, stationTz);
 
-                // Add weeks in STATION TIMEZONE (maintains wall-clock time across DST)
-                const futureStationStart = add(initialStationStart, { weeks: i });
-                const futureStationEnd = add(initialStationEnd, { weeks: i });
+                    // Add weeks in STATION TIMEZONE (maintains wall-clock time across DST)
+                    const futureStationStart = add(initialStationStart, { weeks: i });
+                    const futureStationEnd = add(initialStationEnd, { weeks: i });
 
-                // Convert back to UTC for database storage
-                // date-fns-tz handles DST offset changes automatically
-                const slotStart = fromZonedTime(
-                    format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                    stationTz
-                );
-                const slotEnd = fromZonedTime(
-                    format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                    stationTz
-                );
-
-                // Check for overlaps with existing slots
-                const overlapping = await checkSlotOverlap(slotStart, slotEnd);
-                if (overlapping) {
-                    throw new Error(
-                        `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+                    // Convert back to UTC for database storage
+                    // date-fns-tz handles DST offset changes automatically
+                    const slotStart = fromZonedTime(
+                        format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                        stationTz
                     );
+                    const slotEnd = fromZonedTime(
+                        format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                        stationTz
+                    );
+
+                    // Check for overlaps with existing slots
+                    const overlapping = await checkSlotOverlap(slotStart, slotEnd);
+                    if (overlapping) {
+                        return { success: false, error: `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"` };
+                    }
+
+                    slotsToCreate.push({
+                        showId: show.id,
+                        startTime: slotStart,
+                        endTime: slotEnd,
+                        isRecurring: true,
+                    });
+                }
+            } else {
+                // Single slot - check for overlap
+                const overlapping = await checkSlotOverlap(startDateTime, endDateTime);
+                if (overlapping) {
+                    return { success: false, error: `Time slot overlaps with existing show: ${overlapping.show.title}` };
                 }
 
                 slotsToCreate.push({
                     showId: show.id,
-                    startTime: slotStart,
-                    endTime: slotEnd,
-                    isRecurring: true,
+                    startTime: startDateTime,
+                    endTime: endDateTime,
+                    isRecurring: false,
                 });
             }
-        } else {
-            // Single slot - check for overlap
-            const overlapping = await checkSlotOverlap(startDateTime, endDateTime);
-            if (overlapping) {
-                throw new Error(
-                    `Time slot overlaps with existing show: ${overlapping.show.title}`
-                );
-            }
 
-            slotsToCreate.push({
-                showId: show.id,
-                startTime: startDateTime,
-                endTime: endDateTime,
-                isRecurring: false,
+            await prisma.scheduleSlot.createMany({
+                data: slotsToCreate,
             });
         }
 
-        await prisma.scheduleSlot.createMany({
-            data: slotsToCreate,
-        });
-    }
+        revalidatePath("/shows");
+        revalidatePath("/schedule");
 
-    revalidatePath("/shows");
-    revalidatePath("/schedule");
+        if (shouldRedirect) {
+            redirect("/shows");
+        }
+        return { success: true };
 
-    if (shouldRedirect) {
-        redirect("/shows");
+    } catch (error) {
+        // NEXT_REDIRECT error must be re-thrown to be handled by Next.js
+        if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+            throw error;
+        }
+        console.error("Failed to create show:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error occurred" };
     }
 }
 
@@ -251,229 +258,230 @@ export async function createScheduleSlot(
     sourceUrl?: string,
     isRecurring: boolean = false
 ) {
-    // VALIDATION: Prevent zero-duration slots
-    if (startTime.getTime() === endTime.getTime()) {
-        throw new Error('Cannot create slot: start time and end time are identical (zero duration)');
-    }
-    if (startTime.getTime() > endTime.getTime()) {
-        throw new Error('Cannot create slot: start time is after end time');
-    }
-
-    // Get station timezone and conversion utilities
-    const { getStationTimezone } = await import('@/lib/station-time');
-    const { toZonedTime, fromZonedTime } = await import('date-fns-tz');
-    const stationTz = getStationTimezone();
-
-    // Note: startTime and endTime are already UTC Dates after client->server serialization
-    // We just need to convert to station time for midnight detection
-    const slotsToCreate = [];
-
-    // Convert UTC dates to station time for midnight detection
-    const startStation = toZonedTime(startTime, stationTz);
-    const endStation = toZonedTime(endTime, stationTz);
-
-    // Check if slot crosses midnight IN STATION TIMEZONE
-    let crossesMidnight = startStation.getDate() !== endStation.getDate() ||
-        startStation.getMonth() !== endStation.getMonth() ||
-        startStation.getFullYear() !== endStation.getFullYear();
-
-    // FIX: If the slot ends EXACTLY at midnight (00:00:00), do not treat it as crossing midnight.
-    // This prevents creating a zero-duration second slot (00:00-00:00) which would falsely overlap
-    // with shows starting at midnight (like BBC World News).
-    if (crossesMidnight && endStation.getHours() === 0 && endStation.getMinutes() === 0 && endStation.getSeconds() === 0 && endStation.getMilliseconds() === 0) {
-        crossesMidnight = false;
-    }
-
-    if (crossesMidnight) {
-        // Generate a unique group ID for linked slots
-        const splitGroupId = crypto.randomUUID();
-
-        // Calculate midnight boundary IN STATION TIMEZONE
-        const midnightStation = new Date(startStation);
-        midnightStation.setDate(midnightStation.getDate() + 1);
-        midnightStation.setHours(0, 0, 0, 0);
-
-        // Convert midnight back to UTC for storage
-        const midnight = fromZonedTime(
-            `${midnightStation.getFullYear()}-${String(midnightStation.getMonth() + 1).padStart(2, '0')}-${String(midnightStation.getDate()).padStart(2, '0')}T00:00:00`,
-            stationTz
-        );
-
-        // VALIDATION: Ensure split slots will have non-zero duration
-        if (startTime.getTime() >= midnight.getTime()) {
-            throw new Error('Cannot create midnight-crossing slot: first part would have zero or negative duration. Check timezone settings.');
+    try {
+        // VALIDATION: Prevent zero-duration slots
+        if (startTime.getTime() === endTime.getTime()) {
+            return { success: false, error: 'Cannot create slot: start time and end time are identical (zero duration)' };
         }
-        if (midnight.getTime() >= endTime.getTime()) {
-            throw new Error('Cannot create midnight-crossing slot: second part would have zero or negative duration. Check timezone settings.');
+        if (startTime.getTime() > endTime.getTime()) {
+            return { success: false, error: 'Cannot create slot: start time is after end time' };
         }
 
-        if (isRecurring) {
-            // ✅ DST-AWARE: Generate pairs of slots for the next 52 weeks with timezone logic
-            const { add } = await import('date-fns');
-            const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+        // Get station timezone and conversion utilities
+        const { getStationTimezone } = await import('@/lib/station-time');
+        const { toZonedTime, fromZonedTime } = await import('date-fns-tz');
+        const stationTz = getStationTimezone();
 
-            for (let i = 0; i < 52; i++) {
-                // Convert to station time and add weeks
-                const initialSlot1Start = toZonedTime(startTime, stationTz);
-                const initialMidnight = toZonedTime(midnight, stationTz);
-                const initialSlot2End = toZonedTime(endTime, stationTz);
+        // Note: startTime and endTime are already UTC Dates after client->server serialization
+        // We just need to convert to station time for midnight detection
+        const slotsToCreate = [];
 
-                const futureSlot1Start = add(initialSlot1Start, { weeks: i });
-                const futureMidnight = add(initialMidnight, { weeks: i });
-                const futureSlot2End = add(initialSlot2End, { weeks: i });
+        // Convert UTC dates to station time for midnight detection
+        const startStation = toZonedTime(startTime, stationTz);
+        const endStation = toZonedTime(endTime, stationTz);
 
-                // Convert back to UTC
-                const slot1Start = fromZonedTime(
-                    format(futureSlot1Start, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                    stationTz
-                );
-                const slot1End = fromZonedTime(
-                    format(futureMidnight, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                    stationTz
-                );
-                const slot2Start = slot1End; // Midnight is the boundary
-                const slot2End = fromZonedTime(
-                    format(futureSlot2End, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                    stationTz
-                );
+        // Check if slot crosses midnight IN STATION TIMEZONE
+        let crossesMidnight = startStation.getDate() !== endStation.getDate() ||
+            startStation.getMonth() !== endStation.getMonth() ||
+            startStation.getFullYear() !== endStation.getFullYear();
 
-                // Check for overlaps
-                const overlap1 = await checkSlotOverlap(slot1Start, slot1End);
-                const overlap2 = await checkSlotOverlap(slot2Start, slot2End);
+        // FIX: If the slot ends EXACTLY at midnight (00:00:00), do not treat it as crossing midnight.
+        // This prevents creating a zero-duration second slot (00:00-00:00) which would falsely overlap
+        // with shows starting at midnight (like BBC World News).
+        if (crossesMidnight && endStation.getHours() === 0 && endStation.getMinutes() === 0 && endStation.getSeconds() === 0 && endStation.getMilliseconds() === 0) {
+            crossesMidnight = false;
+        }
 
-                if (overlap1) {
-                    throw new Error(
-                        `Cannot create recurring show: Week ${i + 1} first half overlaps with "${overlap1.show.title}"`
+        if (crossesMidnight) {
+            // Generate a unique group ID for linked slots
+            const splitGroupId = crypto.randomUUID();
+
+            // Calculate midnight boundary IN STATION TIMEZONE
+            const midnightStation = new Date(startStation);
+            midnightStation.setDate(midnightStation.getDate() + 1);
+            midnightStation.setHours(0, 0, 0, 0);
+
+            // Convert midnight back to UTC for storage
+            const midnight = fromZonedTime(
+                `${midnightStation.getFullYear()}-${String(midnightStation.getMonth() + 1).padStart(2, '0')}-${String(midnightStation.getDate()).padStart(2, '0')}T00:00:00`,
+                stationTz
+            );
+
+            // VALIDATION: Ensure split slots will have non-zero duration
+            if (startTime.getTime() >= midnight.getTime()) {
+                return { success: false, error: 'Cannot create midnight-crossing slot: first part would have zero or negative duration. Check timezone settings.' };
+            }
+            if (midnight.getTime() >= endTime.getTime()) {
+                return { success: false, error: 'Cannot create midnight-crossing slot: second part would have zero or negative duration. Check timezone settings.' };
+            }
+
+            if (isRecurring) {
+                // ✅ DST-AWARE: Generate pairs of slots for the next 52 weeks with timezone logic
+                const { add } = await import('date-fns');
+                const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+
+                for (let i = 0; i < 52; i++) {
+                    // Convert to station time and add weeks
+                    const initialSlot1Start = toZonedTime(startTime, stationTz);
+                    const initialMidnight = toZonedTime(midnight, stationTz);
+                    const initialSlot2End = toZonedTime(endTime, stationTz);
+
+                    const futureSlot1Start = add(initialSlot1Start, { weeks: i });
+                    const futureMidnight = add(initialMidnight, { weeks: i });
+                    const futureSlot2End = add(initialSlot2End, { weeks: i });
+
+                    // Convert back to UTC
+                    const slot1Start = fromZonedTime(
+                        format(futureSlot1Start, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                        stationTz
+                    );
+                    const slot1End = fromZonedTime(
+                        format(futureMidnight, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                        stationTz
+                    );
+                    const slot2Start = slot1End; // Midnight is the boundary
+                    const slot2End = fromZonedTime(
+                        format(futureSlot2End, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                        stationTz
+                    );
+
+                    // Check for overlaps
+                    const overlap1 = await checkSlotOverlap(slot1Start, slot1End);
+                    const overlap2 = await checkSlotOverlap(slot2Start, slot2End);
+
+                    if (overlap1) {
+                        return { success: false, error: `Cannot create recurring show: Week ${i + 1} first half overlaps with "${overlap1.show.title}"` };
+                    }
+                    if (overlap2) {
+                        return { success: false, error: `Cannot create recurring show: Week ${i + 1} second half overlaps with "${overlap2.show.title}"` };
+                    }
+
+                    slotsToCreate.push(
+                        {
+                            showId,
+                            startTime: slot1Start,
+                            endTime: slot1End,
+                            sourceUrl,
+                            isRecurring: true,
+                            splitGroupId: `${splitGroupId}-week${i}`,
+                            splitPosition: 'first'
+                        },
+                        {
+                            showId,
+                            startTime: slot2Start,
+                            endTime: slot2End,
+                            sourceUrl,
+                            isRecurring: true,
+                            splitGroupId: `${splitGroupId}-week${i}`,
+                            splitPosition: 'second'
+                        }
                     );
                 }
+            } else {
+                // Single pair of slots
+                const overlap1 = await checkSlotOverlap(startTime, midnight);
+                const overlap2 = await checkSlotOverlap(midnight, endTime);
+
+                if (overlap1) {
+                    return { success: false, error: `Cannot schedule show: Time slot conflicts with "${overlap1.show.title}" (scheduled ${overlap1.startTime.toLocaleString()} - ${overlap1.endTime.toLocaleString()})` };
+                }
                 if (overlap2) {
-                    throw new Error(
-                        `Cannot create recurring show: Week ${i + 1} second half overlaps with "${overlap2.show.title}"`
-                    );
+                    return { success: false, error: `Cannot schedule show: Time slot conflicts with "${overlap2.show.title}" (scheduled ${overlap2.startTime.toLocaleString()} - ${overlap2.endTime.toLocaleString()})` };
                 }
 
                 slotsToCreate.push(
                     {
                         showId,
-                        startTime: slot1Start,
-                        endTime: slot1End,
+                        startTime: startTime,
+                        endTime: midnight,
                         sourceUrl,
-                        isRecurring: true,
-                        splitGroupId: `${splitGroupId}-week${i}`,
+                        isRecurring: false,
+                        splitGroupId,
                         splitPosition: 'first'
                     },
                     {
                         showId,
-                        startTime: slot2Start,
-                        endTime: slot2End,
+                        startTime: midnight,
+                        endTime: endTime,
                         sourceUrl,
-                        isRecurring: true,
-                        splitGroupId: `${splitGroupId}-week${i}`,
+                        isRecurring: false,
+                        splitGroupId,
                         splitPosition: 'second'
                     }
                 );
             }
         } else {
-            // Single pair of slots
-            const overlap1 = await checkSlotOverlap(startTime, midnight);
-            const overlap2 = await checkSlotOverlap(midnight, endTime);
+            // Same-day slots (existing logic)
+            if (isRecurring) {
+                // ✅ DST-AWARE: Generate slots for the next 52 weeks with timezone logic
+                const { add } = await import('date-fns');
+                const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
 
-            if (overlap1) {
-                throw new Error(`Cannot schedule show: Time slot conflicts with "${overlap1.show.title}" (scheduled ${overlap1.startTime.toLocaleString()} - ${overlap1.endTime.toLocaleString()})`);
-            }
-            if (overlap2) {
-                throw new Error(`Cannot schedule show: Time slot conflicts with "${overlap2.show.title}" (scheduled ${overlap2.startTime.toLocaleString()} - ${overlap2.endTime.toLocaleString()})`);
-            }
+                for (let i = 0; i < 52; i++) {
+                    // Convert to station time
+                    const initialStationStart = toZonedTime(startTime, stationTz);
+                    const initialStationEnd = toZonedTime(endTime, stationTz);
 
-            slotsToCreate.push(
-                {
-                    showId,
-                    startTime: startTime,
-                    endTime: midnight,
-                    sourceUrl,
-                    isRecurring: false,
-                    splitGroupId,
-                    splitPosition: 'first'
-                },
-                {
-                    showId,
-                    startTime: midnight,
-                    endTime: endTime,
-                    sourceUrl,
-                    isRecurring: false,
-                    splitGroupId,
-                    splitPosition: 'second'
-                }
-            );
-        }
-    } else {
-        // Same-day slots (existing logic)
-        if (isRecurring) {
-            // ✅ DST-AWARE: Generate slots for the next 52 weeks with timezone logic
-            const { add } = await import('date-fns');
-            const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+                    // Add weeks in station timezone
+                    const futureStationStart = add(initialStationStart, { weeks: i });
+                    const futureStationEnd = add(initialStationEnd, { weeks: i });
 
-            for (let i = 0; i < 52; i++) {
-                // Convert to station time
-                const initialStationStart = toZonedTime(startTime, stationTz);
-                const initialStationEnd = toZonedTime(endTime, stationTz);
-
-                // Add weeks in station timezone
-                const futureStationStart = add(initialStationStart, { weeks: i });
-                const futureStationEnd = add(initialStationEnd, { weeks: i });
-
-                // Convert back to UTC
-                const slotStart = fromZonedTime(
-                    format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                    stationTz
-                );
-                const slotEnd = fromZonedTime(
-                    format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                    stationTz
-                );
-
-                // Check for overlaps with existing slots
-                const overlapping = await checkSlotOverlap(slotStart, slotEnd);
-                if (overlapping) {
-                    throw new Error(
-                        `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+                    // Convert back to UTC
+                    const slotStart = fromZonedTime(
+                        format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                        stationTz
                     );
+                    const slotEnd = fromZonedTime(
+                        format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                        stationTz
+                    );
+
+                    // Check for overlaps with existing slots
+                    const overlapping = await checkSlotOverlap(slotStart, slotEnd);
+                    if (overlapping) {
+                        return { success: false, error: `Cannot create recurring show: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"` };
+                    }
+
+                    slotsToCreate.push({
+                        showId,
+                        startTime: slotStart,
+                        endTime: slotEnd,
+                        sourceUrl,
+                        isRecurring: true,
+                        splitGroupId: null,
+                        splitPosition: null,
+                    });
+                }
+            } else {
+                // Single slot - check for overlap
+                const overlapping = await checkSlotOverlap(startTime, endTime);
+                if (overlapping) {
+                    return { success: false, error: `Cannot schedule show: Time slot conflicts with "${overlapping.show.title}" (scheduled ${overlapping.startTime.toLocaleString()} - ${overlapping.endTime.toLocaleString()})` };
                 }
 
                 slotsToCreate.push({
                     showId,
-                    startTime: slotStart,
-                    endTime: slotEnd,
+                    startTime: startTime,
+                    endTime: endTime,
                     sourceUrl,
-                    isRecurring: true,
+                    isRecurring: false,
                     splitGroupId: null,
                     splitPosition: null,
                 });
             }
-        } else {
-            // Single slot - check for overlap
-            const overlapping = await checkSlotOverlap(startTime, endTime);
-            if (overlapping) {
-                throw new Error(`Cannot schedule show: Time slot conflicts with "${overlapping.show.title}" (scheduled ${overlapping.startTime.toLocaleString()} - ${overlapping.endTime.toLocaleString()})`);
-            }
-
-            slotsToCreate.push({
-                showId,
-                startTime: startTime,
-                endTime: endTime,
-                sourceUrl,
-                isRecurring: false,
-                splitGroupId: null,
-                splitPosition: null,
-            });
         }
+
+        await prisma.scheduleSlot.createMany({
+            data: slotsToCreate,
+        });
+
+        revalidatePath("/schedule");
+        return { success: true };
+
+    } catch (error) {
+        console.error("Failed to create schedule slot:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error occurred" };
     }
-
-    await prisma.scheduleSlot.createMany({
-        data: slotsToCreate,
-    });
-
-    revalidatePath("/schedule");
 }
 
 

@@ -129,7 +129,14 @@ export default function ScheduleModal({
                 throw new Error('Invalid end time calculated')
             }
 
-            await createScheduleSlot(selectedShowId, startTimeUTC, endTimeUTC, undefined, isRecurring)
+            const result = await createScheduleSlot(selectedShowId, startTimeUTC, endTimeUTC, undefined, isRecurring)
+
+            if (result && !result.success) {
+                setErrorMessage(result.error || 'Failed to schedule show')
+                setErrorModalOpen(true)
+                return
+            }
+
             onClose()
             window.location.reload() // Refresh to show new slot
         } catch (error) {
@@ -175,7 +182,14 @@ export default function ScheduleModal({
         formData.set('recordingSource', recordingSource)
 
         try {
-            await createShow(formData, false)
+            const result = await createShow(formData, false)
+
+            if (result && !result.success) {
+                setErrorMessage(result.error || 'Failed to create and schedule show')
+                setErrorModalOpen(true)
+                return
+            }
+
             onClose()
             window.location.reload()
         } catch (error) {
