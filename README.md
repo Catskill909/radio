@@ -225,6 +225,29 @@ See [PRISMA_WORKFLOW.md](./PRISMA_WORKFLOW.md) for complete workflow guide, trou
 - ✅ Use migrations for all schema changes
 - ✅ Never manually edit the database
 
+### 🚨 CRITICAL: Production Deployments
+
+**When you change `prisma/schema.prisma`, the production database MUST be manually migrated!**
+
+After deploying code with schema changes:
+
+```bash
+# SSH into your production server (Coolify/Docker)
+cd /app
+npx prisma db push
+
+# Then restart the application
+pm2 restart all
+```
+
+**⚠️ Failure to run this will cause production crashes** with errors like:
+```
+The column `main.Show.fieldName` does not exist in the current database.
+```
+
+**The build process runs `prisma generate` but this ONLY updates TypeScript types, it does NOT migrate the database!**
+
+
 ## Usage
 
 ### Creating a Show
