@@ -238,9 +238,12 @@ export default function EditShowForm({ show, streams }: { show: Show; streams: {
                             Cover Image
                         </label>
                         <input type="hidden" name="image" value={imageUrl} />
-                        <div className="h-full w-full max-w-xs min-h-[160px]">
+                        <div className="w-full max-w-xs">
                             <ImageUpload value={imageUrl} onChange={setImageUrl} />
                         </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                            If no image is uploaded, the Station Identity image will be used.
+                        </p>
                     </div>
                 </div>
 

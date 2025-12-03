@@ -11,5 +11,5 @@ export default async function EpisodesPage() {
     ]);
     const timezone = settings.timezone || "UTC";
 
-    return <EpisodesClient initialShows={shows} timezone={timezone} />;
+    return <EpisodesClient initialShows={shows} timezone={timezone} stationLogoUrl={settings?.logoUrl || null} />;
 }

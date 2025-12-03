@@ -32,18 +32,28 @@ export async function GET(
         return new NextResponse("Show not found", { status: 404 });
     }
 
+    // Fetch station settings for fallback metadata
+    const stationSettings = await prisma.stationSettings.findUnique({
+        where: { id: "station" },
+    });
+
     const getAbsoluteUrl = (url: string | null) => {
         if (!url) return undefined;
         if (url.startsWith('http')) return url;
         return `${request.nextUrl.origin}${url}`;
     };
 
+    // Fallback metadata helpers
+    const authorName = show.author || show.host || stationSettings?.name || "Radio Suite";
+    const ownerEmail = show.email || stationSettings?.email || "no-reply@example.com";
+    const showImage = getAbsoluteUrl(show.image) || getAbsoluteUrl(stationSettings?.logoUrl || null);
+
     const feed = new RSS({
         title: show.title,
         description: show.description || "",
         feed_url: `${request.nextUrl.origin}/api/feed/${show.id}/rss.xml`,
         site_url: show.link || `${request.nextUrl.origin}/shows/${show.id}`,
-        image_url: getAbsoluteUrl(show.image),
+        image_url: showImage,
         language: show.language || "en-us",
         copyright: show.copyright || undefined,
         pubDate: new Date(),
@@ -51,13 +61,13 @@ export async function GET(
             'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'
         },
         custom_elements: [
-            { 'itunes:author': show.host || show.author || "Radio Suite" },
+            { 'itunes:author': authorName },
             { 'itunes:subtitle': show.description?.substring(0, 255) || "" },
             { 'itunes:summary': show.description || "" },
             {
                 'itunes:owner': [
-                    { 'itunes:name': show.host || show.author || "Radio Suite" },
-                    { 'itunes:email': show.email || "no-reply@example.com" }
+                    { 'itunes:name': authorName },
+                    { 'itunes:email': ownerEmail }
                 ]
             },
             { 'itunes:explicit': show.explicit ? 'yes' : 'no' },
@@ -87,7 +97,7 @@ export async function GET(
                 custom_elements: [
                     { 'itunes:duration': recording.episode.duration || recording.duration },
                     { 'itunes:author': recording.episode.host || show.host },
-                    { 'itunes:image': { _attr: { href: getAbsoluteUrl(recording.episode.imageUrl || show.image) } } },
+                    { 'itunes:image': { _attr: { href: getAbsoluteUrl(recording.episode.imageUrl) || showImage } } },
                     { 'itunes:keywords': recording.episode.tags }
                 ]
             });

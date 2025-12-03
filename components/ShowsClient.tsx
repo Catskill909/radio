@@ -35,9 +35,10 @@ interface Show {
 interface ShowsClientProps {
     initialShows: Show[]
     streams: { id: string; name: string; url: string }[]
+    stationLogoUrl: string | null
 }
 
-export default function ShowsClient({ initialShows, streams }: ShowsClientProps) {
+export default function ShowsClient({ initialShows, streams, stationLogoUrl }: ShowsClientProps) {
     const [shows, setShows] = useState(initialShows)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [editModalOpen, setEditModalOpen] = useState(false)
@@ -121,16 +122,16 @@ export default function ShowsClient({ initialShows, streams }: ShowsClientProps)
                             className="bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden hover:border-[#444] transition-all shadow-md flex flex-col"
                         >
                             <div className="flex flex-row h-full">
-                                {show.image && (
+                                {(show.image || stationLogoUrl) && (
                                     <div className="w-1/3 relative shrink-0">
                                         <img
-                                            src={show.image}
+                                            src={show.image || stationLogoUrl || ''}
                                             alt={show.title}
                                             className="w-full h-full object-cover absolute inset-0"
                                         />
                                     </div>
                                 )}
-                                <div className={`flex-1 p-5 flex flex-col ${show.image ? 'w-2/3' : 'w-full'}`}>
+                                <div className={`flex-1 p-5 flex flex-col ${(show.image || stationLogoUrl) ? 'w-2/3' : 'w-full'}`}>
                                     <div className="flex justify-between items-start mb-2">
                                         <div>
                                             <h2 className="text-lg font-medium text-gray-100 leading-tight mb-1">{show.title}</h2>

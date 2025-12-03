@@ -7,9 +7,10 @@ import { Rss, Search, X } from "lucide-react"
 interface EpisodesClientProps {
     initialShows: any[]
     timezone: string
+    stationLogoUrl: string | null
 }
 
-export default function EpisodesClient({ initialShows, timezone }: EpisodesClientProps) {
+export default function EpisodesClient({ initialShows, timezone, stationLogoUrl }: EpisodesClientProps) {
     const [searchQuery, setSearchQuery] = useState('')
 
     // Filter shows based on search query
@@ -69,7 +70,7 @@ export default function EpisodesClient({ initialShows, timezone }: EpisodesClien
 
             <div className="grid grid-cols-1 gap-6">
                 {filteredShows.map((show: any) => (
-                    <PodcastCard key={show.id} show={show} timezone={timezone} />
+                    <PodcastCard key={show.id} show={show} timezone={timezone} stationLogoUrl={stationLogoUrl} />
                 ))}
 
                 {filteredShows.length === 0 && (

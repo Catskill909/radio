@@ -11,9 +11,10 @@ import EpisodeManagerDrawer from "./EpisodeManagerDrawer";
 interface PodcastCardProps {
     show: any;
     timezone: string;
+    stationLogoUrl?: string | null;
 }
 
-export default function PodcastCard({ show, timezone }: PodcastCardProps) {
+export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastCardProps) {
     const [copied, setCopied] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [showPlayer, setShowPlayer] = useState(false);
@@ -48,8 +49,8 @@ export default function PodcastCard({ show, timezone }: PodcastCardProps) {
                     <div className="flex items-start gap-4">
                         {/* Show Art / Placeholder */}
                         <div className="w-24 h-24 bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-600">
-                            {show.image ? (
-                                <img src={show.image} alt={show.title} className="w-full h-full object-cover" />
+                            {(show.image || stationLogoUrl) ? (
+                                <img src={show.image || stationLogoUrl} alt={show.title} className="w-full h-full object-cover" />
                             ) : (
                                 <Mic className="w-10 h-10 text-gray-500" />
                             )}

@@ -17,6 +17,11 @@ export async function GET(
         return new NextResponse("Show not found", { status: 404 });
     }
 
+    // Fetch station settings for fallback metadata
+    const stationSettings = await prisma.stationSettings.findUnique({
+        where: { id: "station" },
+    });
+
     // Fetch episodes for this show
     const episodes = await prisma.episode.findMany({
         where: {
@@ -43,7 +48,6 @@ export async function GET(
         },
     });
 
-    // Create RSS feed
     // Helper to ensure absolute URLs
     const getAbsoluteUrl = (path: string | null) => {
         if (!path) return undefined;
@@ -52,15 +56,20 @@ export async function GET(
         return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
     };
 
-    const showImage = getAbsoluteUrl(show.image);
+    // Use show image with station logo as fallback
+    const showImage = getAbsoluteUrl(show.image) || getAbsoluteUrl(stationSettings?.logoUrl || null);
+
+    // Fallback metadata helper
+    const authorName = show.author || show.host || stationSettings?.name || "Radio Suite";
+    const ownerEmail = show.email || stationSettings?.email || "podcasts@radiosuite.com";
 
     // Create RSS feed
     const feed = new RSS({
         title: show.title,
         description: show.description || `Episodes from ${show.title}`,
         feed_url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/feed/show/${showId}`,
-        site_url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
-        language: "en",
+        site_url: show.link || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
+        language: show.language || "en",
         pubDate: new Date(),
         ttl: 60,
         image_url: showImage,
@@ -68,13 +77,13 @@ export async function GET(
             itunes: "http://www.itunes.com/dtds/podcast-1.0.dtd",
         },
         custom_elements: [
-            { "itunes:author": show.author || show.host || "Radio Suite" },
+            { "itunes:author": authorName },
             { "itunes:summary": show.description || "" },
             { "itunes:category": { _attr: { text: show.category || show.type } } },
             {
                 "itunes:owner": [
-                    { "itunes:name": show.author || show.host || "Radio Suite" },
-                    { "itunes:email": show.email || "podcasts@radiosuite.com" }
+                    { "itunes:name": authorName },
+                    { "itunes:email": ownerEmail }
                 ]
             },
             { "itunes:explicit": show.explicit ? "yes" : "no" },
