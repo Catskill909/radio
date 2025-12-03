@@ -17,6 +17,7 @@ model Show {
   author           String?
   explicit         Boolean        @default(false)
   category         String?
+  itunesType       String         @default("episodic")
   tags             String?
   image            String?
   recordingEnabled Boolean        @default(false)

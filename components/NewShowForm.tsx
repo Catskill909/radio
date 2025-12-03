@@ -260,6 +260,25 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                             />
                         </div>
 
+                        {/* iTunes Type - Span 12 */}
+                        <div className="col-span-12 space-y-1.5">
+                            <label htmlFor="itunesType" className="block text-sm font-medium text-gray-300">
+                                iTunes Type
+                            </label>
+                            <select
+                                id="itunesType"
+                                name="itunesType"
+                                defaultValue="episodic"
+                                className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                            >
+                                <option value="episodic">Episodic (Default)</option>
+                                <option value="serial">Serial</option>
+                            </select>
+                            <p className="text-xs text-gray-500">
+                                Episodic: Newest episodes first. Serial: Oldest episodes first (good for storytelling).
+                            </p>
+                        </div>
+
                         {/* Show Type - Span 12 but compact grid inside */}
                         <div className="col-span-12 space-y-1.5">
                             <label className="block text-sm font-medium text-gray-300">

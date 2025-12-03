@@ -22,6 +22,7 @@ export async function createShow(formData: FormData, shouldRedirect: boolean = t
         const language = (formData.get("language") as string) || "en-us";
         const copyright = (formData.get("copyright") as string) || null;
         const link = (formData.get("link") as string) || null;
+        const itunesType = (formData.get("itunesType") as string) || "episodic";
 
         const startDateStr = formData.get("startDate") as string;
         const startTimeStr = formData.get("startTime") as string;
@@ -37,6 +38,7 @@ export async function createShow(formData: FormData, shouldRedirect: boolean = t
                 email,
                 author,
                 category,
+                itunesType,
                 tags,
                 explicit,
                 image,
@@ -165,6 +167,7 @@ export async function updateShow(id: string, formData: FormData) {
     const language = (formData.get("language") as string) || "en-us";
     const copyright = (formData.get("copyright") as string) || null;
     const link = (formData.get("link") as string) || null;
+    const itunesType = (formData.get("itunesType") as string) || "episodic";
 
     await prisma.show.update({
         where: { id },
@@ -176,6 +179,7 @@ export async function updateShow(id: string, formData: FormData) {
             email,
             author,
             category,
+            itunesType,
             tags,
             explicit,
             image,

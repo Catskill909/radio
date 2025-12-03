@@ -106,7 +106,8 @@ export async function GET(
             },
             { 'itunes:explicit': show.explicit ? 'yes' : 'no' },
             itunesCategory,
-            { 'itunes:type': show.type || 'episodic' }
+            { 'itunes:type': show.itunesType || 'episodic' },
+            { 'itunes:keywords': show.tags || "" }
         ]
     });
 

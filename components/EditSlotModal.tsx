@@ -21,6 +21,7 @@ interface Show {
     author: string | null
     explicit: boolean
     category: string | null
+    itunesType: string
     tags: string | null
     recordingEnabled: boolean
     recordingSource: string | null
