@@ -107,6 +107,7 @@ export async function GET(
                 ]
             },
             { "itunes:explicit": show.explicit ? "yes" : "no" },
+            { "itunes:type": show.itunesType || "episodic" },
             ...(show.tags ? [{ "itunes:keywords": show.tags }] : []),
             ...(showImage ? [{ "itunes:image": { _attr: { href: showImage } } }] : []),
         ],
