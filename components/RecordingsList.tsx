@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { FileAudio, Clock, Check, XCircle, Loader, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { FileAudio, Clock, Check, XCircle, Loader, Trash2, Search, X } from "lucide-react";
+import { useState, useMemo } from "react";
 import { deleteRecording } from "@/app/actions";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import AudioPlayer from "./AudioPlayer";
@@ -14,6 +14,20 @@ interface RecordingsListProps {
 
 export default function RecordingsList({ recordings }: RecordingsListProps) {
     const [recordingToDelete, setRecordingToDelete] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Filter recordings based on search query
+    const filteredRecordings = useMemo(() => {
+        if (!searchQuery.trim()) return recordings
+
+        const query = searchQuery.toLowerCase()
+        return recordings.filter((recording: any) =>
+            recording.scheduleSlot?.show?.title?.toLowerCase().includes(query) ||
+            recording.scheduleSlot?.show?.host?.toLowerCase().includes(query) ||
+            recording.episode?.title?.toLowerCase().includes(query) ||
+            recording.status.toLowerCase().includes(query)
+        )
+    }, [recordings, searchQuery]);
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -59,8 +73,37 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
 
     return (
         <>
+            {/* Search Box */}
+            <div className="relative max-w-2xl mb-6">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="w-5 h-5 text-gray-500" />
+                </div>
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search recordings by show, host, or status..."
+                    className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-11 pr-11 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-all"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
+            </div>
+
+            {/* Results count when searching */}
+            {searchQuery && (
+                <p className="text-sm text-gray-400 mb-4">
+                    Found {filteredRecordings.length} {filteredRecordings.length === 1 ? 'recording' : 'recordings'}
+                </p>
+            )}
+
             <div className="grid grid-cols-1 gap-4">
-                {recordings.map((recording: any) => (
+                {filteredRecordings.map((recording: any) => (
                     <div
                         key={recording.id}
                         className="bg-gray-800 border border-gray-700 rounded-xl p-4 hover:border-gray-600 transition-colors"
@@ -153,11 +196,20 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                     </div>
                 ))}
 
-                {recordings.length === 0 && (
+                {filteredRecordings.length === 0 && (
                     <div className="text-center py-12 text-gray-500 bg-gray-800 border border-gray-700 rounded-xl">
                         <FileAudio className="w-12 h-12 mx-auto mb-3 text-gray-600" />
-                        <p className="text-lg">No recordings yet</p>
-                        <p className="text-sm mt-1">Recordings will appear here when shows are recorded</p>
+                        {searchQuery ? (
+                            <>
+                                <p className="text-lg">No Recordings Found</p>
+                                <p className="text-sm mt-1">No recordings match "{searchQuery}"</p>
+                            </>
+                        ) : (
+                            <>
+                                <p className="text-lg">No recordings yet</p>
+                                <p className="text-sm mt-1">Recordings will appear here when shows are recorded</p>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
