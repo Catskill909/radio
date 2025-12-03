@@ -1,31 +1,17 @@
 import { prisma } from "@/lib/prisma";
 import RSS from "rss";
 import { NextRequest, NextResponse } from "next/server";
+import { parseCategory } from "@/lib/itunes-categories";
 
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ showId: string }> }
 ) {
-    const { showId } = await params;
+    const showId = (await params).showId;
+
+    // Fetch the show
     const show = await prisma.show.findUnique({
         where: { id: showId },
-        include: {
-            slots: {
-                include: {
-                    recordings: {
-                        include: {
-                            episode: true,
-                        },
-                        where: {
-                            status: "COMPLETED",
-                            episode: {
-                                isNot: null,
-                            },
-                        },
-                    },
-                },
-            },
-        },
     });
 
     if (!show) {
@@ -37,16 +23,64 @@ export async function GET(
         where: { id: "station" },
     });
 
-    const getAbsoluteUrl = (url: string | null) => {
-        if (!url) return undefined;
-        if (url.startsWith('http')) return url;
-        return `${request.nextUrl.origin}${url}`;
+    // Fetch episodes for this show
+    const episodes = await prisma.episode.findMany({
+        where: {
+            publishedAt: { not: null },
+            recording: {
+                scheduleSlot: {
+                    showId: showId,
+                },
+            },
+        },
+        include: {
+            recording: {
+                include: {
+                    scheduleSlot: {
+                        include: {
+                            show: true,
+                        },
+                    },
+                },
+            },
+        },
+        orderBy: {
+            publishedAt: "desc",
+        },
+    });
+
+    // Helper to ensure absolute URLs
+    const getAbsoluteUrl = (path: string | null) => {
+        if (!path) return undefined;
+        if (path.startsWith("http")) return path;
+        return `${request.nextUrl.origin}${path.startsWith("/") ? "" : "/"}${path}`;
     };
 
-    // Fallback metadata helpers
-    const authorName = show.author || show.host || stationSettings?.name || "Radio Suite";
-    const ownerEmail = show.email || stationSettings?.email || "no-reply@example.com";
+    // Use show image with station logo as fallback
     const showImage = getAbsoluteUrl(show.image) || getAbsoluteUrl(stationSettings?.logoUrl || null);
+
+    // Fallback metadata helper
+    const authorName = show.author || show.host || stationSettings?.name || "Radio Suite";
+    const ownerEmail = show.email || stationSettings?.email || "podcasts@radiosuite.com";
+
+    // Parse category for nested structure
+    const { category, subcategory } = parseCategory(show.category);
+    let itunesCategory;
+
+    if (category && subcategory) {
+        itunesCategory = {
+            "itunes:category": [
+                { _attr: { text: category } },
+                { "itunes:category": { _attr: { text: subcategory } } }
+            ]
+        };
+    } else {
+        itunesCategory = {
+            "itunes:category": {
+                _attr: { text: category || show.type || "Music" }
+            }
+        };
+    }
 
     const feed = new RSS({
         title: show.title,
@@ -71,42 +105,39 @@ export async function GET(
                 ]
             },
             { 'itunes:explicit': show.explicit ? 'yes' : 'no' },
-            { 'itunes:category': { _attr: { text: show.category || "Music" } } },
+            itunesCategory,
             { 'itunes:type': show.type || 'episodic' }
         ]
     });
 
-    // Flatten recordings from slots
-    const recordings = show.slots.flatMap((slot: any) => slot.recordings);
-
-    // Sort by creation date desc
-    recordings.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
-
-    recordings.forEach((recording: any) => {
-        if (recording.episode) {
+    episodes.forEach((episode) => {
+        if (episode.recording) {
             feed.item({
-                title: recording.episode.title,
-                description: recording.episode.description || "",
-                url: `${request.nextUrl.origin}/episodes/${recording.episode.id}`,
-                date: recording.episode.publishedAt || recording.createdAt,
+                title: episode.title,
+                description: episode.description || "",
+                url: `${request.nextUrl.origin}/episodes/${episode.id}`,
+                date: episode.publishedAt || episode.createdAt,
                 enclosure: {
-                    url: `${request.nextUrl.origin}/api/audio/${recording.filePath}`,
+                    url: getAbsoluteUrl(episode.recording.filePath) || "",
                     type: "audio/mpeg",
-                    size: recording.size || 0
+                    size: episode.recording.size || 0
                 },
                 custom_elements: [
-                    { 'itunes:duration': recording.episode.duration || recording.duration },
-                    { 'itunes:author': recording.episode.host || show.host },
-                    { 'itunes:image': { _attr: { href: getAbsoluteUrl(recording.episode.imageUrl) || showImage } } },
-                    { 'itunes:keywords': recording.episode.tags }
+                    { 'itunes:duration': episode.duration || episode.recording.duration },
+                    { 'itunes:author': episode.host || show.host },
+                    { 'itunes:image': { _attr: { href: getAbsoluteUrl(episode.imageUrl) || showImage } } },
+                    { 'itunes:keywords': episode.tags }
                 ]
             });
         }
     });
 
-    return new NextResponse(feed.xml({ indent: true }), {
+    const xml = feed.xml({ indent: true });
+
+    return new NextResponse(xml, {
         headers: {
             "Content-Type": "application/xml",
+            "Cache-Control": "public, max-age=3600",
         },
     });
 }

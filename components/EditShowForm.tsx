@@ -8,9 +8,11 @@ import { useState, useEffect } from "react";
 import { Show } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "./Tooltip";
+import ItunesCategorySelect from "@/components/iTunesCategorySelect";
 
 export default function EditShowForm({ show, streams }: { show: Show; streams: { id: string; name: string; url: string }[] }) {
     const [imageUrl, setImageUrl] = useState(show.image || "");
+    const [categoryValue, setCategoryValue] = useState(show.category || "");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [recordingEnabled, setRecordingEnabled] = useState(show.recordingEnabled || false);
     const [recordingSource, setRecordingSource] = useState(show.recordingSource || "");
@@ -30,8 +32,8 @@ export default function EditShowForm({ show, streams }: { show: Show; streams: {
     return (
         <>
             <form action={handleSubmit} className="grid grid-cols-12 gap-4">
-                {/* Title - Span 8 */}
-                <div className="col-span-12 md:col-span-8 space-y-1.5">
+                {/* Title - Span 12 */}
+                <div className="col-span-12 space-y-1.5">
                     <label htmlFor="title" className="block text-sm font-medium text-gray-300">
                         Show Title
                     </label>
@@ -90,20 +92,11 @@ export default function EditShowForm({ show, streams }: { show: Show; streams: {
                     />
                 </div>
 
-                {/* Category - Span 4 */}
-                <div className="col-span-12 md:col-span-4 space-y-1.5">
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-300">
-                        iTunes Category
-                    </label>
-                    <input
-                        type="text"
-                        id="category"
-                        name="category"
-                        defaultValue={show.category || ""}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-                        placeholder="e.g. Music"
-                    />
-                </div>
+
+
+
+
+
 
                 {/* Language - Span 4 */}
                 <div className="col-span-12 md:col-span-4 space-y-1.5">
@@ -148,6 +141,17 @@ export default function EditShowForm({ show, streams }: { show: Show; streams: {
                         className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
                         placeholder="https://example.com"
                     />
+                </div>
+
+
+
+                {/* Category - Span 4 */}
+                <div className="col-span-12 md:col-span-4 space-y-1.5">
+                    <ItunesCategorySelect
+                        value={categoryValue}
+                        onChange={setCategoryValue}
+                    />
+                    <input type="hidden" name="category" value={categoryValue} />
                 </div>
 
                 {/* Tags - Span 8 */}

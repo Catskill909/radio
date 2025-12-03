@@ -8,6 +8,7 @@ import DateTimePicker from "@/components/DateTimePicker";
 import RecordingControls from "@/components/RecordingControls";
 import { useState } from "react";
 import "@/app/shows/datepicker-dark.css";
+import ItunesCategorySelect from "@/components/iTunesCategorySelect";
 
 interface NewShowFormProps {
     streams: { id: string; name: string; url: string }[];
@@ -15,6 +16,7 @@ interface NewShowFormProps {
 
 export default function NewShowForm({ streams }: NewShowFormProps) {
     const [imageUrl, setImageUrl] = useState("");
+    const [categoryValue, setCategoryValue] = useState("");
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [recordingEnabled, setRecordingEnabled] = useState(false);
@@ -94,8 +96,8 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                     )}
 
                     <div className="grid grid-cols-12 gap-4">
-                        {/* Title - Span 8 */}
-                        <div className="col-span-12 md:col-span-8 space-y-1.5">
+                        {/* Title - Span 12 */}
+                        <div className="col-span-12 space-y-1.5">
                             <label htmlFor="title" className="block text-sm font-medium text-gray-300">
                                 Show Title <span className="text-red-500">*</span>
                             </label>
@@ -157,19 +159,11 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                             />
                         </div>
 
-                        {/* Category - Span 4 */}
-                        <div className="col-span-12 md:col-span-4 space-y-1.5">
-                            <label htmlFor="category" className="block text-sm font-medium text-gray-300">
-                                iTunes Category
-                            </label>
-                            <input
-                                type="text"
-                                id="category"
-                                name="category"
-                                className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-                                placeholder="e.g. Music"
-                            />
-                        </div>
+
+
+
+
+
 
                         {/* Language - Span 4 */}
                         <div className="col-span-12 md:col-span-4 space-y-1.5">
@@ -212,6 +206,17 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                                 className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
                                 placeholder="https://example.com"
                             />
+                        </div>
+
+
+
+                        {/* Category - Span 4 */}
+                        <div className="col-span-12 md:col-span-4 space-y-1.5">
+                            <ItunesCategorySelect
+                                value={categoryValue}
+                                onChange={setCategoryValue}
+                            />
+                            <input type="hidden" name="category" value={categoryValue} />
                         </div>
 
                         {/* Tags - Span 8 */}

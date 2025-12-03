@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import RSS from "rss";
 import { prisma } from "@/lib/prisma";
+import { parseCategory } from "@/lib/itunes-categories";
 
 export async function GET(
     request: NextRequest,
@@ -63,6 +64,25 @@ export async function GET(
     const authorName = show.author || show.host || stationSettings?.name || "Radio Suite";
     const ownerEmail = show.email || stationSettings?.email || "podcasts@radiosuite.com";
 
+    // Parse category for nested structure
+    const { category, subcategory } = parseCategory(show.category);
+    let itunesCategory;
+
+    if (category && subcategory) {
+        itunesCategory = {
+            "itunes:category": [
+                { _attr: { text: category } },
+                { "itunes:category": { _attr: { text: subcategory } } }
+            ]
+        };
+    } else {
+        itunesCategory = {
+            "itunes:category": {
+                _attr: { text: category || show.type || "Music" }
+            }
+        };
+    }
+
     // Create RSS feed
     const feed = new RSS({
         title: show.title,
@@ -79,7 +99,7 @@ export async function GET(
         custom_elements: [
             { "itunes:author": authorName },
             { "itunes:summary": show.description || "" },
-            { "itunes:category": { _attr: { text: show.category || show.type } } },
+            itunesCategory,
             {
                 "itunes:owner": [
                     { "itunes:name": authorName },
