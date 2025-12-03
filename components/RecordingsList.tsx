@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { FileAudio, Clock, Check, XCircle, Loader, Trash2, Search, X } from "lucide-react";
+import { FileAudio, Clock, Check, XCircle, Loader, Trash2, Search, X, Download } from "lucide-react";
 import { useState, useMemo } from "react";
 import { deleteRecording } from "@/app/actions";
 import DeleteConfirmModal from "./DeleteConfirmModal";
@@ -165,11 +165,19 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                             {/* Right: Audio Player & Actions */}
                             <div className="flex-1 flex items-center gap-3 min-w-0">
                                 {recording.status === "COMPLETED" && (
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 flex flex-col gap-2 items-center min-w-0">
                                         <AudioPlayer
                                             src={`/api/audio/${recording.filePath}`}
                                             title={recording.scheduleSlot?.show?.title}
                                         />
+                                        <a
+                                            href={`/api/audio/${recording.filePath}`}
+                                            download={`${recording.scheduleSlot?.show?.title || 'recording'} - ${format(new Date(recording.startTime), 'yyyy-MM-dd')}.${recording.filePath.split('.').pop()}`}
+                                            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-600 bg-gray-800/50 hover:bg-gray-700/50 text-xs font-medium text-gray-300 hover:text-gray-100 transition-all"
+                                        >
+                                            <Download className="w-3.5 h-3.5" />
+                                            Download
+                                        </a>
                                     </div>
                                 )}
 
