@@ -119,7 +119,9 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 - **Unified audio player**
   - Right-aligned card design with all elements consolidated
   - Show artwork, title, host with LIVE badge
-  - Time Remaining display with clock icon in styled pill
+  - **Time Remaining display** with clock icon in styled pill
+    - Ceiling-rounded math prevents "0m" display while show active
+    - 30-second polling for responsive updates
   - Large play/pause button
   - Loading spinner during stream buffering (3-4 second initial connect)
   - Proper audio event handling (`loadstart`, `canplay`, `error`)
@@ -431,6 +433,26 @@ This section is intentionally lightweight – it is meant to be edited as priori
   - Better logging and error categorization for `recorder-service.ts`
 
 ### P2 – Medium-Term
+
+- **WebSocket Real-Time Updates** 🔄
+  - **Instant Show Transitions**: Replace 30-second polling with WebSocket push notifications
+  - **Live Listener Count**: Real-time display of active listeners on public page
+  - **Recording Status Broadcasting**: Live progress updates for active recordings in admin dashboard
+  - **Schedule Sync**: Multi-user admin environments see schedule changes instantly
+  - **Stream Health Alerts**: Instant notifications when streams go offline
+  - **Benefits**: 
+    - Zero-latency updates (no polling delay)
+    - Reduced server load (only sends when data changes)
+    - Enhanced user experience across admin and public interfaces
+  - **Implementation**: 
+    - WebSocket server alongside Next.js
+    - Graceful fallback to polling for older browsers
+    - Reconnection handling for dropped connections
+  - **Use Cases**:
+    - Now Playing updates pushed at exact show transition time
+    - Icecast listener stats updated every few seconds
+    - Recording start/stop/complete notifications to admin
+    - Live editing collaboration (see others' schedule changes)
 
 - **Public-Facing Listener Experience** (Inspired by Airtime Pro & LibreTime)
   - **Station Microsite**: A dedicated public landing page (`/public`) featuring:

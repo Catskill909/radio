@@ -354,6 +354,7 @@ radio-suite/
 - [x] Recording quality tracking and badges
 - [x] In-app help system with contextual linking
 - [x] Import/Export feature for station migration and backups
+- [x] Time display accuracy improvements (ceiling rounding, faster polling)
 
 ### Next Up
 - [ ] Enhanced public-facing pages (show details, host bios)
@@ -363,8 +364,8 @@ radio-suite/
 - [ ] Recording pre/post-roll buffers
 
 ### Future Enhancements
+- [ ] WebSocket real-time updates (eliminate polling for instant show transitions)
 - [ ] Enhance recorder service with error recovery and retry logic
-- [ ] Add audio player for recorded files
 - [ ] Analytics and reporting
 - [ ] Multi-user support with authentication
 - [ ] Cloud storage integration for recordings
