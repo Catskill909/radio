@@ -31,16 +31,17 @@ model Show {
 }
 
 model ScheduleSlot {
-  id            String      @id @default(uuid())
-  showId        String
-  startTime     DateTime
-  endTime       DateTime
-  sourceUrl     String?
-  isRecurring   Boolean     @default(false)
-  splitGroupId  String?
-  splitPosition String?
-  recordings    Recording[]
-  show          Show        @relation(fields: [showId], references: [id], onDelete: Cascade)
+  id               String      @id @default(uuid())
+  showId           String
+  startTime        DateTime
+  endTime          DateTime
+  sourceUrl        String?
+  isRecurring      Boolean     @default(false)
+  recurringGroupId String?
+  splitGroupId     String?
+  splitPosition    String?
+  recordings       Recording[]
+  show             Show        @relation(fields: [showId], references: [id], onDelete: Cascade)
 }
 
 model Recording {

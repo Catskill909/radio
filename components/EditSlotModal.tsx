@@ -154,6 +154,17 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                 </div>
                             )}
 
+                            {slot.isRecurring && (
+                                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-6">
+                                    <div className="flex items-start gap-2">
+                                        <Repeat className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                                        <p className="text-blue-300 text-sm">
+                                            <strong>Recurring Show:</strong> Changes will apply to this instance and all future instances. Past shows remain unchanged.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {/* Start Time */}
                                 <div>
