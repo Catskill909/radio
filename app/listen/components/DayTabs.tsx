@@ -33,11 +33,15 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
 
     // Navigate to previous/next week
     const handlePreviousWeek = () => {
-        onDayChange(subDays(selectedDay, 7));
+        if (days.length > 0) {
+            onDayChange(subDays(days[0], 7));
+        }
     };
 
     const handleNextWeek = () => {
-        onDayChange(addDays(selectedDay, 7));
+        if (days.length > 0) {
+            onDayChange(addDays(days[0], 7));
+        }
     };
 
     // Jump back to today
