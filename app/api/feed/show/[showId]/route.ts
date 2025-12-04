@@ -3,6 +3,26 @@ import RSS from "rss";
 import { prisma } from "@/lib/prisma";
 import { parseCategory } from "@/lib/itunes-categories";
 
+// Helper to get the correct base URL, checking reverse proxy headers
+function getBaseUrl(request: NextRequest): string {
+    // 1. Check X-Forwarded-Host (set by reverse proxy like nginx/Coolify)
+    const forwardedHost = request.headers.get('x-forwarded-host');
+    if (forwardedHost) {
+        const protocol = request.headers.get('x-forwarded-proto') || 'https';
+        return `${protocol}://${forwardedHost}`;
+    }
+
+    // 2. Check Host header
+    const host = request.headers.get('host');
+    if (host && !host.includes('localhost')) {
+        const protocol = request.headers.get('x-forwarded-proto') || 'https';
+        return `${protocol}://${host}`;
+    }
+
+    // 3. Fall back to request origin (works in development)
+    return request.nextUrl.origin;
+}
+
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ showId: string }> }
@@ -49,11 +69,13 @@ export async function GET(
         },
     });
 
+    const baseUrl = getBaseUrl(request);
+
     // Helper to ensure absolute URLs
     const getAbsoluteUrl = (path: string | null) => {
         if (!path) return undefined;
         if (path.startsWith("http")) return path;
-        return `${request.nextUrl.origin}${path.startsWith("/") ? "" : "/"}${path}`;
+        return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
     };
 
     // Use show image with station logo as fallback
@@ -86,8 +108,8 @@ export async function GET(
     const feed = new RSS({
         title: show.title,
         description: show.description || `Episodes from ${show.title}`,
-        feed_url: `${request.nextUrl.origin}/api/feed/show/${showId}`,
-        site_url: show.link || request.nextUrl.origin,
+        feed_url: `${baseUrl}/api/feed/show/${showId}`,
+        site_url: show.link || baseUrl,
         language: show.language || "en",
         pubDate: new Date(),
         ttl: 60,
@@ -114,13 +136,13 @@ export async function GET(
 
     // Add episodes to feed
     episodes.forEach((episode) => {
-        const audioUrl = `${request.nextUrl.origin}/api/audio/${episode.recording.filePath}`;
+        const audioUrl = `${baseUrl}/api/audio/${episode.recording.filePath}`;
         const episodeImage = getAbsoluteUrl((episode as any).imageUrl) || showImage;
 
         feed.item({
             title: episode.title,
             description: episode.description || "",
-            url: `${request.nextUrl.origin}/episodes/${episode.id}`,
+            url: `${baseUrl}/episodes/${episode.id}`,
             guid: episode.id,
             date: episode.publishedAt || episode.createdAt,
             enclosure: {
