@@ -8,6 +8,7 @@ import DayTabs from './components/DayTabs';
 import DailySchedule from './components/DailySchedule';
 import ShowModal from './components/ShowModal';
 import ShowModalDesktop from './components/ShowModalDesktop';
+import FloatingMenu from './components/FloatingMenu';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { NowPlayingData, ScheduleSlot, Episode } from './components/types';
 
@@ -265,6 +266,9 @@ export default function ListenPage() {
                     onPlayEpisode={handlePlayEpisode}
                 />
             )}
+
+            {/* Floating Menu FAB */}
+            <FloatingMenu />
         </div>
     );
 }
