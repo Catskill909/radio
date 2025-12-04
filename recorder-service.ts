@@ -40,6 +40,17 @@ async function checkSchedule() {
                 continue
             }
 
+            // FIX: Check if recording is enabled for this show
+            if (!slot.show.recordingEnabled) {
+                // If we were recording (e.g. user turned it off mid-show), we should stop
+                // But activeRecordings check above handles the "start" case.
+                // The "stop" case is handled by the cleanup loop if we remove it from activeRecordings?
+                // No, the cleanup loop only stops if slot ends.
+                // If user toggles OFF mid-show, we should probably stop it.
+                // Let's handle the "start" case first: don't start if disabled.
+                continue
+            }
+
             // Check if a recording record already exists in DB (e.g. from a previous run)
             const existingRecording = await prisma.recording.findFirst({
                 where: { scheduleSlotId: slot.id },
@@ -66,10 +77,15 @@ async function checkSchedule() {
             // If command is null, it's still starting up, so don't touch it
             if (!command) continue;
 
-            const slot = await prisma.scheduleSlot.findUnique({ where: { id: slotId } })
-            if (!slot || slot.endTime <= now) {
+            const slot = await prisma.scheduleSlot.findUnique({
+                where: { id: slotId },
+                include: { show: true }
+            })
+
+            if (!slot || slot.endTime <= now || !slot.show.recordingEnabled) {
                 const endStation = slot ? formatInStationTime(slot.endTime, 'HH:mm') : 'unknown'
-                console.log(`Stopping recording for slot: ${slotId} (ended at ${endStation} ${stationTz})`)
+                const reason = !slot ? 'slot deleted' : (slot.endTime <= now ? 'slot ended' : 'recording disabled')
+                console.log(`Stopping recording for slot: ${slotId} (${reason} - ended at ${endStation} ${stationTz})`)
                 command.kill('SIGKILL') // This should trigger the 'end' event or 'error'
                 activeRecordings.delete(slotId)
             }
