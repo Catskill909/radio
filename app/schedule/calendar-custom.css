@@ -204,12 +204,42 @@
     background-color: rgba(59, 130, 246, 0.05) !important;
 }
 
-/* Current Time Indicator - Thicker with subtle glow (SAFE: only visual properties) */
+/* Current Time Indicator - Animated with pulsing glow (SAFE: only box-shadow/opacity, NO position changes) */
 .rbc-current-time-indicator {
     background-color: #ef4444 !important;
-    height: 4px !important;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6) !important;
-    border-radius: 2px !important;
+    height: 5px !important;
+    box-shadow:
+        0 0 10px rgba(239, 68, 68, 1),
+        0 0 20px rgba(239, 68, 68, 0.7),
+        0 0 35px rgba(239, 68, 68, 0.5),
+        0 0 50px rgba(239, 68, 68, 0.3) !important;
+    border-radius: 3px !important;
+    animation: currentTimePulse 1.5s ease-in-out infinite !important;
+}
+
+/* Pulsing glow animation - ONLY animates box-shadow, not position */
+@keyframes currentTimePulse {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 10px rgba(239, 68, 68, 1),
+            0 0 20px rgba(239, 68, 68, 0.7),
+            0 0 35px rgba(239, 68, 68, 0.5),
+            0 0 50px rgba(239, 68, 68, 0.3);
+        opacity: 1;
+        height: 5px;
+    }
+
+    50% {
+        box-shadow:
+            0 0 15px rgba(239, 68, 68, 1),
+            0 0 35px rgba(239, 68, 68, 0.9),
+            0 0 55px rgba(239, 68, 68, 0.7),
+            0 0 75px rgba(239, 68, 68, 0.4);
+        opacity: 0.7;
+        height: 5px;
+    }
 }
 
 /* Toolbar */
