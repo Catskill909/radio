@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Suite Features</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600&family=Raleway:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
+            line-height: 1.6;
+        }
+
+        .header {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header i {
+            color: #4ade80;
+            font-size: 1.25rem;
+        }
+
+        .header h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .intro h2 {
+            font-family: 'Raleway', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.75rem;
+        }
+
+        .intro p {
+            color: #888;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .card {
+            background: #151515;
+            border: 1px solid #252525;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .card h3 {
+            font-family: 'Raleway', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            margin-bottom: 0.75rem;
+        }
+
+        .card h3 i {
+            color: #4ade80;
+            font-size: 1rem;
+            width: 1.25rem;
+        }
+
+        .card p {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .card p::before {
+            content: '•';
+            color: #4ade80;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #555;
+            font-size: 0.85rem;
+            border-top: 1px solid #222;
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: #888;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #e5e5e5;
+        }
+
+        @media (max-width: 640px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <i class="fas fa-radio"></i>
+        <h1>Radio Suite Features</h1>
+    </header>
+
+    <main class="container">
+        <div class="intro">
+            <h2>Everything you need to run your station</h2>
+            <p>Radio Suite is a modern, all-in-one platform for scheduling, recording, and publishing. Built for radio
+                professionals who want powerful automation without the complexity.</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3><i class="fas fa-microphone-alt"></i> Show Management</h3>
+                <p>Create and organize your shows with all the metadata you need: titles, descriptions, hosts, cover
+                    artwork, categories, and tags.</p>
+                <p>Assign show types (live, syndicated, music) and configure recording settings per show. Everything
+                    feeds directly into your podcast RSS.</p>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-calendar-alt"></i> Visual Scheduling</h3>
+                <p>Plan your week with an intuitive click-to-schedule calendar. Click any time slot to add a show, set
+                    durations, and mark shows as recurring.</p>
+                <p>Recurring shows automatically extend a year ahead—no need to manually re-add weekly programs. The
+                    system prevents double-booking with clear conflict warnings.</p>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-circle-dot"></i> Automated Recording</h3>
+                <p>A background service monitors your schedule and automatically records from your Icecast streams when
+                    shows go live.</p>
+                <p>Choose your audio quality: MP3, AAC, Opus, or lossless FLAC. Adjust bitrate and sample rate to
+                    balance file size and sound quality.</p>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-podcast"></i> Podcast Publishing</h3>
+                <p>Recordings automatically become podcast episodes. Edit titles, descriptions, artwork, and all RSS
+                    metadata before or after publishing.</p>
+                <p>Each show gets its own iTunes-compatible RSS feed—ready to submit to Apple Podcasts, Spotify, and
+                    other directories.</p>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-broadcast-tower"></i> Public Listen Page</h3>
+                <p>A beautiful listener-facing page with your weekly schedule, live "Now Playing" info, and an
+                    integrated audio player.</p>
+                <p>Visitors can click any show to see full metadata and play available episodes right in a modal—on
+                    desktop or mobile.</p>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-wave-square"></i> Post-Recording Editing</h3>
+                <p>Before publishing, polish your recordings with the built-in waveform editor. Trim dead air, apply
+                    fade-ins and fade-outs, and normalize audio levels.</p>
+                <p>Non-destructive editing keeps your original files safe while you refine the published version.</p>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-satellite-dish"></i> Multiple Streams</h3>
+                <p>Manage multiple Icecast streams from one dashboard. Monitor health status, bitrate, format, and
+                    current listener counts at a glance.</p>
+                <p>Enable or disable streams as needed, and choose which stream powers your public listen page or serves
+                    as a recording source.</p>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-arrows-rotate"></i> Backup & Migration</h3>
+                <p>Export your entire station—shows, schedules, and artwork—as a single ZIP file. Perfect for backups or
+                    migrating to a new server.</p>
+                <p>Import restores everything in one step, so you can move between development and production
+                    environments effortlessly.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <a href="https://github.com/Catskill909/radio" target="_blank">View on GitHub</a>
+    </footer>
+</body>
+
+</html>
