@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Calendar as BigCalendar, dateFnsLocalizer, Views, SlotInfo } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
@@ -64,6 +65,10 @@ interface SchedulerProps {
 }
 
 export default function Scheduler({ shows, initialSlots, streams, stationTimezone }: SchedulerProps) {
+    const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+
     // ✅ STATION TIMEZONE: Convert UTC timestamps from DB to station-local time for display
     const convertSlotToEvent = useCallback((slot: Slot) => {
         // Check if this is part of a split show
@@ -107,8 +112,14 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
     )
 
     // Controlled state for calendar navigation
-    // ✅ STATION TIMEZONE: Initialize to current time in station timezone
-    const [date, setDate] = useState(() => toZonedTime(new Date(), stationTimezone))
+    // ✅ STATION TIMEZONE: Initialize to current time in station timezone OR from URL
+    const [date, setDate] = useState(() => {
+        const dateParam = searchParams.get('date')
+        if (dateParam) {
+            return toZonedTime(new Date(dateParam), stationTimezone)
+        }
+        return toZonedTime(new Date(), stationTimezone)
+    })
     const [view, setView] = useState<any>(Views.WEEK)
 
     // Sync slots and events when initialSlots changes (e.g., after navigation)
@@ -118,6 +129,14 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
             initialSlots.map(convertSlotToEvent)
         )
     }, [initialSlots, convertSlotToEvent])
+
+    // Update local state if URL param changes externally (e.g. back button)
+    useEffect(() => {
+        const dateParam = searchParams.get('date')
+        if (dateParam) {
+            setDate(toZonedTime(new Date(dateParam), stationTimezone))
+        }
+    }, [searchParams, stationTimezone])
 
     const [editSlotModalOpen, setEditSlotModalOpen] = useState(false)
     const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
@@ -144,9 +163,13 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
     }, [])
 
     // Handle calendar navigation - CRITICAL for navigation buttons to work
+    // Updates URL so state persists across revalidations
     const handleNavigate = useCallback((newDate: Date) => {
         setDate(newDate)
-    }, [])
+        const params = new URLSearchParams(searchParams.toString())
+        params.set('date', newDate.toISOString())
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+    }, [searchParams, pathname, router])
 
     // Handle view changes (Week/Day buttons)
     const handleViewChange = useCallback((newView: any) => {
