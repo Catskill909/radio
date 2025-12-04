@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { formatInTimezone } from "@/lib/client-date-utils";
 import AudioPlayer from "./AudioPlayer";
 import EpisodeManagerDrawer from "./EpisodeManagerDrawer";
+import { getImageUrl } from "@/lib/image-utils";
 
 interface PodcastCardProps {
     show: any;
@@ -50,7 +51,7 @@ export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastC
                         {/* Show Art / Placeholder */}
                         <div className="w-24 h-24 bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden border border-gray-600">
                             {(show.image || stationLogoUrl) ? (
-                                <img src={show.image || stationLogoUrl} alt={show.title} className="w-full h-full object-cover" />
+                                <img src={getImageUrl(show.image || stationLogoUrl, 'card') || ''} alt={show.title} className="w-full h-full object-cover" />
                             ) : (
                                 <Mic className="w-10 h-10 text-gray-500" />
                             )}

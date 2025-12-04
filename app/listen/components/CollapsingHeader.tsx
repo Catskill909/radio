@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Play, Pause, Radio } from 'lucide-react';
 import { NowPlayingData } from './types';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface CollapsingHeaderProps {
     nowPlaying: NowPlayingData | null;
@@ -74,7 +75,7 @@ export default function CollapsingHeader({
 
                         <div className="relative w-48 h-48 mb-6 shadow-2xl rounded-lg overflow-hidden">
                             <img
-                                src={artwork}
+                                src={getImageUrl(artwork, 'card') || ''}
                                 alt={title}
                                 className="w-full h-full object-cover"
                             />
@@ -110,7 +111,7 @@ export default function CollapsingHeader({
                 <div className="flex items-center justify-between p-3 max-w-screen-xl mx-auto">
                     <div className="flex items-center gap-3 overflow-hidden">
                         <img
-                            src={artwork}
+                            src={getImageUrl(artwork, 'icon') || ''}
                             alt={title}
                             className="w-10 h-10 rounded object-cover bg-gray-800"
                         />

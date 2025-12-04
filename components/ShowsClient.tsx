@@ -10,6 +10,7 @@ import EditShowForm from "@/components/EditShowForm"
 import { RssFeedModal } from "@/components/RssFeedModal"
 import { Tooltip } from "@/components/Tooltip"
 import HelpIcon from '@/components/HelpIcon'
+import { getImageUrl } from "@/lib/image-utils"
 
 interface Show {
     id: string
@@ -126,7 +127,7 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                                 {(show.image || stationLogoUrl) && (
                                     <div className="w-1/3 relative shrink-0">
                                         <img
-                                            src={show.image || stationLogoUrl || ''}
+                                            src={getImageUrl(show.image || stationLogoUrl, 'card') || ''}
                                             alt={show.title}
                                             className="w-full h-full object-cover absolute inset-0"
                                         />

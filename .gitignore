@@ -57,3 +57,6 @@ dev.db*
 # Uploads and recordings - large media files
 /public/uploads/
 /recordings/
+
+# Uploads directory (user-generated images)
+/uploads/

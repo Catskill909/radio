@@ -36,6 +36,7 @@
     "react-h5-audio-player": "^3.10.1",
     "react-markdown": "^10.1.0",
     "rss": "^1.2.2",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^3.4.0",
     "wavesurfer.js": "^7.11.1"
   },

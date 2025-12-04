@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { mkdir } from "fs/promises";
+import sharp from "sharp";
 
 export async function POST(request: NextRequest) {
     const data = await request.formData();
@@ -26,8 +27,32 @@ export async function POST(request: NextRequest) {
     const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
     const filepath = path.join(uploadDir, filename);
 
+    // Save original
     await writeFile(filepath, buffer);
     console.log(`Uploaded file to ${filepath}`);
+
+    // Generate variants
+    try {
+        const fileBase = filename.substring(0, filename.lastIndexOf('.'));
+        const extension = filename.substring(filename.lastIndexOf('.')); // includes dot
+
+        // Card variant (600x600)
+        await sharp(buffer)
+            .resize(600, 600, { fit: 'cover' })
+            .jpeg({ quality: 80 })
+            .toFile(path.join(uploadDir, `${fileBase}_card${extension}`));
+
+        // Icon variant (150x150)
+        await sharp(buffer)
+            .resize(150, 150, { fit: 'cover' })
+            .jpeg({ quality: 80 })
+            .toFile(path.join(uploadDir, `${fileBase}_icon${extension}`));
+
+        console.log(`Generated variants for ${filename}`);
+    } catch (error) {
+        console.error("Error generating image variants:", error);
+        // We don't fail the upload if variants fail, just log it
+    }
 
     // Return the public URL
     return NextResponse.json({

@@ -5,6 +5,7 @@ import { ScheduleSlot } from './types';
 import { Clock, User } from 'lucide-react';
 import { useOnAirScroll } from '../hooks/useOnAirScroll';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface ScheduleCardProps {
     slot: ScheduleSlot;
@@ -40,7 +41,7 @@ export default function ScheduleCard({ slot, isLive, onShowClick }: ScheduleCard
                     <div className="relative shrink-0 w-20 h-20 rounded-xl overflow-hidden bg-gray-800">
                         {slot.show.image ? (
                             <img
-                                src={slot.show.image}
+                                src={getImageUrl(slot.show.image, 'icon') || ''}
                                 alt={slot.show.title}
                                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
                             />

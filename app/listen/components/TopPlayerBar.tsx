@@ -1,5 +1,6 @@
 import { Play, Pause, Clock, Loader2 } from 'lucide-react';
 import { NowPlayingData } from './types';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface TopPlayerBarProps {
     nowPlaying: NowPlayingData | null;
@@ -64,7 +65,7 @@ export default function TopPlayerBar({
                     {/* Logo/Artwork */}
                     <div className="relative w-14 h-14 rounded-lg overflow-hidden shadow-md flex-shrink-0">
                         <img
-                            src={artwork}
+                            src={getImageUrl(artwork, 'icon') || ''}
                             alt={title}
                             className="w-full h-full object-cover"
                         />
