@@ -130,7 +130,7 @@ Radio Suite combines a powerful **admin dashboard** for scheduling and automatio
 - **Backend:** Next.js Server Actions
 - **Database:** SQLite + Prisma ORM
 - **Recording:** FFmpeg (fluent-ffmpeg)
-- **Recording:** FFmpeg (fluent-ffmpeg)
+- **Image Processing:** Sharp (automatic variant generation)
 - **Icons:** lucide-react
 
 ## 🚀 Deployment
@@ -355,6 +355,7 @@ radio-suite/
 - [x] In-app help system with contextual linking
 - [x] Import/Export feature for station migration and backups
 - [x] Time display accuracy improvements (ceiling rounding, faster polling)
+- [x] Automatic image variant generation (card/icon sizes for faster page loads)
 
 ### Next Up
 - [ ] Enhanced public-facing pages (show details, host bios)

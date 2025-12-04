@@ -385,6 +385,29 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 
 ---
 
+## 15. Image Optimization
+
+**Status:** Shipped
+
+- **Automatic Variant Generation**
+  - On upload, images are processed via `sharp` to create optimized variants
+  - **Original**: Full resolution (1400x1400+) preserved for podcast feeds and exports
+  - **Card variant**: 600x600px for show grids and podcast cards
+  - **Icon variant**: 150x150px for schedule cards and player thumbnails
+- **Frontend Integration**
+  - `getImageUrl(url, variant)` helper selects appropriate size
+  - Show cards, podcast cards, schedule cards, and player all use optimized variants
+  - External URLs and non-upload images pass through unchanged
+- **Migration Script**
+  - `scripts/generate-images.ts` backfills variants for existing images
+  - Run once in production after deployment: `npx tsx scripts/generate-images.ts`
+- **Performance Benefits**
+  - Significantly faster page loads on `/shows`, `/episodes`, `/listen`
+  - Reduced bandwidth usage for visitors
+  - Original high-resolution images still used for RSS feeds
+
+---
+
 ## Future Features & Roadmap
 
 This section is intentionally lightweight – it is meant to be edited as priorities change.
