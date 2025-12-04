@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import PodcastCard from "@/components/PodcastCard"
+import HelpIcon from "@/components/HelpIcon"
 import { Rss, Search, X } from "lucide-react"
 
 interface EpisodesClientProps {
@@ -34,7 +35,10 @@ export default function EpisodesClient({ initialShows, timezone, stationLogoUrl 
         <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold mb-2">Podcast Dashboard</h1>
+                    <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
+                        Podcasts
+                        <HelpIcon articleId="publishing-episodes" tooltip="Learn about publishing podcasts" />
+                    </h1>
                     <p className="text-gray-400">Manage your podcast feeds and view latest episodes.</p>
                 </div>
             </div>
