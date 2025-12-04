@@ -568,7 +568,7 @@ export async function updateScheduleSlot(
             newStartTime,
             newEndTime,
             slot.id,
-            existingSlot.recurringGroupId // Exclude entire recurring group
+            existingSlot.recurringGroupId ?? undefined // Exclude entire recurring group
         );
 
         if (overlapping) {
