@@ -51,7 +51,7 @@ export default function ListenPage() {
         };
 
         fetchNowPlaying();
-        const interval = setInterval(fetchNowPlaying, 60000); // Poll every minute
+        const interval = setInterval(fetchNowPlaying, 30000); // Poll every 30 seconds
         return () => clearInterval(interval);
     }, []);
 

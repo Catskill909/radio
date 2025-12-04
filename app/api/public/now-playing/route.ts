@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { toZonedTime } from 'date-fns-tz';
-import { differenceInMinutes } from 'date-fns';
+import { differenceInSeconds } from 'date-fns';
 
 export async function GET() {
     try {
@@ -71,7 +71,13 @@ export async function GET() {
         };
 
         if (currentSlot) {
-            const timeRemaining = differenceInMinutes(currentSlot.endTime, now);
+            // Use ceiling rounding to prevent "0m" display while show is still active
+            // If 59 seconds remaining → shows 1m (not 0m)
+            const secondsRemaining = differenceInSeconds(currentSlot.endTime, now);
+            const timeRemaining = secondsRemaining > 0
+                ? Math.ceil(secondsRemaining / 60)
+                : 0;
+
             response.currentShow = {
                 id: currentSlot.show.id,
                 title: currentSlot.show.title,
