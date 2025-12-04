@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Radio, RefreshCw, Edit, Trash2, AlertCircle, CheckCircle, Clock } from 'lucide-react'
+import { Radio, RefreshCw, Edit, Trash2, AlertCircle, CheckCircle, Clock, Play, Pause, Loader2 } from 'lucide-react'
 import { toggleStream, refreshStream, deleteStream } from '@/app/actions'
 import DeleteConfirmModal from './DeleteConfirmModal'
 import { formatDistanceToNow } from 'date-fns'
@@ -24,9 +24,12 @@ interface StreamCardProps {
         errorMessage?: string | null
     }
     onEdit: () => void
+    isPlaying: boolean
+    isLoading: boolean
+    onTogglePlay: () => void
 }
 
-export default function StreamCard({ stream, onEdit }: StreamCardProps) {
+export default function StreamCard({ stream, onEdit, isPlaying, isLoading, onTogglePlay }: StreamCardProps) {
     const [isEnabled, setIsEnabled] = useState(stream.isEnabled)
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -220,28 +223,46 @@ export default function StreamCard({ stream, onEdit }: StreamCardProps) {
                     )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-2">
+                {/* Actions & Playback */}
+                <div className="flex items-center justify-between pt-2">
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleRefresh}
+                            disabled={isRefreshing}
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                            Refresh
+                        </button>
+                        <button
+                            onClick={onEdit}
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+                        >
+                            <Edit className="w-4 h-4" />
+                            Edit
+                        </button>
+                        <button
+                            onClick={() => setDeleteModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    {/* Play Button */}
                     <button
-                        onClick={handleRefresh}
-                        disabled={isRefreshing}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                        onClick={onTogglePlay}
+                        disabled={isLoading || !isEnabled || stream.status === 'offline' || stream.status === 'error'}
+                        className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-white/10 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        title={isPlaying ? "Pause Stream" : "Preview Stream"}
                     >
-                        <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                        Refresh
-                    </button>
-                    <button
-                        onClick={onEdit}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
-                    >
-                        <Edit className="w-4 h-4" />
-                        Edit
-                    </button>
-                    <button
-                        onClick={() => setDeleteModalOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-                    >
-                        <Trash2 className="w-4 h-4" />
+                        {isLoading ? (
+                            <Loader2 className="w-5 h-5 text-black animate-spin" />
+                        ) : isPlaying ? (
+                            <Pause className="w-5 h-5 text-black fill-current" />
+                        ) : (
+                            <Play className="w-5 h-5 text-black fill-current ml-0.5" />
+                        )}
                     </button>
                 </div>
             </div>

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Plus, RefreshCw } from 'lucide-react'
 import StreamCard from '@/components/StreamCard'
 import AddStreamModal from '@/components/AddStreamModal'
+import HelpIcon from '@/components/HelpIcon'
 import { formatDistanceToNow } from 'date-fns'
 
 interface Stream {
@@ -32,6 +33,73 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
     const [editStream, setEditStream] = useState<{ id: string; name: string; url: string } | null>(null)
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+
+    const [playingStreamId, setPlayingStreamId] = useState<string | null>(null)
+    const [isLoadingStream, setIsLoadingStream] = useState(false)
+    const audioRef = useRef<HTMLAudioElement | null>(null)
+
+    // Initialize Audio Element
+    useEffect(() => {
+        if (audioRef.current) return
+
+        const audio = new Audio()
+        audio.preload = 'none'
+
+        const handleLoadStart = () => setIsLoadingStream(true)
+        const handleCanPlay = () => setIsLoadingStream(false)
+        const handleError = () => {
+            setIsLoadingStream(false)
+            setPlayingStreamId(null)
+        }
+        const handleEnded = () => {
+            setIsLoadingStream(false)
+            setPlayingStreamId(null)
+        }
+
+        audio.addEventListener('loadstart', handleLoadStart)
+        audio.addEventListener('canplay', handleCanPlay)
+        audio.addEventListener('error', handleError)
+        audio.addEventListener('ended', handleEnded)
+
+        audioRef.current = audio
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.removeEventListener('loadstart', handleLoadStart)
+                audioRef.current.removeEventListener('canplay', handleCanPlay)
+                audioRef.current.removeEventListener('error', handleError)
+                audioRef.current.removeEventListener('ended', handleEnded)
+                audioRef.current.pause()
+                audioRef.current.src = ''
+                audioRef.current = null
+            }
+        }
+    }, [])
+
+    const handlePlay = async (streamId: string, url: string) => {
+        const audio = audioRef.current
+        if (!audio) return
+
+        if (playingStreamId === streamId) {
+            // Stop playing
+            audio.pause()
+            audio.src = ''
+            setPlayingStreamId(null)
+            setIsLoadingStream(false)
+        } else {
+            // Start playing new stream
+            try {
+                setIsLoadingStream(true)
+                setPlayingStreamId(streamId)
+                audio.src = url
+                await audio.play()
+            } catch (error) {
+                console.error('Playback failed:', error)
+                setPlayingStreamId(null)
+                setIsLoadingStream(false)
+            }
+        }
+    }
 
     // Auto-refresh streams every 30 seconds
     useEffect(() => {
@@ -96,8 +164,9 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: 'Oswald, sans-serif' }}>
+                        <h1 className="text-4xl font-bold mb-2 flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
                             Icecast Streams
+                            <HelpIcon articleId="adding-icecast-streams" tooltip="Learn about adding streams" />
                         </h1>
                         <p className="text-gray-400">
                             Manage your radio streams with real-time monitoring and health checks
@@ -132,6 +201,9 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
                             key={stream.id}
                             stream={stream}
                             onEdit={() => handleEdit(stream)}
+                            isPlaying={playingStreamId === stream.id}
+                            isLoading={playingStreamId === stream.id && isLoadingStream}
+                            onTogglePlay={() => handlePlay(stream.id, stream.url)}
                         />
                     ))}
 
