@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import RSS from "rss";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     // Fetch station settings for feed metadata
     const stationSettings = await prisma.stationSettings.findUnique({
         where: { id: "station" },
@@ -33,8 +33,7 @@ export async function GET() {
     const getAbsoluteUrl = (path: string | null) => {
         if (!path) return undefined;
         if (path.startsWith("http")) return path;
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-        return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+        return `${request.nextUrl.origin}${path.startsWith("/") ? "" : "/"}${path}`;
     };
 
     const feedTitle = stationSettings?.name || "Radio Suite Podcast";
@@ -45,8 +44,8 @@ export async function GET() {
     const feed = new RSS({
         title: feedTitle,
         description: feedDescription,
-        feed_url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/feed`,
-        site_url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
+        feed_url: `${request.nextUrl.origin}/api/feed`,
+        site_url: request.nextUrl.origin,
         language: "en",
         pubDate: new Date(),
         ttl: 60,
@@ -63,7 +62,7 @@ export async function GET() {
 
     // Add episodes to feed
     episodes.forEach((episode) => {
-        const audioUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/audio/${episode.recording.filePath}`;
+        const audioUrl = `${request.nextUrl.origin}/api/audio/${episode.recording.filePath}`;
         const show = episode.recording.scheduleSlot?.show;
 
         // Episode image with fallback to show image, then station logo
@@ -74,7 +73,7 @@ export async function GET() {
         feed.item({
             title: episode.title,
             description: episode.description || "",
-            url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/episodes/${episode.id}`,
+            url: `${request.nextUrl.origin}/episodes/${episode.id}`,
             guid: episode.id,
             date: episode.publishedAt || episode.createdAt,
             enclosure: {

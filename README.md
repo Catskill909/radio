@@ -185,6 +185,7 @@ npx prisma migrate dev
 5. Create a `.env` file:
 ```env
 DATABASE_URL="file:./dev.db"
+# NEXT_PUBLIC_BASE_URL is optional - RSS feeds auto-detect domain from requests
 ```
 
 7. Run the development server:
