@@ -3,6 +3,7 @@ import ffmpeg from 'fluent-ffmpeg'
 import fs from 'fs'
 import path from 'path'
 import { formatInStationTime, getStationTimezone } from './lib/station-time'
+import { generateRecordingFilename } from './lib/filename-utils'
 
 const prisma = new PrismaClient()
 const RECORDINGS_DIR = path.join(process.cwd(), 'recordings')
@@ -89,20 +90,7 @@ async function startRecording(slot: any) {
         return
     }
 
-    const filename = `show-${slot.show.id}-${Date.now()}.mp3`
-    const filePath = path.join(RECORDINGS_DIR, filename)
-
-    // Create DB record
-    const recording = await prisma.recording.create({
-        data: {
-            scheduleSlotId: slot.id,
-            filePath: filename, // Store relative path or filename
-            startTime: new Date(),
-            status: 'RECORDING',
-        },
-    })
-
-    // Get encoding settings from database
+    // Get encoding settings from database BEFORE generating filename
     const settings = await prisma.stationSettings.findUnique({
         where: { id: 'station' }
     })
@@ -111,6 +99,25 @@ async function startRecording(slot: any) {
     const audioBitrate = settings?.audioBitrate || 192
     const audioSampleRate = settings?.audioSampleRate
     const audioVBR = settings?.audioVBR ?? true
+
+    // Generate human-readable filename
+    const recordingStartTime = new Date()
+    const filename = generateRecordingFilename(
+        slot.show.title,
+        recordingStartTime,
+        audioCodec
+    )
+    const filePath = path.join(RECORDINGS_DIR, filename)
+
+    // Create DB record
+    const recording = await prisma.recording.create({
+        data: {
+            scheduleSlotId: slot.id,
+            filePath: filename, // Store relative path or filename
+            startTime: recordingStartTime,
+            status: 'RECORDING',
+        },
+    })
 
     // Always apply encoding settings from database to respect user preferences
     const command = ffmpeg(sourceUrl)
@@ -170,6 +177,49 @@ async function startRecording(slot: any) {
 
 async function handleRecordingCompletion(recording: any, slot: any, filePath: string) {
     activeRecordings.delete(slot.id)
+
+    // Post-processing to fix MP3 headers for seeking
+    // When recording live streams, the duration header is often missing or incorrect.
+    // We remux the file (copy stream) to fix the headers.
+    const tempPath = filePath + '.temp'
+
+    try {
+        if (fs.existsSync(filePath)) {
+            console.log(`Finalizing recording for ${slot.show.title}...`)
+
+            // 1. Rename original to temp
+            fs.renameSync(filePath, tempPath)
+
+            // 2. Remux to fix headers (using promise wrapper for async/await)
+            await new Promise<void>((resolve, reject) => {
+                ffmpeg(tempPath)
+                    .audioCodec('copy')
+                    .on('error', (err) => {
+                        console.error('Error finalizing recording:', err)
+                        // Restore original if fail
+                        if (fs.existsSync(tempPath)) {
+                            fs.renameSync(tempPath, filePath)
+                        }
+                        reject(err)
+                    })
+                    .on('end', () => {
+                        console.log('Recording finalized successfully')
+                        // 3. Delete temp
+                        if (fs.existsSync(tempPath)) {
+                            fs.unlinkSync(tempPath)
+                        }
+                        resolve()
+                    })
+                    .save(filePath)
+            })
+        }
+    } catch (error) {
+        console.error('Failed to finalize recording:', error)
+        // Ensure we at least have the file back at filePath if something went wrong
+        if (fs.existsSync(tempPath) && !fs.existsSync(filePath)) {
+            fs.renameSync(tempPath, filePath)
+        }
+    }
 
     const endTime = new Date()
     let size = 0
