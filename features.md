@@ -1,6 +1,6 @@
-# Radio Suite Feature Catalogue
+# StationDock Feature Catalogue
 
-This document is the **source of truth for features** in Radio Suite:
+This document is the **source of truth for features** in StationDock:
 
 - **Current features** – what exists in the app today.
 - **Planned / future features** – ideas and roadmap items, with rough priorities.

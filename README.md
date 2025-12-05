@@ -1,8 +1,8 @@
-# Radio Suite 📻
+# StationDock 📻
 
 **A modern, all-in-one radio station management system.**
 
-Radio Suite combines a powerful **admin dashboard** for scheduling and automation with a clean **public-facing listener site**. It handles everything from planning your weekly grid to recording live broadcasts and automatically publishing them as podcasts.
+StationDock combines a powerful **admin dashboard** for scheduling and automation with a clean **public-facing listener site**. It handles everything from planning your weekly grid to recording live broadcasts and automatically publishing them as podcasts.
 
 ### Key Capabilities:
 - **Public Listener Experience**: An animated public schedule with a persistent live audio player and "Now Playing" metadata.
@@ -142,7 +142,7 @@ Radio Suite combines a powerful **admin dashboard** for scheduling and automatio
 
 ## 🚀 Deployment
 
-Radio Suite is designed to be deployed as a single container (Monolith) using **Docker** or **Coolify**.
+StationDock is designed to be deployed as a single container (Monolith) using **Docker** or **Coolify**.
 
 - **Strategy:** "SQLite Everywhere" (Production DB is a persistent file)
 - **Stack:** Next.js + Background Recorder Service (managed by PM2)

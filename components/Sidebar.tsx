@@ -62,7 +62,7 @@ export default function Sidebar() {
                 {!isCollapsed && (
                     <h1 className="text-xl font-bold flex items-center gap-2 whitespace-nowrap overflow-hidden">
                         <Radio className="w-6 h-6 text-blue-500" />
-                        Radio Suite
+                        StationDock
                     </h1>
                 )}
                 {isCollapsed && (
