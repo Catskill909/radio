@@ -30,7 +30,7 @@ export default async function SettingsPage() {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto pb-8 space-y-8">
+            <div className="flex-1 overflow-y-auto pb-8 pr-4 space-y-8">
                 {/* Full Width: Site Branding (Public Front-End) */}
                 <section>
                     <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
