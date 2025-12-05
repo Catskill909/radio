@@ -2,6 +2,22 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { testStream } from '@/lib/stream-tester'
 
+// Helper to broadcast stream health updates via WebSocket
+function broadcastStreamHealth(streamData: {
+    id: string;
+    name: string;
+    status: string;
+    listeners?: number | null;
+    errorMessage?: string | null;
+    previousStatus?: string;
+}) {
+    const io = (global as any).io;
+    if (io) {
+        io.to('stream-health').emit('stream:health', streamData);
+        console.log(`[WebSocket] Broadcast stream:health for ${streamData.name}: ${streamData.previousStatus} → ${streamData.status}`);
+    }
+}
+
 export async function GET() {
     try {
         // Get all enabled streams
@@ -14,6 +30,8 @@ export async function GET() {
         // Test each stream and update status
         const healthChecks = await Promise.all(
             streams.map(async (stream) => {
+                const previousStatus = stream.status;
+
                 try {
                     const testResult = await testStream(stream.url)
 
@@ -33,6 +51,18 @@ export async function GET() {
                         },
                     })
 
+                    // Broadcast via WebSocket if status changed
+                    if (previousStatus !== testResult.status) {
+                        broadcastStreamHealth({
+                            id: stream.id,
+                            name: stream.name,
+                            status: testResult.status,
+                            listeners: testResult.listeners,
+                            errorMessage: testResult.errorMessage,
+                            previousStatus,
+                        });
+                    }
+
                     return {
                         id: stream.id,
                         status: testResult.status,
@@ -49,6 +79,17 @@ export async function GET() {
                             errorMessage: error.message || 'Health check failed',
                         },
                     })
+
+                    // Broadcast error via WebSocket if status changed
+                    if (previousStatus !== 'error') {
+                        broadcastStreamHealth({
+                            id: stream.id,
+                            name: stream.name,
+                            status: 'error',
+                            errorMessage: error.message || 'Health check failed',
+                            previousStatus,
+                        });
+                    }
 
                     return {
                         id: stream.id,

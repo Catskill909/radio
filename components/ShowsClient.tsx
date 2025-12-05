@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { getShows, deleteShow } from "@/app/actions"
 import Link from "next/link"
 import { Plus, Edit, Trash2, Rss, Search, X } from "lucide-react"
@@ -47,6 +47,12 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
     const [rssModalOpen, setRssModalOpen] = useState(false)
     const [selectedShow, setSelectedShow] = useState<Show | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
+    const [origin, setOrigin] = useState('')
+
+    // Set origin client-side to avoid hydration mismatch
+    useEffect(() => {
+        setOrigin(window.location.origin)
+    }, [])
 
     // Filter shows based on search query
     const filteredShows = useMemo(() => {
@@ -232,7 +238,7 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                         setRssModalOpen(false)
                         setSelectedShow(null)
                     }}
-                    feedUrl={`${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/feed/show/${selectedShow.id}`}
+                    feedUrl={`${origin}/api/feed/show/${selectedShow.id}`}
                     title={`${selectedShow.title} Podcast Feed`}
                 />
             )}

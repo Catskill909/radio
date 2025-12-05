@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Plus, RefreshCw } from 'lucide-react'
+import { Plus, RefreshCw, Wifi, WifiOff } from 'lucide-react'
 import StreamCard from '@/components/StreamCard'
 import AddStreamModal from '@/components/AddStreamModal'
 import HelpIcon from '@/components/HelpIcon'
 import { formatDistanceToNow } from 'date-fns'
+import { useSocket } from '@/hooks/useSocket'
 
 interface Stream {
     id: string
@@ -37,6 +38,43 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
     const [playingStreamId, setPlayingStreamId] = useState<string | null>(null)
     const [isLoadingStream, setIsLoadingStream] = useState(false)
     const audioRef = useRef<HTMLAudioElement | null>(null)
+
+    // WebSocket connection
+    const { isConnected, subscribe, on } = useSocket()
+
+    // Subscribe to stream health updates via WebSocket
+    useEffect(() => {
+        if (!isConnected) return
+
+        // Subscribe to stream-health channel
+        subscribe('stream-health')
+
+        // Listen for stream status updates
+        const cleanup = on('stream:health', (data: {
+            id: string;
+            status: string;
+            listeners?: number | null;
+            errorMessage?: string | null;
+        }) => {
+            console.log('[WebSocket] Received stream:health update:', data)
+
+            // Update the specific stream in state
+            setStreams(prev => prev.map(stream =>
+                stream.id === data.id
+                    ? {
+                        ...stream,
+                        status: data.status,
+                        listeners: data.listeners ?? stream.listeners,
+                        errorMessage: data.errorMessage ?? stream.errorMessage,
+                        lastChecked: new Date()
+                    }
+                    : stream
+            ))
+            setLastUpdate(new Date())
+        })
+
+        return cleanup
+    }, [isConnected, subscribe, on])
 
     // Initialize Audio Element
     useEffect(() => {
@@ -101,7 +139,7 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
         }
     }
 
-    // Auto-refresh streams every 30 seconds
+    // Fallback polling - less frequent when WebSocket is connected
     useEffect(() => {
         const checkStreamHealth = async () => {
             try {
@@ -121,11 +159,11 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
         // Check immediately on mount
         checkStreamHealth()
 
-        // Then check every 30 seconds
-        const interval = setInterval(checkStreamHealth, 30000)
+        // Poll less frequently when WebSocket is connected (60s vs 30s)
+        const interval = setInterval(checkStreamHealth, isConnected ? 60000 : 30000)
 
         return () => clearInterval(interval)
-    }, [])
+    }, [isConnected])
 
     const handleEdit = (stream: Stream) => {
         setEditStream({
@@ -171,8 +209,17 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
                         <p className="text-gray-400">
                             Manage your radio streams with real-time monitoring and health checks
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                            Last updated: {formatDistanceToNow(lastUpdate, { addSuffix: true })}
+                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                            <span>Last updated: {formatDistanceToNow(lastUpdate, { addSuffix: true })}</span>
+                            {isConnected ? (
+                                <span className="flex items-center gap-1 text-green-500" title="Real-time updates active">
+                                    <Wifi className="w-3 h-3" /> Live
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-1 text-gray-600" title="Polling every 30s">
+                                    <WifiOff className="w-3 h-3" /> Polling
+                                </span>
+                            )}
                         </p>
                     </div>
                     <div className="flex gap-2">

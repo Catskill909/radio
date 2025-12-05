@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Radio, RefreshCw, Edit, Trash2, AlertCircle, CheckCircle, Clock, Play, Pause, Loader2 } from 'lucide-react'
 import { toggleStream, refreshStream, deleteStream } from '@/app/actions'
 import DeleteConfirmModal from './DeleteConfirmModal'
@@ -34,6 +34,12 @@ export default function StreamCard({ stream, onEdit, isPlaying, isLoading, onTog
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [showDiagnostics, setShowDiagnostics] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
+
+    // Avoid hydration mismatch for time-based displays
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     const handleToggle = async () => {
         const newState = !isEnabled

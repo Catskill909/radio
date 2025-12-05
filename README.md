@@ -371,7 +371,7 @@ radio-suite/
 - [ ] Recording pre/post-roll buffers
 
 ### Future Enhancements
-- [ ] WebSocket real-time updates (eliminate polling for instant show transitions)
+- [x] WebSocket foundation + Stream Health alerts (Socket.IO, Live indicator on Streams page)
 - [ ] Enhance recorder service with error recovery and retry logic
 - [ ] Analytics and reporting
 - [ ] Multi-user support with authentication

@@ -16,6 +16,31 @@ if (!fs.existsSync(RECORDINGS_DIR)) {
 // Map to track active recordings: slotId -> ffmpegCommand
 const activeRecordings = new Map<string, ffmpeg.FfmpegCommand>()
 
+// Helper to broadcast recording events via WebSocket API
+async function broadcastRecordingEvent(event: {
+    type: 'started' | 'completed' | 'failed'
+    slotId: string
+    recordingId?: string
+    showTitle: string
+    showId: string
+    startTime?: string
+    endTime?: string
+    duration?: number
+    error?: string
+}) {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+        await fetch(`${baseUrl}/api/recording-events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(event)
+        })
+    } catch (error) {
+        // Don't fail recording if WebSocket broadcast fails
+        console.warn('[WebSocket] Failed to broadcast recording event:', error)
+    }
+}
+
 async function checkSchedule() {
     const now = new Date()  // UTC time for comparison with DB
     const stationTz = getStationTimezone()
@@ -138,6 +163,16 @@ async function startRecording(slot: any) {
         },
     })
 
+    // Broadcast recording started event
+    broadcastRecordingEvent({
+        type: 'started',
+        slotId: slot.id,
+        recordingId: recording.id,
+        showTitle: slot.show.title,
+        showId: slot.show.id,
+        startTime: recordingStartTime.toISOString()
+    })
+
     // Always apply encoding settings from database to respect user preferences
     const command = ffmpeg(sourceUrl)
 
@@ -181,6 +216,16 @@ async function startRecording(slot: any) {
                         status: 'FAILED',
                         endTime: new Date()
                     },
+                })
+
+                // Broadcast recording failed event
+                broadcastRecordingEvent({
+                    type: 'failed',
+                    slotId: slot.id,
+                    recordingId: recording.id,
+                    showTitle: slot.show.title,
+                    showId: slot.show.id,
+                    error: err.message
                 })
             }
         })
@@ -312,6 +357,17 @@ async function handleRecordingCompletion(recording: any, slot: any, filePath: st
         }
     })
     console.log(`Episode published successfully for ${show.title}`)
+
+    // Broadcast recording completed event
+    broadcastRecordingEvent({
+        type: 'completed',
+        slotId: slot.id,
+        recordingId: recording.id,
+        showTitle: show.title,
+        showId: show.id,
+        endTime: endTime.toISOString(),
+        duration: duration
+    })
 }
 
 // Graceful Shutdown

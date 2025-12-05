@@ -466,19 +466,20 @@ This section is intentionally lightweight – it is meant to be edited as priori
 ### P2 – Medium-Term
 
 - **WebSocket Real-Time Updates** 🔄
-  - **Instant Show Transitions**: Replace 30-second polling with WebSocket push notifications
-  - **Live Listener Count**: Real-time display of active listeners on public page
-  - **Recording Status Broadcasting**: Live progress updates for active recordings in admin dashboard
-  - **Schedule Sync**: Multi-user admin environments see schedule changes instantly
-  - **Stream Health Alerts**: Instant notifications when streams go offline
+  - **Stream Health Alerts** ✅ **SHIPPED**: Instant notifications when streams go offline (Live indicator on Streams page)
+  - **Foundation** ✅ **SHIPPED**: Socket.IO server running at `/api/socket` with client hook
+  - **Instant Show Transitions**: Replace 30-second polling with WebSocket push notifications (planned)
+  - **Live Listener Count**: Real-time display of active listeners on public page (planned)
+  - **Recording Status Broadcasting**: Live progress updates for active recordings in admin dashboard (planned)
+  - **Schedule Sync**: Multi-user admin environments see schedule changes instantly (planned)
   - **Benefits**: 
     - Zero-latency updates (no polling delay)
     - Reduced server load (only sends when data changes)
     - Enhanced user experience across admin and public interfaces
   - **Implementation**: 
-    - WebSocket server alongside Next.js
-    - Graceful fallback to polling for older browsers
-    - Reconnection handling for dropped connections
+    - Socket.IO with WebSocket-only transport (no polling fallback needed)
+    - Automatic reconnection handling
+    - Fallback polling at reduced frequency when connected
   - **Use Cases**:
     - Now Playing updates pushed at exact show transition time
     - Icecast listener stats updated every few seconds
