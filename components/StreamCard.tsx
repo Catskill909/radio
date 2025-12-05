@@ -142,7 +142,7 @@ export default function StreamCard({ stream, onEdit, isPlaying, isLoading, onTog
                     {/* Toggle Switch */}
                     <button
                         onClick={handleToggle}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isEnabled ? 'bg-gray-600' : 'bg-gray-700'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isEnabled ? 'bg-[#626ac4]' : 'bg-gray-700'
                             }`}
                     >
                         <span
