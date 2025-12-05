@@ -101,6 +101,11 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Streams populate the recording source dropdown for shows
   - Recording source stored with shows and used by the recorder service
   - Active stream URL configurable in Settings for public playback
+- **Real-time monitoring** 🆕
+  - WebSocket-powered "Live" indicator confirms active connection
+  - Stream status changes push instantly to clients (no page refresh needed)
+  - Recording events (started/completed/failed) broadcast in real-time
+  - Automatic fallback to polling if WebSocket unavailable
 
 ---
 

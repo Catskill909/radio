@@ -24,6 +24,7 @@ Radio Suite combines a powerful **admin dashboard** for scheduling and automatio
 - **Audio playback & editing** – Scrub-enabled audio player across the app plus an in-browser waveform editor to trim, fade, and normalize recordings before publishing.
 - **Podcast feeds** – Global RSS feed and per-show iTunes-compatible RSS feeds that automatically reflect show/episode edits, with in-app copy/open UI.
 - **Stream monitoring** – Icecast streams dashboard with health checks, status badges, bitrate/listener stats, and error diagnostics.
+- **Real-time updates** – WebSocket-powered "Live" indicator on Streams page; instant notifications when stream status changes or recordings start/complete.
 - **Live streaming** – Configure active audio stream in Settings; public listen page with live player, loading indicators, and buffering feedback.
 - **Station Identity** – Configure station name, description, email, and default artwork in Settings; used for RSS feeds and public metadata.
 - **Modern admin UI** – Dark theme, responsive layout, modals, tooltips, Settings page, and keyboard shortcuts in the editor workflows.
