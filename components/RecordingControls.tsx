@@ -58,7 +58,8 @@ export default function RecordingControls({
                         id="recordingSource"
                         value={recordingSource}
                         onChange={(e) => onRecordingSourceChange(e.target.value)}
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-200"
+                        className={`w-full bg-gray-800 border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-200 ${!recordingSource ? 'border-red-500' : 'border-gray-700'
+                            }`}
                     >
                         <option value="">Select a source...</option>
                         {streams.map((stream) => (
@@ -71,6 +72,19 @@ export default function RecordingControls({
                     <p className="text-xs text-gray-500">
                         Select an Icecast stream to record from. Manage streams in the Streams section.
                     </p>
+
+                    {/* Warning when no source selected */}
+                    {!recordingSource && (
+                        <div className="flex items-start gap-2 p-3 bg-red-900/30 border border-red-700/50 rounded-lg animate-in fade-in duration-200">
+                            <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                                <p className="text-sm text-red-300 font-medium">No recording source selected</p>
+                                <p className="text-xs text-red-400/80 mt-0.5">Recording will not work until you select a stream source above.</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 

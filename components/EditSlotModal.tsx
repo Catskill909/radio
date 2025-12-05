@@ -4,7 +4,7 @@ import { X, Clock, Calendar, Repeat, Trash2, AlertCircle, Radio } from 'lucide-r
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
-import { updateScheduleSlot, deleteScheduleSlot, updateShow, updateSlotRecording } from '@/app/actions'
+import { updateScheduleSlot, deleteScheduleSlot, updateShowRecordingSource, updateSlotRecording } from '@/app/actions'
 import DateTimePicker from '@/components/DateTimePicker'
 import DeleteSlotOptions from '@/components/DeleteSlotOptions'
 import EditShowForm from '@/components/EditShowForm'
@@ -63,6 +63,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
 
     // Recording state
     const [recordingEnabled, setRecordingEnabled] = useState(false)
+    const [recordingSource, setRecordingSource] = useState<string>('')
     const [recordingScope, setRecordingScope] = useState<'single' | 'this-and-future'>('single')
     const [recordingChanged, setRecordingChanged] = useState(false)
     const [isSavingRecording, setIsSavingRecording] = useState(false)
@@ -80,6 +81,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
             setDuration(durationMins)
             setIsRecurring(slot.isRecurring)
             setRecordingEnabled(getEffectiveRecording(slot))
+            setRecordingSource(slot.show.recordingSource || '')
             setRecordingChanged(false)
             setRecordingScope('single')
             setError(null)
@@ -118,6 +120,10 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
         setIsSavingRecording(true)
         setError(null)
         try {
+            // If source changed, update the show's recording source first
+            if (recordingSource !== (slot.show.recordingSource || '')) {
+                await updateShowRecordingSource(slot.show.id, recordingSource, recordingEnabled)
+            }
             await updateSlotRecording(slot.id, recordingEnabled, recordingScope)
             window.location.href = window.location.href
         } catch (err: any) {
@@ -311,6 +317,46 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                     <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${recordingEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
                                 </button>
                             </div>
+
+                            {/* Recording Source Dropdown - only when recording is enabled */}
+                            {recordingEnabled && (
+                                <div className="space-y-2 mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <label htmlFor="slotRecordingSource" className="block text-sm font-medium text-gray-300">
+                                        Recording Source
+                                    </label>
+                                    <select
+                                        id="slotRecordingSource"
+                                        value={recordingSource}
+                                        onChange={(e) => {
+                                            setRecordingSource(e.target.value)
+                                            setRecordingChanged(true)
+                                        }}
+                                        className={`w-full bg-gray-800 border rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all text-gray-200 ${!recordingSource ? 'border-red-500' : 'border-gray-700'
+                                            }`}
+                                    >
+                                        <option value="">Select a source...</option>
+                                        {streams.map((stream) => (
+                                            <option key={stream.id} value={stream.url}>
+                                                {stream.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <p className="text-xs text-gray-500">
+                                        Select an Icecast stream to record from.
+                                    </p>
+
+                                    {/* Warning when no source selected */}
+                                    {!recordingSource && (
+                                        <div className="flex items-start gap-2 p-3 bg-red-900/30 border border-red-700/50 rounded-lg animate-in fade-in duration-200">
+                                            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="text-sm text-red-300 font-medium">No recording source selected</p>
+                                                <p className="text-xs text-red-400/80 mt-0.5">Recording will not work until you select a stream source above.</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {/* Scope selector - only for recurring slots when changed */}
                             {recordingChanged && slot.isRecurring && (

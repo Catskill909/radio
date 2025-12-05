@@ -130,6 +130,23 @@ export default function StatsPage() {
             .catch(err => console.error('Failed to fetch streams:', err))
     }, [])
 
+    // Fetch recent recordings on page load
+    useEffect(() => {
+        fetch('/api/stats/recent-recordings')
+            .then(res => res.json())
+            .then(data => {
+                if (data.events && Array.isArray(data.events)) {
+                    setRecordingEvents(prev => {
+                        // Merge with any real-time events, avoiding duplicates
+                        const existingIds = new Set(prev.map(e => e.slotId))
+                        const newEvents = data.events.filter((e: any) => !existingIds.has(e.slotId))
+                        return [...prev, ...newEvents].slice(0, 10)
+                    })
+                }
+            })
+            .catch(err => console.error('Failed to fetch recent recordings:', err))
+    }, [])
+
     const onlineStreams = streams.filter(s => s.status === 'online').length
     const totalListeners = streams.reduce((sum, s) => sum + (s.listeners || 0), 0)
 
@@ -219,10 +236,18 @@ export default function StatsPage() {
 
             {/* Recording Events Log */}
             <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-gray-400" />
-                    Recording Event Log
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-gray-400" />
+                        Recording Event Log
+                    </h2>
+                    <a
+                        href="/recordings"
+                        className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                        View All →
+                    </a>
+                </div>
                 {recordingEvents.length === 0 ? (
                     <p className="text-gray-500 text-center py-4">
                         No recording events yet. Events will appear here in real-time when recordings start, complete, or fail.

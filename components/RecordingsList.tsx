@@ -3,18 +3,48 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { FileAudio, Clock, Check, XCircle, Loader, Trash2, Search, X, Download } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { deleteRecording } from "@/app/actions";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import AudioPlayer from "./AudioPlayer";
+import { useSocket } from "@/hooks/useSocket";
 
 interface RecordingsListProps {
     recordings: any[];
 }
 
 export default function RecordingsList({ recordings }: RecordingsListProps) {
+    const router = useRouter();
+    const { isConnected, subscribe, on } = useSocket();
     const [recordingToDelete, setRecordingToDelete] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Subscribe to recording events for real-time updates
+    useEffect(() => {
+        if (!isConnected) return;
+
+        subscribe('recording-status');
+
+        // Refresh the page data when recording status changes
+        const cleanupStarted = on('recording:started', () => {
+            router.refresh();
+        });
+
+        const cleanupCompleted = on('recording:completed', () => {
+            router.refresh();
+        });
+
+        const cleanupFailed = on('recording:failed', () => {
+            router.refresh();
+        });
+
+        return () => {
+            cleanupStarted();
+            cleanupCompleted();
+            cleanupFailed();
+        };
+    }, [isConnected, subscribe, on, router]);
 
     // Filter recordings based on search query
     const filteredRecordings = useMemo(() => {

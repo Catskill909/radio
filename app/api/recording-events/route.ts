@@ -18,6 +18,23 @@ interface RecordingEvent {
 // Helper to broadcast recording events via WebSocket
 function broadcastRecordingEvent(event: RecordingEvent) {
     const io = (global as any).io
+    const activeRecordings = (global as any).activeRecordings
+
+    // Track active recordings for late subscribers
+    if (activeRecordings) {
+        if (event.type === 'started' && event.slotId) {
+            activeRecordings.set(event.slotId, {
+                type: 'started',
+                slotId: event.slotId,
+                recordingId: event.recordingId,
+                showTitle: event.showTitle,
+                timestamp: new Date()
+            })
+        } else if ((event.type === 'completed' || event.type === 'failed') && event.slotId) {
+            activeRecordings.delete(event.slotId)
+        }
+    }
+
     if (io) {
         io.to('recording-status').emit(`recording:${event.type}`, event)
         console.log(`[WebSocket] Broadcast recording:${event.type} for ${event.showTitle}`)

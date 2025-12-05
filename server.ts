@@ -28,6 +28,15 @@ export function broadcastStreamHealth(data: {
     }
 }
 
+// Track active recordings in memory for new subscribers
+const activeRecordings = new Map<string, {
+    type: 'started';
+    slotId?: string;
+    recordingId?: string;
+    showTitle?: string;
+    timestamp: Date;
+}>();
+
 export function broadcastRecordingStatus(data: {
     type: 'started' | 'completed' | 'failed';
     slotId?: string;
@@ -35,9 +44,29 @@ export function broadcastRecordingStatus(data: {
     showTitle?: string;
     error?: string;
 }) {
+    // Track active recordings
+    if (data.type === 'started' && data.slotId) {
+        activeRecordings.set(data.slotId, {
+            type: 'started',
+            slotId: data.slotId,
+            recordingId: data.recordingId,
+            showTitle: data.showTitle,
+            timestamp: new Date()
+        });
+    } else if ((data.type === 'completed' || data.type === 'failed') && data.slotId) {
+        activeRecordings.delete(data.slotId);
+    }
+
     if (io) {
         io.to('recording-status').emit(`recording:${data.type}`, data);
     }
+}
+
+// Send current active recordings to a specific socket
+export function sendActiveRecordings(socket: Socket) {
+    activeRecordings.forEach((recording) => {
+        socket.emit('recording:started', recording);
+    });
 }
 
 app.prepare().then(() => {
@@ -80,6 +109,11 @@ app.prepare().then(() => {
             if (channel === 'stats') {
                 await broadcastListenerCount();
             }
+
+            // Send current active recordings to recording-status subscribers
+            if (channel === 'recording-status') {
+                sendActiveRecordings(socket);
+            }
         });
 
         socket.on('unsubscribe', async (channel: string) => {
@@ -102,6 +136,7 @@ app.prepare().then(() => {
 
     // Store io instance globally for access from API routes
     (global as any).io = io;
+    (global as any).activeRecordings = activeRecordings;
 
     httpServer.listen(port, () => {
         console.log(`> Ready on http://${hostname}:${port}`);
