@@ -95,7 +95,8 @@ app.prepare().then(() => {
         socket.on('disconnect', async (reason) => {
             console.log(`[Socket.IO] Client disconnected: ${socket.id} (${reason})`);
             // Broadcast updated listener count when anyone disconnects (they might have been a listener)
-            setTimeout(() => broadcastListenerCount(), 100);
+            // Longer delay ensures socket is fully removed from rooms before counting
+            setTimeout(() => broadcastListenerCount(), 500);
         });
     });
 

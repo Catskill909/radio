@@ -110,9 +110,12 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 - **Stats Dashboard** 🆕
   - Dedicated `/stats` page in admin sidebar
   - WebSocket connection status display
-  - **Live site listener count** - see how many people are on your Listen page
+  - **Live site listener count** - tracks users actively playing audio
   - Stream health summary (online/offline counts)
   - Live recording event log (started/completed/failed events)
+- **Listener Analytics** 🔮 *(Future Development)*
+  - Historical listener stats (today, this week, this month)
+  - See [docs/listener-analytics.md](docs/listener-analytics.md) for implementation plan
 
 ---
 

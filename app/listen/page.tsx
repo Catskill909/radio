@@ -33,14 +33,13 @@ export default function ListenPage() {
     const [viewStart, setViewStart] = useState<Date>(new Date());
 
     // WebSocket connection for real-time updates
-    const { isConnected, subscribe, on } = useSocket();
+    const { isConnected, subscribe, unsubscribe, on } = useSocket();
 
     // Subscribe to now-playing WebSocket updates
     useEffect(() => {
         if (!isConnected) return;
 
         subscribe('now-playing');
-        subscribe('site-listeners'); // Track as active listener
 
         const cleanup = on('now-playing:changed', (data: NowPlayingData) => {
             console.log('[WebSocket] Received now-playing:changed:', data.currentShow?.title || 'No show');
@@ -49,6 +48,19 @@ export default function ListenPage() {
 
         return cleanup;
     }, [isConnected, subscribe, on]);
+
+    // Track active listeners (only when audio is playing)
+    useEffect(() => {
+        if (!isConnected) return;
+
+        if (isPlaying) {
+            subscribe('site-listeners');
+            console.log('[WebSocket] Started listening - joining site-listeners');
+        } else {
+            unsubscribe('site-listeners');
+            console.log('[WebSocket] Stopped listening - leaving site-listeners');
+        }
+    }, [isConnected, isPlaying, subscribe, unsubscribe]);
 
     // Update view window when selected day changes (if outside current window)
     useEffect(() => {
