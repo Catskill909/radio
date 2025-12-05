@@ -9,14 +9,7 @@ import { Tooltip } from "./Tooltip";
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const [isCollapsed, setIsCollapsed] = useState(false);
-
-    // Auto-collapse on schedule page
-    useEffect(() => {
-        if (pathname === '/schedule') {
-            setIsCollapsed(true);
-        }
-    }, [pathname]);
+    const [isCollapsed, setIsCollapsed] = useState(true); // Default to collapsed
 
     const links = [
         { href: "/listen", label: "Site Front", icon: "fa-solid fa-globe", external: true },
@@ -104,6 +97,7 @@ export default function Sidebar() {
                                         "text-gray-400 hover:bg-white/5 hover:text-white hover:shadow-sm",
                                         isCollapsed ? "justify-center" : ""
                                     )}
+                                    onClick={() => setIsCollapsed(true)}
                                 >
                                     {linkContent}
                                 </a>
@@ -117,6 +111,7 @@ export default function Sidebar() {
                                             : "text-gray-400 hover:bg-white/5 hover:text-white hover:shadow-sm",
                                         isCollapsed ? "justify-center" : ""
                                     )}
+                                    onClick={() => setIsCollapsed(true)}
                                 >
                                     {linkContent}
                                 </Link>
