@@ -749,7 +749,72 @@ export async function deleteScheduleSlot(
     revalidatePath("/schedule");
 }
 
+/**
+ * Update recording settings for a schedule slot with scope control
+ * @param slotId - The slot to update
+ * @param recordingEnabled - Whether recording should be enabled
+ * @param scope - 'single' for this slot only, 'this-and-future' for this and all future matching slots
+ */
+export async function updateSlotRecording(
+    slotId: string,
+    recordingEnabled: boolean,
+    scope: 'single' | 'this-and-future'
+) {
+    const slot = await prisma.scheduleSlot.findUnique({
+        where: { id: slotId },
+        include: { show: true }
+    });
 
+    if (!slot) {
+        throw new Error("Schedule slot not found");
+    }
+
+    // Determine if this is actually an override (different from show default)
+    const isOverride = recordingEnabled !== slot.show.recordingEnabled;
+    const overrideValue = isOverride ? recordingEnabled : null;
+
+    if (scope === 'single') {
+        // Update only this slot
+        await prisma.scheduleSlot.update({
+            where: { id: slotId },
+            data: { recordingOverride: overrideValue }
+        });
+    } else {
+        // Update this slot and all future matching slots (same day-of-week + time-of-day)
+        const { utcToStationTime } = await import('@/lib/station-time');
+
+        const slotStationTime = utcToStationTime(slot.startTime);
+        const dayOfWeek = slotStationTime.getDay();
+        const hourOfDay = slotStationTime.getHours();
+        const minuteOfHour = slotStationTime.getMinutes();
+
+        // Get all future slots for this show
+        const futureSlots = await prisma.scheduleSlot.findMany({
+            where: {
+                showId: slot.showId,
+                startTime: { gte: slot.startTime }
+            }
+        });
+
+        // Filter to matching time pattern in station timezone
+        const matchingSlotIds = futureSlots
+            .filter(futureSlot => {
+                const futureStationTime = utcToStationTime(futureSlot.startTime);
+                return futureStationTime.getDay() === dayOfWeek &&
+                    futureStationTime.getHours() === hourOfDay &&
+                    futureStationTime.getMinutes() === minuteOfHour;
+            })
+            .map(s => s.id);
+
+        // Update all matching slots
+        await prisma.scheduleSlot.updateMany({
+            where: { id: { in: matchingSlotIds } },
+            data: { recordingOverride: overrideValue }
+        });
+    }
+
+    revalidatePath("/schedule");
+}
 
 
 export async function getRecordings() {

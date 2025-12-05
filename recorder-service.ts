@@ -40,14 +40,12 @@ async function checkSchedule() {
                 continue
             }
 
-            // FIX: Check if recording is enabled for this show
-            if (!slot.show.recordingEnabled) {
-                // If we were recording (e.g. user turned it off mid-show), we should stop
-                // But activeRecordings check above handles the "start" case.
-                // The "stop" case is handled by the cleanup loop if we remove it from activeRecordings?
-                // No, the cleanup loop only stops if slot ends.
-                // If user toggles OFF mid-show, we should probably stop it.
-                // Let's handle the "start" case first: don't start if disabled.
+            // Check if recording is enabled - slot override takes precedence over show default
+            const shouldRecord = slot.recordingOverride !== null
+                ? slot.recordingOverride
+                : slot.show.recordingEnabled;
+
+            if (!shouldRecord) {
                 continue
             }
 
@@ -82,7 +80,12 @@ async function checkSchedule() {
                 include: { show: true }
             })
 
-            if (!slot || slot.endTime <= now || !slot.show.recordingEnabled) {
+            // Check if recording should continue - slot override takes precedence
+            const shouldRecord = slot
+                ? (slot.recordingOverride !== null ? slot.recordingOverride : slot.show.recordingEnabled)
+                : false;
+
+            if (!slot || slot.endTime <= now || !shouldRecord) {
                 const endStation = slot ? formatInStationTime(slot.endTime, 'HH:mm') : 'unknown'
                 const reason = !slot ? 'slot deleted' : (slot.endTime <= now ? 'slot ended' : 'recording disabled')
                 console.log(`Stopping recording for slot: ${slotId} (${reason} - ended at ${endStation} ${stationTz})`)

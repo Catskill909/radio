@@ -1,10 +1,10 @@
 'use client'
 
-import { X, Clock, Calendar, Repeat, Trash2, AlertCircle } from 'lucide-react'
+import { X, Clock, Calendar, Repeat, Trash2, AlertCircle, Radio } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
-import { updateScheduleSlot, deleteScheduleSlot, updateShow } from '@/app/actions'
+import { updateScheduleSlot, deleteScheduleSlot, updateShow, updateSlotRecording } from '@/app/actions'
 import DateTimePicker from '@/components/DateTimePicker'
 import DeleteSlotOptions from '@/components/DeleteSlotOptions'
 import EditShowForm from '@/components/EditShowForm'
@@ -41,6 +41,7 @@ interface ScheduleSlot {
     isRecurring: boolean
     splitGroupId: string | null
     splitPosition: string | null
+    recordingOverride: boolean | null
 }
 
 interface EditSlotModalProps {
@@ -60,17 +61,32 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
     const [showDeleteOptions, setShowDeleteOptions] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
+    // Recording state
+    const [recordingEnabled, setRecordingEnabled] = useState(false)
+    const [recordingScope, setRecordingScope] = useState<'single' | 'this-and-future'>('single')
+    const [recordingChanged, setRecordingChanged] = useState(false)
+    const [isSavingRecording, setIsSavingRecording] = useState(false)
+
+    const getEffectiveRecording = (s: ScheduleSlot) => {
+        return s.recordingOverride !== null ? s.recordingOverride : s.show.recordingEnabled
+    }
+
     useEffect(() => {
         if (slot) {
             setStartTime(new Date(slot.startTime))
             const durationMins = Math.round((new Date(slot.endTime).getTime() - new Date(slot.startTime).getTime()) / 60000)
             setDuration(durationMins)
             setIsRecurring(slot.isRecurring)
+            setRecordingEnabled(getEffectiveRecording(slot))
+            setRecordingChanged(false)
+            setRecordingScope('single')
             setError(null)
         }
     }, [slot])
 
     if (!isOpen || !slot) return null
+
+    const isRecordingOverridden = slot.recordingOverride !== null
 
     const handleSave = async () => {
         setIsSaving(true)
@@ -78,11 +94,27 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
         try {
             const endTime = new Date(startTime.getTime() + duration * 60000)
             await updateScheduleSlot(slot.id, startTime, endTime, isRecurring)
-            // Force hard reload to bypass browser cache
             window.location.href = window.location.href
         } catch (err: any) {
             setError(err.message)
             setIsSaving(false)
+        }
+    }
+
+    const handleRecordingChange = (enabled: boolean) => {
+        setRecordingEnabled(enabled)
+        setRecordingChanged(true)
+    }
+
+    const handleSaveRecording = async () => {
+        setIsSavingRecording(true)
+        setError(null)
+        try {
+            await updateSlotRecording(slot.id, recordingEnabled, recordingScope)
+            window.location.href = window.location.href
+        } catch (err: any) {
+            setError(err.message)
+            setIsSavingRecording(false)
         }
     }
 
@@ -219,9 +251,104 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                     disabled={isSaving}
                                     className="px-4 py-2 bg-blue-600/80 hover:bg-blue-600 disabled:bg-blue-800/50 disabled:cursor-not-allowed text-white rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
                                 >
-                                    {isSaving ? 'Saving...' : 'Save Changes'}
+                                    {isSaving ? 'Saving...' : 'Save Time Changes'}
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Recording Section */}
+                        <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-800">
+                            <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                                <Radio className="w-5 h-5 text-red-400" />
+                                Recording
+                            </h3>
+
+                            {/* Current Status */}
+                            <div className={`rounded-lg p-4 mb-4 border ${recordingEnabled ? 'bg-red-900/20 border-red-800/50' : 'bg-gray-900/50 border-gray-700'}`}>
+                                <div className="flex items-center gap-2 mb-1">
+                                    {recordingEnabled ? (
+                                        <>
+                                            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                            <span className="text-sm font-medium text-red-300">Will Record</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+                                            <span className="text-sm font-medium text-gray-400">Will Not Record</span>
+                                        </>
+                                    )}
+                                </div>
+                                <p className="text-xs text-gray-400">
+                                    {slot.isRecurring
+                                        ? (recordingEnabled
+                                            ? `This and all future ${format(new Date(slot.startTime), 'EEEE')} broadcasts will record`
+                                            : `This and all future ${format(new Date(slot.startTime), 'EEEE')} broadcasts will NOT record`)
+                                        : (recordingEnabled
+                                            ? `This broadcast will be recorded`
+                                            : `This broadcast will not be recorded`)
+                                    }
+                                </p>
+                            </div>
+
+                            {/* Recording Toggle */}
+                            <div className="flex items-center justify-between py-2">
+                                <span className="text-sm font-medium text-gray-300">
+                                    {recordingEnabled ? 'Turn off recording' : 'Turn on recording'}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRecordingChange(!recordingEnabled)}
+                                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${recordingEnabled ? 'bg-red-600' : 'bg-gray-700'}`}
+                                >
+                                    <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${recordingEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
+
+                            {/* Scope selector - only for recurring slots when changed */}
+                            {recordingChanged && slot.isRecurring && (
+                                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 mt-4">
+                                    <p className="text-sm font-medium text-gray-300 mb-3">Apply this change to:</p>
+                                    <div className="space-y-2">
+                                        <label className="flex items-center gap-3 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="recordingScope"
+                                                checked={recordingScope === 'single'}
+                                                onChange={() => setRecordingScope('single')}
+                                                className="w-4 h-4 text-red-600 bg-gray-800 border-gray-600 focus:ring-red-500"
+                                            />
+                                            <span className="text-sm text-gray-300">
+                                                Only {format(new Date(slot.startTime), 'MMM d, yyyy')}
+                                            </span>
+                                        </label>
+                                        <label className="flex items-center gap-3 cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="recordingScope"
+                                                checked={recordingScope === 'this-and-future'}
+                                                onChange={() => setRecordingScope('this-and-future')}
+                                                className="w-4 h-4 text-red-600 bg-gray-800 border-gray-600 focus:ring-red-500"
+                                            />
+                                            <span className="text-sm text-gray-300">
+                                                All future {format(new Date(slot.startTime), 'EEEE')} broadcasts
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Save Recording button */}
+                            {recordingChanged && (
+                                <div className="flex justify-end pt-4">
+                                    <button
+                                        onClick={handleSaveRecording}
+                                        disabled={isSavingRecording}
+                                        className="px-4 py-2 bg-red-600/80 hover:bg-red-600 disabled:bg-red-800/50 disabled:cursor-not-allowed text-white rounded-md text-sm font-medium transition-colors"
+                                    >
+                                        {isSavingRecording ? 'Saving...' : 'Save Recording Settings'}
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {/* Delete Section */}
@@ -264,7 +391,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                 Show Settings
                             </h3>
                             <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700/50">
-                                <EditShowForm show={slot.show} streams={streams} />
+                                <EditShowForm show={slot.show} streams={streams} hideRecordingControls={true} />
                             </div>
                         </div>
                     </div>

@@ -55,6 +55,7 @@ interface Slot {
     isRecurring: boolean
     splitGroupId: string | null
     splitPosition: string | null
+    recordingOverride: boolean | null
 }
 
 interface SchedulerProps {

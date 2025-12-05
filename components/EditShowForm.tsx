@@ -10,7 +10,13 @@ import { useRouter } from "next/navigation";
 import { Tooltip } from "./Tooltip";
 import ItunesCategorySelect from "@/components/iTunesCategorySelect";
 
-export default function EditShowForm({ show, streams }: { show: Show; streams: { id: string; name: string; url: string }[] }) {
+interface EditShowFormProps {
+    show: Show;
+    streams: { id: string; name: string; url: string }[];
+    hideRecordingControls?: boolean;  // Hide when used in slot context (slot has its own controls)
+}
+
+export default function EditShowForm({ show, streams, hideRecordingControls = false }: EditShowFormProps) {
     const [imageUrl, setImageUrl] = useState(show.image || "");
     const [categoryValue, setCategoryValue] = useState(show.category || "");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -244,16 +250,18 @@ export default function EditShowForm({ show, streams }: { show: Show; streams: {
 
                 {/* Recording Settings & Cover Image Row */}
                 <div className="col-span-12 grid grid-cols-12 gap-4 pt-2 border-t border-gray-800">
-                    {/* Recording Controls - Span 8 */}
-                    <div className="col-span-12 md:col-span-8">
-                        <RecordingControls
-                            recordingEnabled={recordingEnabled}
-                            onRecordingEnabledChange={setRecordingEnabled}
-                            recordingSource={recordingSource}
-                            onRecordingSourceChange={setRecordingSource}
-                            streams={streams}
-                        />
-                    </div>
+                    {/* Recording Controls - Span 8 (hidden when in slot context) */}
+                    {!hideRecordingControls && (
+                        <div className="col-span-12 md:col-span-8">
+                            <RecordingControls
+                                recordingEnabled={recordingEnabled}
+                                onRecordingEnabledChange={setRecordingEnabled}
+                                recordingSource={recordingSource}
+                                onRecordingSourceChange={setRecordingSource}
+                                streams={streams}
+                            />
+                        </div>
+                    )}
 
                     {/* Cover Image - Span 4 */}
                     <div className="col-span-12 md:col-span-4 space-y-1.5">
