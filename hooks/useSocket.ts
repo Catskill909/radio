@@ -51,6 +51,13 @@ export function useSocket() {
     const subscribe = useCallback((channel: string) => {
         if (socket?.connected) {
             socket.emit('subscribe', channel);
+            console.log('[Socket.IO] Subscribed to:', channel);
+        } else {
+            // Queue subscription for when socket connects
+            socket?.once('connect', () => {
+                socket?.emit('subscribe', channel);
+                console.log('[Socket.IO] Subscribed to (after connect):', channel);
+            });
         }
     }, []);
 

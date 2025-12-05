@@ -55,22 +55,47 @@ app.prepare().then(() => {
         pingTimeout: 60000,
     });
 
+    // Helper to get room size and broadcast listener count
+    const broadcastListenerCount = async () => {
+        const sockets = await io.in('site-listeners').fetchSockets();
+        const count = sockets.length;
+        io.to('stats').emit('listeners:count', { count });
+        console.log(`[Socket.IO] Site listeners: ${count}`);
+    };
+
     io.on('connection', (socket: Socket) => {
         console.log(`[Socket.IO] Client connected: ${socket.id}`);
 
         // Room subscriptions
-        socket.on('subscribe', (channel: string) => {
+        socket.on('subscribe', async (channel: string) => {
             console.log(`[Socket.IO] ${socket.id} subscribed to: ${channel}`);
             socket.join(channel);
+
+            // Broadcast updated listener count when someone joins site-listeners
+            if (channel === 'site-listeners') {
+                await broadcastListenerCount();
+            }
+
+            // Send current listener count to stats subscribers immediately
+            if (channel === 'stats') {
+                await broadcastListenerCount();
+            }
         });
 
-        socket.on('unsubscribe', (channel: string) => {
+        socket.on('unsubscribe', async (channel: string) => {
             console.log(`[Socket.IO] ${socket.id} unsubscribed from: ${channel}`);
             socket.leave(channel);
+
+            // Broadcast updated listener count when someone leaves site-listeners
+            if (channel === 'site-listeners') {
+                setTimeout(() => broadcastListenerCount(), 100); // Slight delay for leave to complete
+            }
         });
 
-        socket.on('disconnect', (reason) => {
+        socket.on('disconnect', async (reason) => {
             console.log(`[Socket.IO] Client disconnected: ${socket.id} (${reason})`);
+            // Broadcast updated listener count when anyone disconnects (they might have been a listener)
+            setTimeout(() => broadcastListenerCount(), 100);
         });
     });
 

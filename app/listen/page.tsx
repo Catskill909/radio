@@ -11,6 +11,7 @@ import ShowModalDesktop from './components/ShowModalDesktop';
 import FloatingMenu from './components/FloatingMenu';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { NowPlayingData, ScheduleSlot, Episode } from './components/types';
+import { useSocket } from '@/hooks/useSocket';
 
 export default function ListenPage() {
     // State
@@ -31,6 +32,24 @@ export default function ListenPage() {
     // View Start Date (for the 7-day window)
     const [viewStart, setViewStart] = useState<Date>(new Date());
 
+    // WebSocket connection for real-time updates
+    const { isConnected, subscribe, on } = useSocket();
+
+    // Subscribe to now-playing WebSocket updates
+    useEffect(() => {
+        if (!isConnected) return;
+
+        subscribe('now-playing');
+        subscribe('site-listeners'); // Track as active listener
+
+        const cleanup = on('now-playing:changed', (data: NowPlayingData) => {
+            console.log('[WebSocket] Received now-playing:changed:', data.currentShow?.title || 'No show');
+            setNowPlaying(data);
+        });
+
+        return cleanup;
+    }, [isConnected, subscribe, on]);
+
     // Update view window when selected day changes (if outside current window)
     useEffect(() => {
         const diff = differenceInCalendarDays(selectedDay, viewStart);
@@ -42,7 +61,7 @@ export default function ListenPage() {
     // Generate 7 days based on viewStart
     const days = Array.from({ length: 7 }, (_, i) => addDays(viewStart, i));
 
-    // Fetch Now Playing (Initial + Poll)
+    // Fetch Now Playing (Initial + Fallback Poll)
     useEffect(() => {
         const fetchNowPlaying = () => {
             fetch('/api/public/now-playing')
@@ -52,9 +71,10 @@ export default function ListenPage() {
         };
 
         fetchNowPlaying();
-        const interval = setInterval(fetchNowPlaying, 30000); // Poll every 30 seconds
+        // Poll less frequently when WebSocket is connected (60s vs 30s)
+        const interval = setInterval(fetchNowPlaying, isConnected ? 60000 : 30000);
         return () => clearInterval(interval);
-    }, []);
+    }, [isConnected]);
 
     // Fetch Schedule
     useEffect(() => {

@@ -41,6 +41,52 @@ async function broadcastRecordingEvent(event: {
     }
 }
 
+// Track last known current show to detect transitions
+let lastCurrentShowId: string | null = null
+
+// Helper to broadcast now-playing changes via WebSocket API
+async function broadcastNowPlaying() {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+        await fetch(`${baseUrl}/api/now-playing-events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}) // API will fetch current state
+        })
+    } catch (error) {
+        console.warn('[WebSocket] Failed to broadcast now-playing:', error)
+    }
+}
+
+// Check for show transitions and broadcast changes
+async function checkShowTransitions() {
+    try {
+        const now = new Date()
+
+        const currentSlot = await prisma.scheduleSlot.findFirst({
+            where: {
+                startTime: { lte: now },
+                endTime: { gt: now },
+            },
+            include: { show: true },
+        })
+
+        const currentShowId = currentSlot?.show.id || null
+
+        // Detect transition
+        if (currentShowId !== lastCurrentShowId) {
+            const fromShow = lastCurrentShowId ? 'previous show' : 'no show'
+            const toShow = currentSlot?.show.title || 'no show'
+            console.log(`[NOW PLAYING] Show transition: ${fromShow} → ${toShow}`)
+
+            lastCurrentShowId = currentShowId
+            await broadcastNowPlaying()
+        }
+    } catch (error) {
+        console.error('[NOW PLAYING] Error checking transitions:', error)
+    }
+}
+
 async function checkSchedule() {
     const now = new Date()  // UTC time for comparison with DB
     const stationTz = getStationTimezone()
@@ -482,5 +528,11 @@ checkSchedule() // Initial run
 setInterval(extendRecurringShows, 24 * 60 * 60 * 1000)
 extendRecurringShows() // Initial run on startup
 
+// Check for show transitions every 5 seconds (for instant Now Playing updates)
+setInterval(checkShowTransitions, 5000)
+checkShowTransitions() // Initial run
+
 console.log('Recorder service started.')
 console.log('Auto-extension enabled: recurring shows will be extended automatically.')
+console.log('Now Playing: monitoring for show transitions.')
+

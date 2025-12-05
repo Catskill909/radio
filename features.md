@@ -105,7 +105,14 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - WebSocket-powered "Live" indicator confirms active connection
   - Stream status changes push instantly to clients (no page refresh needed)
   - Recording events (started/completed/failed) broadcast in real-time
-  - Automatic fallback to polling if WebSocket unavailable
+  - Now Playing: show transitions push to Listen page instantly
+  - Automatic fallback to polling (60s) if WebSocket unavailable
+- **Stats Dashboard** 🆕
+  - Dedicated `/stats` page in admin sidebar
+  - WebSocket connection status display
+  - **Live site listener count** - see how many people are on your Listen page
+  - Stream health summary (online/offline counts)
+  - Live recording event log (started/completed/failed events)
 
 ---
 

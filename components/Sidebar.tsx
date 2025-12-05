@@ -25,6 +25,7 @@ export default function Sidebar() {
         { href: "/streams", label: "Streams", icon: "fa-solid fa-water" },
         { href: "/recordings", label: "Recordings", icon: "fa-solid fa-microphone" },
         { href: "/episodes", label: "Podcasts", icon: "fa-solid fa-podcast" },
+        { href: "/stats", label: "Stats", icon: "fa-solid fa-chart-line" },
         { href: "/settings", label: "Settings", icon: "fa-solid fa-gear" },
         { href: "/help", label: "Help & Support", icon: "fa-solid fa-circle-question" },
     ];
