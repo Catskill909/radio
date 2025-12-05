@@ -59,6 +59,21 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
         )
     }, [recordings, searchQuery]);
 
+    // Pagination - max 10 items per page
+    const ITEMS_PER_PAGE = 10;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Reset to page 1 when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery]);
+
+    const totalPages = Math.ceil(filteredRecordings.length / ITEMS_PER_PAGE);
+    const paginatedRecordings = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredRecordings.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredRecordings, currentPage]);
+
     const getStatusBadge = (status: string) => {
         switch (status) {
             case "RECORDING":
@@ -132,8 +147,31 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                 </p>
             )}
 
+            {/* Top Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mb-4">
+                    <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                        ← Previous
+                    </button>
+                    <span className="text-sm text-gray-400">
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                        Next →
+                    </button>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 gap-4">
-                {filteredRecordings.map((recording: any) => (
+                {paginatedRecordings.map((recording: any) => (
                     <div
                         key={recording.id}
                         className="bg-gray-800 border border-gray-700 rounded-xl p-4 hover:border-gray-600 transition-colors"
@@ -251,6 +289,29 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                     </div>
                 )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-6">
+                    <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                        ← Previous
+                    </button>
+                    <span className="text-sm text-gray-400">
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                        Next →
+                    </button>
+                </div>
+            )}
 
             <DeleteConfirmModal
                 isOpen={!!recordingToDelete}
