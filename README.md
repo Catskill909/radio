@@ -2,11 +2,11 @@
 
 **A modern, all-in-one radio station management system.**
 
-Radio Suite combines a powerful **admin dashboard** for scheduling and automation with a beautiful **public-facing listener site**. It handles everything from planning your weekly grid to recording live broadcasts and automatically publishing them as podcasts.
+Radio Suite combines a powerful **admin dashboard** for scheduling and automation with a clean **public-facing listener site**. It handles everything from planning your weekly grid to recording live broadcasts and automatically publishing them as podcasts.
 
 ### Key Capabilities:
-- **Public Listener Experience**: A stunning, animated public schedule with a persistent live audio player and "Now Playing" metadata.
-- **Advanced Scheduling**: Visual drag-and-drop calendar with conflict detection, recurring show automation, and timezone awareness.
+- **Public Listener Experience**: An animated public schedule with a persistent live audio player and "Now Playing" metadata.
+- **Advanced Scheduling**: Click-to-schedule calendar with conflict detection, recurring show automation, and timezone awareness.
 - **Automated Recording**: Background service that records shows from Icecast streams, with smart transcoding and configurable quality (MP3/AAC/FLAC).
 - **Podcast Publishing**: Turn recordings into podcast episodes with one click, complete with iTunes-compatible RSS feeds.
 - **Import/Export**: Migrate your entire station (shows, schedules, images) between environments with a single ZIP file.
@@ -15,7 +15,7 @@ Radio Suite combines a powerful **admin dashboard** for scheduling and automatio
 ## Features
 
 - **Show management** – Create and manage shows with rich metadata (host, artwork, type, tags, explicit flag, recording config).
-- **Visual schedule** – Calendar-based week/day views with recurring slots, conflict prevention, tooltips, and edit modals.
+- **Click-to-schedule calendar** – Calendar-based week/day views with recurring slots, conflict prevention, tooltips, and edit modals.
 - **Station-wide timezone** – Single global station timezone configurable in Settings; schedule views, the live clock, and the recorder service all use station time, independent of user or server location.
 - Automated recording – Per-show recording toggles, Icecast stream source selection, background recorder service, and status tracking.
   - **Smart transcoding**: automatically detects stream format (e.g., AAC) and transcodes to MP3 when needed, otherwise copies the stream directly.
@@ -103,7 +103,7 @@ Radio Suite combines a powerful **admin dashboard** for scheduling and automatio
 
 ### 📡 Podcast Distribution
 - **Per-show RSS feeds** for podcast apps
-- **Beautiful modal UI** for feed URLs with one-click copy
+- **Modal UI** for feed URLs with one-click copy
 - iTunes-compatible podcast metadata
 - Automatic episode metadata from show info
 - Publishing controls and metadata editing
