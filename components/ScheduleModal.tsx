@@ -6,6 +6,7 @@ import { createScheduleSlot, createShow } from '@/app/actions'
 import ImageUpload from '@/components/ImageUpload'
 import RecordingControls from '@/components/RecordingControls'
 import ScheduleErrorModal from '@/components/ScheduleErrorModal'
+import ItunesCategorySelect from '@/components/iTunesCategorySelect'
 
 interface Show {
     id: string
@@ -65,6 +66,7 @@ export default function ScheduleModal({
     const [newShowEmail, setNewShowEmail] = useState('')
     const [newShowAuthor, setNewShowAuthor] = useState('')
     const [newShowCategory, setNewShowCategory] = useState('')
+    const [newShowItunesType, setNewShowItunesType] = useState('episodic')
     const [newShowLanguage, setNewShowLanguage] = useState('en-us')
     const [newShowCopyright, setNewShowCopyright] = useState('')
     const [newShowLink, setNewShowLink] = useState('')
@@ -162,6 +164,7 @@ export default function ScheduleModal({
         formData.set('email', newShowEmail)
         formData.set('author', newShowAuthor)
         formData.set('category', newShowCategory)
+        formData.set('itunesType', newShowItunesType)
         formData.set('language', newShowLanguage)
         formData.set('copyright', newShowCopyright)
         formData.set('link', newShowLink)
@@ -392,15 +395,9 @@ export default function ScheduleModal({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        iTunes Category
-                                    </label>
-                                    <input
-                                        type="text"
+                                    <ItunesCategorySelect
                                         value={newShowCategory}
-                                        onChange={(e) => setNewShowCategory(e.target.value)}
-                                        placeholder="e.g. Music"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        onChange={setNewShowCategory}
                                     />
                                 </div>
                             </div>
@@ -486,6 +483,24 @@ export default function ScheduleModal({
                                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
                                     placeholder="Describe the show..."
                                 />
+                            </div>
+
+                            {/* iTunes Type */}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-300">
+                                    iTunes Type
+                                </label>
+                                <select
+                                    value={newShowItunesType}
+                                    onChange={(e) => setNewShowItunesType(e.target.value)}
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                >
+                                    <option value="episodic">Episodic (Default)</option>
+                                    <option value="serial">Serial</option>
+                                </select>
+                                <p className="text-xs text-gray-500">
+                                    Episodic: Newest episodes first. Serial: Oldest episodes first (good for storytelling).
+                                </p>
                             </div>
 
                             {/* Show Type */}
@@ -595,6 +610,6 @@ export default function ScheduleModal({
                 onClose={() => setErrorModalOpen(false)}
                 errorMessage={errorMessage}
             />
-        </div>
+        </div >
     )
 }

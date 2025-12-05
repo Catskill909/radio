@@ -47,6 +47,16 @@ export default function ShowModalDesktop({
         }
     }, [isOpen, showId]);
 
+    // Disable body scrolling when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isOpen]);
+
     const handleCopyRss = () => {
         if (show?.rssFeedUrl) {
             const url = window.location.origin + show.rssFeedUrl;
@@ -77,52 +87,54 @@ export default function ShowModalDesktop({
                     <div className="flex-1 flex items-center justify-center text-gray-400">Loading...</div>
                 ) : show ? (
                     <div className="flex w-full h-full">
-                        {/* LEFT COLUMN (40%) */}
-                        <div className="w-[40%] bg-gray-900 p-8 flex flex-col border-r border-gray-800 overflow-y-auto custom-scrollbar">
-                            <div className="aspect-square w-full rounded-xl overflow-hidden mb-6 shadow-lg">
-                                <img
-                                    src={show.image || '/default-show.png'}
-                                    alt={show.title}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-
-                            <div className="mb-6">
-                                <div className="inline-block px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded mb-2 border border-blue-500/30">
-                                    {show.type}
+                        {/* LEFT COLUMN (40%) - Scrollable */}
+                        <div className="w-[40%] h-full bg-gray-900 p-8 border-r border-gray-800 overflow-y-auto">
+                            <div className="flex flex-col">
+                                <div className="w-full max-w-[200px] mx-auto aspect-square rounded-xl overflow-hidden mb-6 shadow-lg shrink-0">
+                                    <img
+                                        src={show.image || '/default-show.png'}
+                                        alt={show.title}
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
-                                <h2 className="text-3xl font-bold text-white mb-1 leading-tight">{show.title}</h2>
-                                {show.host && (
-                                    <p className="text-gray-400 font-medium">with {show.host}</p>
+
+                                <div className="mb-6">
+                                    <div className="inline-block px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded mb-2 border border-blue-500/30">
+                                        {show.type}
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-white mb-1 leading-tight">{show.title}</h2>
+                                    {show.host && (
+                                        <p className="text-gray-400 font-medium">with {show.host}</p>
+                                    )}
+                                </div>
+
+                                {show.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mb-6">
+                                        {show.tags.map((tag, index) => (
+                                            <span key={`${tag}-${index}`} className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-full border border-gray-700">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
                                 )}
-                            </div>
 
-                            {show.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mb-6">
-                                    {show.tags.map(tag => (
-                                        <span key={tag} className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-full border border-gray-700">
-                                            {tag}
-                                        </span>
-                                    ))}
+                                {scheduleInfo?.recurrence && (
+                                    <div className="flex items-center gap-2 text-sm text-gray-300 bg-gray-800/50 p-3 rounded-lg border border-gray-800 mb-6">
+                                        <Calendar className="w-4 h-4 text-gray-400" />
+                                        <span>{scheduleInfo.recurrence}</span>
+                                    </div>
+                                )}
+
+                                <div className="pt-6 border-t border-gray-800">
+                                    <button
+                                        onClick={handleCopyRss}
+                                        className="flex items-center gap-2 text-xs text-gray-500 hover:text-white transition-colors group w-full justify-center p-2 rounded hover:bg-gray-800"
+                                    >
+                                        <Rss className="w-3 h-3 text-orange-500" />
+                                        <span>Copy RSS Feed</span>
+                                        {copied && <Check className="w-3 h-3 text-green-500" />}
+                                    </button>
                                 </div>
-                            )}
-
-                            {scheduleInfo?.recurrence && (
-                                <div className="flex items-center gap-2 text-sm text-gray-300 bg-gray-800/50 p-3 rounded-lg border border-gray-800 mb-6">
-                                    <Calendar className="w-4 h-4 text-gray-400" />
-                                    <span>{scheduleInfo.recurrence}</span>
-                                </div>
-                            )}
-
-                            <div className="mt-auto pt-6 border-t border-gray-800">
-                                <button
-                                    onClick={handleCopyRss}
-                                    className="flex items-center gap-2 text-xs text-gray-500 hover:text-white transition-colors group w-full justify-center p-2 rounded hover:bg-gray-800"
-                                >
-                                    <Rss className="w-3 h-3 text-orange-500" />
-                                    <span>Copy RSS Feed</span>
-                                    {copied && <Check className="w-3 h-3 text-green-500" />}
-                                </button>
                             </div>
                         </div>
 
