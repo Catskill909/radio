@@ -1,7 +1,7 @@
 'use client'
 
 import { X, Clock, Calendar, Repeat, Trash2, AlertCircle, Radio } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { updateScheduleSlot, deleteScheduleSlot, updateShow, updateSlotRecording } from '@/app/actions'
@@ -66,6 +66,8 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
     const [recordingScope, setRecordingScope] = useState<'single' | 'this-and-future'>('single')
     const [recordingChanged, setRecordingChanged] = useState(false)
     const [isSavingRecording, setIsSavingRecording] = useState(false)
+    const scopeSelectorRef = useRef<HTMLDivElement>(null)
+    const modalRef = useRef<HTMLDivElement>(null)
 
     const getEffectiveRecording = (s: ScheduleSlot) => {
         return s.recordingOverride !== null ? s.recordingOverride : s.show.recordingEnabled
@@ -104,6 +106,12 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
     const handleRecordingChange = (enabled: boolean) => {
         setRecordingEnabled(enabled)
         setRecordingChanged(true)
+        // Auto-scroll modal to show scope options after brief delay for render
+        setTimeout(() => {
+            if (modalRef.current) {
+                modalRef.current.scrollBy({ top: 200, behavior: 'smooth' })
+            }
+        }, 150)
     }
 
     const handleSaveRecording = async () => {
@@ -134,7 +142,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
     return (
         <>
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[1050] flex items-center justify-center p-4">
-                <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+                <div ref={modalRef} className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                     {/* Header */}
                     <div className="sticky top-0 bg-gray-900 border-b border-gray-800 p-6 flex items-center justify-between z-10">
                         <h2 className="text-2xl font-bold" style={{ fontFamily: 'Oswald, sans-serif' }}>
@@ -306,7 +314,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
 
                             {/* Scope selector - only for recurring slots when changed */}
                             {recordingChanged && slot.isRecurring && (
-                                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 mt-4">
+                                <div ref={scopeSelectorRef} className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 mt-4">
                                     <p className="text-sm font-medium text-gray-300 mb-3">Apply this change to:</p>
                                     <div className="space-y-2">
                                         <label className="flex items-center gap-3 cursor-pointer">

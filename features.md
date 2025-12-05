@@ -155,6 +155,14 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - Statuses: PENDING, RECORDING, COMPLETED, FAILED
   - Recordings link to schedule slots and shows
   - Quality metadata saved on completion (codec, bitrate, sample rate)
+- **Per-Slot Recording Control** 🆕
+  - **Override Show Defaults**: Toggle recording on/off for individual broadcast instances
+  - **Scope Selector**: Choose "This broadcast only" or "All future broadcasts" when changing recording status
+  - **Clear Status Display**: Visual indicator showing "Will Record" or "Will Not Record" with explanation
+  - **Recurring Show Support**: Changes can apply to single date or all future occurrences of that day/time
+  - **Use Case**: Disable recording for replays/rebroadcasts while keeping original broadcasts recorded
+  - **Database**: `recordingOverride` field on `ScheduleSlot` (null = use show default, true/false = override)
+  - **Auto-Scroll UX**: Modal scrolls to reveal scope options when toggle is changed
 
 ---
 

@@ -64,6 +64,11 @@ Radio Suite combines a powerful **admin dashboard** for scheduling and automatio
 - Background recording service monitors schedule using station time
 - Recording status tracking (PENDING/RECORDING/COMPLETED/FAILED)
 - **Auto-publishing** - Recordings automatically become podcast episodes
+- **Per-slot recording control** - Override show defaults for individual time slots:
+  - Toggle recording on/off per broadcast instance
+  - Scope selector: "This broadcast only" or "All future broadcasts"
+  - Clear status indicators showing what will record
+  - Perfect for disabling replays while keeping original broadcasts recorded
 - **Automatic recurring extension** – Background job extends recurring shows as they approach the end of their scheduled horizon so long-running series never silently fall off the calendar.
 - **Smart transcoding**: Automatically detects stream format and transcodes when needed
 - **Configurable quality**: Control encoding settings from Settings page
@@ -356,6 +361,7 @@ radio-suite/
 - [x] Import/Export feature for station migration and backups
 - [x] Time display accuracy improvements (ceiling rounding, faster polling)
 - [x] Automatic image variant generation (card/icon sizes for faster page loads)
+- [x] Per-slot recording control with scope selector (single/all future broadcasts)
 
 ### Next Up
 - [ ] Enhanced public-facing pages (show details, host bios)
