@@ -29,10 +29,10 @@ export default function ScheduleCard({ slot, isLive, onShowClick }: ScheduleCard
             <button
                 onClick={() => onShowClick(slot.show.id)}
                 className={`
-              w-full text-left group relative overflow-hidden rounded-2xl transition-all duration-500
+              w-full text-left group relative overflow-hidden rounded-2xl transition-all duration-500 cursor-pointer
               ${isLive
                         ? 'bg-gray-800 ring-1 ring-red-500/50 shadow-lg shadow-red-900/10 scale-[1.02]'
-                        : 'bg-gray-900 hover:bg-gray-800'
+                        : 'bg-gray-900 hover:bg-gray-800 hover:scale-[1.01]'
                     }
             `}
             >

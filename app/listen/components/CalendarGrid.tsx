@@ -88,7 +88,7 @@ export default function CalendarGrid({ slots, onShowClick, weekStart }: Calendar
                                     <button
                                         key={slot.id}
                                         onClick={() => onShowClick(slot.show.id)}
-                                        className="absolute left-1 right-1 rounded-md bg-gray-800 hover:bg-gray-700 border border-gray-700 p-2 text-left transition-all hover:z-10 hover:shadow-xl group overflow-hidden"
+                                        className="absolute left-1 right-1 rounded-md bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-500 p-2 text-left transition-all hover:z-10 hover:shadow-xl hover:scale-[1.02] cursor-pointer group overflow-hidden"
                                         style={getBlockStyle(slot, day)}
                                     >
                                         <div className="h-full flex flex-col">

@@ -94,7 +94,7 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
     };
 
     return (
-        <div className={`flex-shrink-0 ${fullWidth ? 'w-full' : 'w-[280px]'} bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden hover:border-gray-700 transition-colors group`}>
+        <div className={`flex-shrink-0 ${fullWidth ? 'w-full' : 'w-[280px]'} bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden hover:border-gray-600 hover:bg-gray-900/70 transition-all cursor-pointer group`}>
             <div className={`flex ${fullWidth ? 'flex-row h-32' : 'flex-col'}`}>
                 {/* Thumbnail (Clean) */}
                 <div className={`relative ${fullWidth ? 'w-32 h-32' : 'w-full aspect-square'} bg-gray-800 shrink-0`}>
@@ -129,7 +129,7 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={togglePlayPause}
-                                    className="shrink-0 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform"
+                                    className="shrink-0 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform cursor-pointer"
                                 >
                                     {isPaused ? (
                                         <Play className="w-3 h-3 fill-current ml-0.5" />
@@ -167,7 +167,7 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
 
                             <button
                                 onClick={togglePlayPause}
-                                className="shrink-0 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg"
+                                className="shrink-0 w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg cursor-pointer"
                             >
                                 <Play className="w-3 h-3 fill-current ml-0.5" />
                             </button>

@@ -55,7 +55,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                 {/* Previous Week Button */}
                 <button
                     onClick={handlePreviousWeek}
-                    className="flex-shrink-0 p-2 hover:bg-gray-800 rounded-lg transition-colors group"
+                    className="flex-shrink-0 p-2 hover:bg-gray-800 rounded-lg transition-colors group cursor-pointer"
                     aria-label="Previous week"
                 >
                     <ChevronLeft className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" strokeWidth={3} />
@@ -94,7 +94,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                 {/* Day Tabs */}
                 <div
                     ref={scrollRef}
-                    className="flex overflow-x-auto no-scrollbar py-3 gap-2 snap-x"
+                    className="flex overflow-x-auto no-scrollbar py-3 mt-[6px] gap-2 snap-x"
                 >
                     {days.map((date) => {
                         const isActive = isSameDay(date, selectedDay);
@@ -106,15 +106,15 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                                 onClick={() => onDayChange(date)}
                                 data-active={isActive}
                                 className={`
-                    flex flex-col items-center justify-center min-w-[60px] py-2 px-3 rounded-xl transition-all snap-center
+                    flex flex-col items-center justify-center min-w-[60px] py-2 px-3 rounded-xl transition-all snap-center cursor-pointer
                     ${isActive
                                         ? 'bg-white text-black shadow-lg scale-105'
-                                        : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
+                                        : 'bg-gray-900 text-gray-400 hover:bg-gray-800 hover:text-white hover:scale-105'
                                     }
                   `}
                             >
                                 <span className="text-xs font-medium uppercase tracking-wider">
-                                    {isToday ? 'TODAY' : format(date, 'EEE')}
+                                    {isToday ? 'TODAY' : isActive ? format(date, 'MMM').toUpperCase() : format(date, 'EEE')}
                                 </span>
                                 <span className={`text-lg font-bold ${isActive ? 'text-black' : 'text-white'}`}>
                                     {format(date, 'd')}
@@ -127,7 +127,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                 {/* Next Week Button */}
                 <button
                     onClick={handleNextWeek}
-                    className="flex-shrink-0 p-2 hover:bg-gray-800 rounded-lg transition-colors group"
+                    className="flex-shrink-0 p-2 hover:bg-gray-800 rounded-lg transition-colors group cursor-pointer"
                     aria-label="Next week"
                 >
                     <ChevronRight className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" strokeWidth={3} />
