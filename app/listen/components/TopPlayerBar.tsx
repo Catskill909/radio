@@ -103,7 +103,8 @@ export default function TopPlayerBar({
                     <button
                         onClick={onPlayPause}
                         disabled={isLoadingStream}
-                        className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-white/10 flex-shrink-0 disabled:opacity-70 disabled:cursor-wait cursor-pointer"
+                        aria-label={isLoadingStream ? 'Loading stream' : isPlaying ? 'Pause' : 'Play'}
+                        className="w-14 h-14 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-white/10 flex-shrink-0 disabled:opacity-70 disabled:cursor-wait cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
                     >
                         {isLoadingStream ? (
                             <Loader2 className="w-6 h-6 text-black animate-spin" />

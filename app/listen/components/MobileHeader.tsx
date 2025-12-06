@@ -54,7 +54,8 @@ export default function MobileHeader({
 
                     <button
                         onClick={onPlayPause}
-                        className="bg-white text-black rounded-full p-2.5 hover:scale-105 active:scale-95 transition-transform ml-3 shrink-0 cursor-pointer"
+                        aria-label={isPlaying ? 'Pause' : 'Play'}
+                        className="bg-white text-black rounded-full p-2.5 hover:scale-105 active:scale-95 transition-transform ml-3 shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
                     >
                         {isPlaying ? (
                             <Pause className="w-5 h-5 fill-current" />

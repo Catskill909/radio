@@ -57,7 +57,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                 {/* Previous Week Button */}
                 <button
                     onClick={handlePreviousWeek}
-                    className="flex-shrink-0 p-1.5 lg:p-2 hover:bg-gray-800 active:bg-gray-700 rounded-lg transition-colors group cursor-pointer focus:outline-none"
+                    className="flex-shrink-0 p-1.5 lg:p-2 hover:bg-gray-800 active:bg-gray-700 rounded-lg transition-colors group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     aria-label="Previous week"
                 >
                     <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6 text-gray-400 group-hover:text-white transition-colors" strokeWidth={3} />
@@ -82,6 +82,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                             transition-all duration-200 ease-out
                             hover:scale-105 active:scale-95 lg:shadow-lg lg:hover:shadow-xl
                             cursor-pointer
+                            focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
                             ${isTodayVisible ? 'invisible' : 'visible'}
                         `}
                         aria-label="Jump back to today"
@@ -108,11 +109,13 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                                 key={date.toISOString()}
                                 onClick={() => onDayChange(date)}
                                 data-active={isActive}
+                                aria-label={`${format(date, 'EEEE, MMMM d')}${isToday ? ' (today)' : ''}`}
                                 className={`
                     flex flex-col items-center justify-center 
                     min-w-[38px] min-h-[40px] py-1 px-1.5 rounded-lg
                     lg:min-w-[60px] lg:min-h-[48px] lg:py-2 lg:px-3 lg:rounded-xl
                     transition-all snap-center cursor-pointer
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
                     ${isActive
                                         ? 'bg-white text-black shadow-lg scale-105'
                                         : 'bg-gray-900 text-gray-400 hover:bg-gray-800 hover:text-white hover:scale-105 active:scale-95 active:bg-gray-700'
@@ -133,7 +136,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                 {/* Next Week Button */}
                 <button
                     onClick={handleNextWeek}
-                    className="flex-shrink-0 p-1.5 lg:p-2 hover:bg-gray-800 active:bg-gray-700 rounded-lg transition-colors group cursor-pointer focus:outline-none"
+                    className="flex-shrink-0 p-1.5 lg:p-2 hover:bg-gray-800 active:bg-gray-700 rounded-lg transition-colors group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-1 focus-visible:ring-offset-black"
                     aria-label="Next week"
                 >
                     <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-400 group-hover:text-white transition-colors" strokeWidth={3} />

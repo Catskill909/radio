@@ -130,6 +130,12 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Responsive Design** – Desktop and mobile layouts with collapsing headers
 - **Custom Floating Menu** – Configurable hamburger menu with drag-and-drop ordering, link to URLs or display custom modal content
 
+### ♿ Accessibility
+- **Keyboard Navigation** – Full keyboard support for all interactive elements with visible focus indicators
+- **Screen Reader Support** – ARIA labels on buttons, modals, and navigation elements
+- **Focus Management** – Modals trap focus inside and restore it when closed
+- **WCAG-Aligned** – Built with accessibility best practices using Radix UI primitives
+
 ## Tech Stack
 
 - **Frontend:** Next.js 14 (App Router), React, TypeScript, TailwindCSS

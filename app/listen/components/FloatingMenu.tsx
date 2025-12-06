@@ -86,7 +86,7 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
                         transition-all duration-300 ease-out
                         hover:bg-gray-700/90 hover:scale-105 hover:border-gray-600
                         active:scale-95 active:bg-gray-600/90
-                        focus:outline-none focus:ring-2 focus:ring-gray-500/50
+                        focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
                         cursor-pointer
                         ${isOpen ? 'rotate-90' : 'rotate-0'}
                     `}
@@ -157,7 +157,9 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
                                         group-hover:bg-gray-700/90 group-hover:scale-110 group-hover:border-gray-600
                                         active:scale-95 active:bg-gray-600/90
                                         cursor-pointer
+                                        focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
                                     "
+                                    aria-label={item.label}
                                 >
                                     <i
                                         className={`
@@ -171,6 +173,7 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
                             ) : (
                                 <button
                                     onClick={() => handleItemClick(item)}
+                                    aria-label={item.label}
                                     className="
                                         w-11 h-11 rounded-full
                                         bg-gray-800/90 backdrop-blur-sm
@@ -181,6 +184,7 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
                                         group-hover:bg-gray-700/90 group-hover:scale-110 group-hover:border-gray-600
                                         active:scale-95 active:bg-gray-600/90
                                         cursor-pointer
+                                        focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
                                     "
                                 >
                                     <i

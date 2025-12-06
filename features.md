@@ -465,6 +465,30 @@ StationDock is built with intentional design choices that prioritize a premium, 
 
 ---
 
+## 16. Accessibility
+
+**Status:** Shipped
+
+- **Keyboard Navigation**
+  - Full Tab navigation through all interactive elements
+  - Visible focus rings on buttons, tabs, and controls
+  - Arrow key navigation within date tabs
+  - Enter/Space activation for buttons and toggles
+- **Screen Reader Support**
+  - ARIA labels on all icon-only buttons (play/pause, close, navigation)
+  - Descriptive date labels on day tabs (e.g., "Friday, December 6")
+  - Proper heading hierarchy throughout the application
+- **Focus Management**
+  - Modals built with Radix Dialog for automatic focus trapping
+  - Focus returns to trigger element when modals close
+  - Escape key closes all modals
+- **Technical Implementation**
+  - `@radix-ui/react-dialog` for accessible modal primitives
+  - `eslint-plugin-jsx-a11y` for ongoing accessibility linting
+  - WCAG-aligned patterns for interactive elements
+
+---
+
 ## Future Features & Roadmap
 
 This section is intentionally lightweight – it is meant to be edited as priorities change.
