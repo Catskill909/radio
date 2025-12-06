@@ -74,7 +74,7 @@ export default function ShowModal({
                 <div className="absolute top-4 right-4 z-10">
                     <button
                         onClick={onClose}
-                        className="bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors backdrop-blur"
+                        className="bg-black/50 text-white w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/70 active:scale-95 transition-all backdrop-blur cursor-pointer"
                     >
                         <X className="w-5 h-5" />
                     </button>

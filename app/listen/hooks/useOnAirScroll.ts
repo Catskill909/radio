@@ -10,6 +10,9 @@ export function useOnAirScroll({ isLive, offset = 140 }: UseOnAirScrollProps) {
     const [hasScrolled, setHasScrolled] = useState(false);
 
     useEffect(() => {
+        // Scroll to live show when it appears (works on both mobile and desktop)
+        // Mobile layout is now correct - branding is below sticky player and scrolls naturally
+
         // Only scroll if this element is live and we haven't scrolled to it yet
         // We can reset hasScrolled when the live show changes in the parent component
         if (isLive && elementRef.current && !hasScrolled) {

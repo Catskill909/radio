@@ -85,6 +85,7 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
                         flex items-center justify-center
                         transition-all duration-300 ease-out
                         hover:bg-gray-700/90 hover:scale-105 hover:border-gray-600
+                        active:scale-95 active:bg-gray-600/90
                         focus:outline-none focus:ring-2 focus:ring-gray-500/50
                         cursor-pointer
                         ${isOpen ? 'rotate-90' : 'rotate-0'}
@@ -154,6 +155,7 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
                                         flex items-center justify-center
                                         transition-all duration-200
                                         group-hover:bg-gray-700/90 group-hover:scale-110 group-hover:border-gray-600
+                                        active:scale-95 active:bg-gray-600/90
                                         cursor-pointer
                                     "
                                 >
@@ -177,6 +179,7 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
                                         flex items-center justify-center
                                         transition-all duration-200
                                         group-hover:bg-gray-700/90 group-hover:scale-110 group-hover:border-gray-600
+                                        active:scale-95 active:bg-gray-600/90
                                         cursor-pointer
                                     "
                                 >

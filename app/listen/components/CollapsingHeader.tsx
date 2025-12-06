@@ -16,7 +16,8 @@ export default function CollapsingHeader({
     isPlaying,
     onPlayPause
 }: CollapsingHeaderProps) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    // Start collapsed - show compact player by default
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -91,7 +92,7 @@ export default function CollapsingHeader({
 
                         <button
                             onClick={onPlayPause}
-                            className="bg-white text-black rounded-full p-4 hover:scale-105 transition-transform shadow-lg"
+                            className="bg-white text-black rounded-full p-4 hover:scale-105 active:scale-95 transition-transform shadow-lg cursor-pointer"
                         >
                             {isPlaying ? (
                                 <Pause className="w-8 h-8 fill-current" />
@@ -103,10 +104,9 @@ export default function CollapsingHeader({
                 </div>
             </div>
 
-            {/* Collapsed Mini Player (Sticky) */}
+            {/* Collapsed Mini Player (Sticky - always visible) */}
             <div
-                className={`fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 transition-transform duration-300 ease-in-out ${isCollapsed ? 'translate-y-0' : '-translate-y-full'
-                    }`}
+                className="fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md border-b border-gray-800"
             >
                 <div className="flex items-center justify-between p-3 max-w-screen-xl mx-auto">
                     <div className="flex items-center gap-3 overflow-hidden">
@@ -123,7 +123,7 @@ export default function CollapsingHeader({
 
                     <button
                         onClick={onPlayPause}
-                        className="bg-white text-black rounded-full p-2 hover:scale-105 transition-transform ml-3 shrink-0"
+                        className="bg-white text-black rounded-full p-2.5 hover:scale-105 active:scale-95 transition-transform ml-3 shrink-0 cursor-pointer"
                     >
                         {isPlaying ? (
                             <Pause className="w-5 h-5 fill-current" />
@@ -134,8 +134,8 @@ export default function CollapsingHeader({
                 </div>
             </div>
 
-            {/* Spacer to prevent content jumping */}
-            <div className="h-[450px]" />
+            {/* Spacer to match compact header height (64px) */}
+            <div className="h-16" />
         </>
     );
 }

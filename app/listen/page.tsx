@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { addDays, startOfDay, subDays, differenceInCalendarDays } from 'date-fns';
-import CollapsingHeader from './components/CollapsingHeader';
+import { addDays, startOfDay, subDays, differenceInCalendarDays, isSameDay, startOfWeek } from 'date-fns';
+import MobileHeader from './components/MobileHeader';
 import TopPlayerBar from './components/TopPlayerBar'; // Desktop Header
 import DayTabs from './components/DayTabs';
 import DailySchedule from './components/DailySchedule';
@@ -25,7 +25,7 @@ export default function ListenPage() {
     const [menuEnabled, setMenuEnabled] = useState(true);
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
-    // Responsive check (Desktop >= 1024px)
+    // Responsive check (Desktop >= 1024px / lg breakpoint)
     const isDesktop = useMediaQuery('(min-width: 1024px)');
 
     // Modal State
@@ -74,7 +74,10 @@ export default function ListenPage() {
         }
     }, [selectedDay, viewStart]);
 
-    // Generate 7 days based on viewStart
+    // Generate days array for navigation
+    // When viewing current week: 7 days starting from today
+    // When viewing other weeks: 7 days of that week (navigation includes back-to-today button)
+    const today = startOfDay(new Date());
     const days = Array.from({ length: 7 }, (_, i) => addDays(viewStart, i));
 
     // Fetch Now Playing (Initial + Fallback Poll)
@@ -274,7 +277,7 @@ export default function ListenPage() {
             ) : (
                 /* Mobile Layout */
                 <>
-                    <CollapsingHeader
+                    <MobileHeader
                         nowPlaying={nowPlaying}
                         isPlaying={isPlaying}
                         onPlayPause={handlePlayPause}
