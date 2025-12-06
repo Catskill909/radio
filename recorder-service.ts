@@ -416,7 +416,130 @@ async function handleRecordingCompletion(recording: any, slot: any, filePath: st
     })
 }
 
+// Recover orphaned recordings (stuck in RECORDING status after service restart)
+async function recoverOrphanedRecordings() {
+    const now = new Date()
+
+    // Find recordings that are marked as RECORDING but their slot has ended
+    const orphanedRecordings = await prisma.recording.findMany({
+        where: {
+            status: 'RECORDING',
+            scheduleSlot: {
+                endTime: { lt: now }
+            }
+        },
+        include: {
+            scheduleSlot: {
+                include: { show: true }
+            }
+        }
+    })
+
+    if (orphanedRecordings.length === 0) return
+
+    console.log(`[RECOVERY] Found ${orphanedRecordings.length} orphaned recording(s)`)
+
+    for (const recording of orphanedRecordings) {
+        const showTitle = recording.scheduleSlot?.show?.title || 'Unknown'
+        const slotEnd = recording.scheduleSlot?.endTime
+        const filePath = path.join(RECORDINGS_DIR, recording.filePath || '')
+        const fileExists = recording.filePath && fs.existsSync(filePath)
+
+        console.log(`[RECOVERY] Finalizing: ${showTitle}`)
+
+        if (fileExists) {
+            // Get duration from file
+            let duration = 0
+            try {
+                duration = await new Promise<number>((resolve) => {
+                    ffmpeg.ffprobe(filePath, (err, metadata) => {
+                        if (!err && metadata?.format?.duration) {
+                            resolve(Math.round(metadata.format.duration))
+                        } else {
+                            resolve(Math.round((slotEnd!.getTime() - recording.startTime!.getTime()) / 1000))
+                        }
+                    })
+                })
+            } catch {
+                duration = Math.round((slotEnd!.getTime() - recording.startTime!.getTime()) / 1000)
+            }
+
+            const size = fs.statSync(filePath).size
+
+            // Update to COMPLETED
+            await prisma.recording.update({
+                where: { id: recording.id },
+                data: {
+                    status: 'COMPLETED',
+                    endTime: slotEnd,
+                    duration: duration,
+                    size: size
+                }
+            })
+
+            // Auto-publish episode if not exists
+            const existingEpisode = await prisma.episode.findUnique({
+                where: { recordingId: recording.id }
+            })
+
+            if (!existingEpisode && recording.scheduleSlot?.show) {
+                const show = recording.scheduleSlot.show
+                const formattedDate = new Date(recording.startTime!).toLocaleDateString('en-US', {
+                    month: 'long', day: 'numeric', year: 'numeric'
+                })
+
+                await prisma.episode.create({
+                    data: {
+                        recordingId: recording.id,
+                        title: `${show.title} - ${formattedDate}`,
+                        description: show.description || `Recorded episode of ${show.title}`,
+                        publishedAt: new Date(),
+                        duration: duration,
+                        host: show.host,
+                        imageUrl: show.image,
+                        tags: show.type
+                    }
+                })
+                console.log(`[RECOVERY] ✅ ${showTitle} - COMPLETED & published`)
+            } else {
+                console.log(`[RECOVERY] ✅ ${showTitle} - COMPLETED`)
+            }
+
+            // Broadcast completion event
+            broadcastRecordingEvent({
+                type: 'completed',
+                slotId: recording.scheduleSlotId || '',
+                recordingId: recording.id,
+                showTitle: showTitle,
+                showId: recording.scheduleSlot?.show?.id || '',
+                endTime: slotEnd?.toISOString(),
+                duration: duration
+            })
+        } else {
+            // Mark as FAILED since file doesn't exist
+            await prisma.recording.update({
+                where: { id: recording.id },
+                data: {
+                    status: 'FAILED',
+                    endTime: slotEnd
+                }
+            })
+            console.log(`[RECOVERY] ⚠️ ${showTitle} - FAILED (file missing)`)
+
+            broadcastRecordingEvent({
+                type: 'failed',
+                slotId: recording.scheduleSlotId || '',
+                recordingId: recording.id,
+                showTitle: showTitle,
+                showId: recording.scheduleSlot?.show?.id || '',
+                error: 'Recording file not found after service restart'
+            })
+        }
+    }
+}
+
 // Graceful Shutdown
+
 function cleanup() {
     console.log('Stopping recorder service...')
     for (const [slotId, command] of activeRecordings.entries()) {
@@ -520,6 +643,11 @@ async function extendRecurringShows() {
     }
 }
 
+// Recover any orphaned recordings on startup
+recoverOrphanedRecordings().then(() => {
+    console.log('Orphan recovery check complete.')
+})
+
 // Run schedule check every 10 seconds
 setInterval(checkSchedule, 10000)
 checkSchedule() // Initial run
@@ -535,4 +663,5 @@ checkShowTransitions() // Initial run
 console.log('Recorder service started.')
 console.log('Auto-extension enabled: recurring shows will be extended automatically.')
 console.log('Now Playing: monitoring for show transitions.')
+console.log('Orphan recovery: enabled on startup.')
 
