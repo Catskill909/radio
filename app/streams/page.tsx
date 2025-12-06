@@ -4,6 +4,10 @@ import HelpIcon from '@/components/HelpIcon';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+    title: 'Streams',
+};
+
 export default async function StreamsPage() {
     const streams = await getStreams();
 

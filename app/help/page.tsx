@@ -21,7 +21,7 @@ export default function HelpPage() {
                     Help & Support
                 </h1>
                 <p className="text-gray-400 mt-2">
-                    Get assistance with Radio Suite and learn how to make the most of your station.
+                    Get assistance with StationDock and learn how to make the most of your station.
                 </p>
             </div>
 
@@ -43,7 +43,7 @@ export default function HelpPage() {
                                     onClick={() => handleBrowseClick('welcome')}
                                     className="text-left hover:text-indigo-400 transition-colors hover:underline"
                                 >
-                                    Welcome to Radio Suite
+                                    Welcome to StationDock
                                 </button>
                             </li>
                             <li className="flex items-start gap-2">

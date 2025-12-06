@@ -3,8 +3,11 @@ import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
 
 export const metadata: Metadata = {
-  title: "Radio Suite",
-  description: "Radio Station Management System",
+  title: {
+    default: "StationDock",
+    template: "%s | StationDock",
+  },
+  description: "Modern Radio Station Management System",
 };
 
 export default function RootLayout({

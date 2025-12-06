@@ -3,6 +3,10 @@ import ShowsClient from '@/components/ShowsClient';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+    title: 'Shows',
+};
+
 export default async function ShowsPage() {
     const shows = await getShows();
     const streams = await getStreams();

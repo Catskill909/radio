@@ -3,6 +3,9 @@ import EpisodesClient from "@/components/EpisodesClient";
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+    title: 'Podcasts',
+};
 
 export default async function EpisodesPage() {
     const [shows, settings] = await Promise.all([

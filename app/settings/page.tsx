@@ -11,6 +11,10 @@ import DataManagement from "@/components/DataManagement";
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+    title: 'Settings',
+};
+
 export default async function SettingsPage() {
     const settings = await getStationSettings();
     const streams = await getStreams();

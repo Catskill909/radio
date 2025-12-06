@@ -4,6 +4,10 @@ import HelpIcon from '@/components/HelpIcon';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+    title: 'Recordings',
+};
+
 export default async function RecordingsPage() {
     const recordings = await getRecordings();
 

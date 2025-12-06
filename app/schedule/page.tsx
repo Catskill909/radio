@@ -6,6 +6,10 @@ import "./calendar-custom.css";
 // Force dynamic rendering to prevent caching issues with calendar navigation
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+    title: 'Schedule',
+};
+
 export default async function SchedulePage() {
     const slots = await getScheduleSlots();
     const shows = await getShows();
