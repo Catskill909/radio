@@ -191,6 +191,42 @@ export const helpArticles: Record<string, HelpArticle> = {
         filePath: '/content/help/settings/custom-menu.md',
         relatedTopics: ['public-listen-page', 'station-timezone'],
         keywords: ['menu', 'floating', 'hamburger', 'navigation', 'links', 'modal']
+    },
+    'station-settings': {
+        id: 'station-settings',
+        title: 'Station Settings Overview',
+        category: 'Settings & Configuration',
+        order: 0,
+        filePath: '/content/help/settings/station-settings.md',
+        relatedTopics: ['station-timezone', 'site-branding', 'station-identity'],
+        keywords: ['settings', 'configuration', 'preferences', 'overview']
+    },
+    'site-branding': {
+        id: 'site-branding',
+        title: 'Site Branding',
+        category: 'Settings & Configuration',
+        order: 5,
+        filePath: '/content/help/settings/site-branding.md',
+        relatedTopics: ['station-identity', 'public-listen-page'],
+        keywords: ['branding', 'logo', 'title', 'tagline', 'appearance']
+    },
+    'station-identity': {
+        id: 'station-identity',
+        title: 'Station Identity',
+        category: 'Settings & Configuration',
+        order: 6,
+        filePath: '/content/help/settings/station-identity.md',
+        relatedTopics: ['site-branding', 'rss-feed-management'],
+        keywords: ['station name', 'description', 'email', 'logo', 'identity']
+    },
+    'station-stream': {
+        id: 'station-stream',
+        title: 'Station Audio Stream',
+        category: 'Settings & Configuration',
+        order: 7,
+        filePath: '/content/help/settings/station-stream.md',
+        relatedTopics: ['adding-icecast-streams', 'public-listen-page'],
+        keywords: ['stream', 'audio', 'icecast', 'live', 'listen']
     }
 }
 

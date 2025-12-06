@@ -9,6 +9,33 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
 
 ---
 
+## Design Philosophy
+
+StationDock is built with intentional design choices that prioritize a premium, modern user experience:
+
+### Modern Space Utilization
+- **Full-viewport layouts** that use available screen real estate without feeling crowded
+- **Information-dense yet scannable** – schedule cards, show tiles, and player controls surface rich data in compact, readable formats
+- **Persistent elements done right** – the audio player is always accessible but never intrusive
+
+### Modal-First Architecture
+- **Context preservation** – modals keep users in their current flow instead of navigating to separate pages
+- **Progressive disclosure** – show details, episode info, and settings surface as focused overlays
+- **Actionable overlays** – the floating menu on `/listen` offers both URL links and custom modal content, going beyond typical implementations
+
+### Dark Theme Excellence
+- **More than "make it dark"** – proper contrast ratios, visual depth, and clear hierarchy
+- **Consistent across experiences** – admin dashboard and public listen page share the same refined aesthetic
+- **Subtle polish** – glassmorphism effects, smooth transitions, and hover states that feel premium
+
+### Attention to UX Details
+- **Time remaining pill** with ceiling-rounded math (never shows "0m" while a show is live)
+- **Loading states everywhere** – spinners during buffering, stale-data indicators, progress feedback
+- **Auto-scroll behaviors** – modals scroll to reveal relevant options when state changes
+- **Responsive by default** – desktop and mobile layouts adapt without compromising functionality
+
+---
+
 ## 1. Show Management
 
 **Status:** Shipped
@@ -490,9 +517,9 @@ This section is intentionally lightweight – it is meant to be edited as priori
 - **WebSocket Real-Time Updates** 🔄
   - **Stream Health Alerts** ✅ **SHIPPED**: Instant notifications when streams go offline (Live indicator on Streams page)
   - **Foundation** ✅ **SHIPPED**: Socket.IO server running at `/api/socket` with client hook
-  - **Instant Show Transitions**: Replace 30-second polling with WebSocket push notifications (planned)
-  - **Live Listener Count**: Real-time display of active listeners on public page (planned)
-  - **Recording Status Broadcasting**: Live progress updates for active recordings in admin dashboard (planned)
+  - **Instant Show Transitions** ✅ **SHIPPED**: Now Playing updates pushed at show transition time via recorder-service
+  - **Live Listener Count** ✅ **SHIPPED**: Real-time site listener count on Stats dashboard
+  - **Recording Status Broadcasting** ✅ **SHIPPED**: Recording started/completed/failed events pushed to Stats dashboard
   - **Schedule Sync**: Multi-user admin environments see schedule changes instantly (planned)
   - **Benefits**: 
     - Zero-latency updates (no polling delay)
@@ -502,22 +529,20 @@ This section is intentionally lightweight – it is meant to be edited as priori
     - Socket.IO with WebSocket-only transport (no polling fallback needed)
     - Automatic reconnection handling
     - Fallback polling at reduced frequency when connected
-  - **Use Cases**:
-    - Now Playing updates pushed at exact show transition time
-    - Icecast listener stats updated every few seconds
-    - Recording start/stop/complete notifications to admin
-    - Live editing collaboration (see others' schedule changes)
 
-- **Public-Facing Listener Experience** (Inspired by Airtime Pro & LibreTime)
-  - **Station Microsite**: A dedicated public landing page (`/public`) featuring:
-    - "On Air Now" player with live metadata
-    - Visual weekly schedule grid (read-only version of admin calendar)
-    - Show pages with descriptions, host bios, and episode archives
-  - **Embeddable Widgets**:
-    - **Schedule Widget**: Drop-in script to show "Upcoming Shows" on external station websites
-    - **Player Widget**: Portable live stream player
-    - **Now Playing**: Simple JSON/HTML endpoint for current show metadata
-  - **Public API**: Read-only REST API for developers to build custom frontends
+- **Public-Facing Listener Experience** ✅ **SHIPPED** (Exceeds original vision)
+  - **Full Listen Page** (`/listen`): Premium public experience featuring:
+    - Full-featured audio player with show artwork, title, host, LIVE badge, and time remaining
+    - Tabbed 7-day schedule navigation with intuitive day switching
+    - Clickable show cards with detailed modals (description, host, type, podcast links)
+    - Responsive desktop and mobile layouts
+    - Loading states and buffering feedback
+  - **Custom Floating Menu**: Configurable hamburger menu with drag-and-drop ordering, URL or modal actions
+  - **Now Playing API**: `/api/public/now-playing` for current show metadata
+  - **Public Schedule API**: `/api/public/schedule` for week schedule data
+  - **Remaining (Embeddable Widgets)**:
+    - Schedule Widget: Drop-in script for external websites (planned)
+    - Player Widget: Portable embed player (planned)
 
 - **Analytics & Reporting**
   - Per-show and per-episode download counts

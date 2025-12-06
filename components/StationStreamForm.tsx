@@ -48,7 +48,13 @@ export default function StationStreamForm({ initialStreamUrl, availableStreams }
                     Station Audio Stream
                 </h2>
                 <p className="text-sm text-gray-400 mt-1">
-                    Select the Icecast stream to play on the public Listen page.
+                    Select the Icecast stream to play on the public Listen page.{' '}
+                    <a
+                        href="/streams"
+                        className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
+                    >
+                        Manage streams →
+                    </a>
                 </p>
             </div>
 
