@@ -172,5 +172,5 @@ graph TD
 - **Fix:** Ensure you are using the Dynamic Serving route (`/app/uploads/[filename]/route.ts`) and the volume is at `/app/uploads`.
 
 ### "Column ... does not exist"
-- **Cause:** Database migrations haven't been run.
-- **Fix:** Run `npx prisma migrate deploy` in the Coolify terminal.
+- **Cause:** Schema changes were deployed but the production database wasn't migrated.
+- **Fix:** Run `npx prisma db push` in the Coolify terminal, then restart the app with `pm2 restart all`.
