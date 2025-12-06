@@ -1,10 +1,11 @@
-import { getStationSettings, getStreams } from "@/app/actions";
+import { getStationSettings, getStreams, getMenuSettings } from "@/app/actions";
 import StationClock from "@/components/StationClock";
 import StationIdentityForm from "@/components/StationIdentityForm";
 import StationTimezoneForm from "@/components/StationTimezoneForm";
 import StationStreamForm from "@/components/StationStreamForm";
 import AudioEncodingSettings from "@/components/AudioEncodingSettings";
 import SiteBrandingForm from "@/components/SiteBrandingForm";
+import CustomMenuForm from "@/components/CustomMenuForm";
 import HelpIcon from '@/components/HelpIcon';
 import DataManagement from "@/components/DataManagement";
 
@@ -13,6 +14,7 @@ export const dynamic = 'force-dynamic';
 export default async function SettingsPage() {
     const settings = await getStationSettings();
     const streams = await getStreams();
+    const menuSettings = await getMenuSettings();
     const timezone = settings.timezone || "UTC";
 
     return (
@@ -46,6 +48,18 @@ export default async function SettingsPage() {
                             showSiteTitle: settings.showSiteTitle as boolean | undefined,
                             showSiteTagline: settings.showSiteTagline as boolean | undefined,
                         }}
+                    />
+                </section>
+
+                {/* Full Width: Custom Menu (Public Front-End) */}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        Custom Menu
+                        <HelpIcon articleId="custom-menu" tooltip="Configure the floating menu on your public listen page." />
+                    </h2>
+                    <CustomMenuForm
+                        initialMenuEnabled={menuSettings.menuEnabled}
+                        initialMenuItems={menuSettings.menuItems}
                     />
                 </section>
 

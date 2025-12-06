@@ -144,6 +144,13 @@ Use this file to keep product scope and roadmap aligned with the actual codebase
   - "Now Playing" metadata fetched from `/api/public/now-playing`
   - Time remaining countdown based on schedule
   - Show details and artwork displayed in player
+- **Custom Floating Menu**
+  - Configurable hamburger-style menu in bottom-right corner
+  - Up to 8 menu items with drag-and-drop reordering
+  - Two action types: URL (opens in new tab) or Modal (popup overlay)
+  - Font Awesome icon picker with live preview
+  - Master toggle to show/hide entire menu
+  - Settings UI in admin panel for easy configuration
 
 ---
 

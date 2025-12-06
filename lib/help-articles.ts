@@ -182,6 +182,15 @@ export const helpArticles: Record<string, HelpArticle> = {
         filePath: '/content/help/settings/import-export-data.md',
         relatedTopics: ['station-settings', 'creating-your-first-show'],
         keywords: ['import', 'export', 'backup', 'migrate', 'transfer', 'zip']
+    },
+    'custom-menu': {
+        id: 'custom-menu',
+        title: 'Custom Menu',
+        category: 'Settings & Configuration',
+        order: 4,
+        filePath: '/content/help/settings/custom-menu.md',
+        relatedTopics: ['public-listen-page', 'station-timezone'],
+        keywords: ['menu', 'floating', 'hamburger', 'navigation', 'links', 'modal']
     }
 }
 

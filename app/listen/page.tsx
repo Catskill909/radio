@@ -8,7 +8,7 @@ import DayTabs from './components/DayTabs';
 import DailySchedule from './components/DailySchedule';
 import ShowModal from './components/ShowModal';
 import ShowModalDesktop from './components/ShowModalDesktop';
-import FloatingMenu from './components/FloatingMenu';
+import FloatingMenu, { MenuItem } from './components/FloatingMenu';
 import { useMediaQuery } from './hooks/useMediaQuery';
 import { NowPlayingData, ScheduleSlot, Episode } from './components/types';
 import { useSocket } from '@/hooks/useSocket';
@@ -20,6 +20,10 @@ export default function ListenPage() {
     const [selectedDay, setSelectedDay] = useState<Date>(new Date());
     const [scheduleSlots, setScheduleSlots] = useState<ScheduleSlot[]>([]);
     const [loadingSchedule, setLoadingSchedule] = useState(false);
+
+    // Menu Settings State
+    const [menuEnabled, setMenuEnabled] = useState(true);
+    const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
     // Responsive check (Desktop >= 1024px)
     const isDesktop = useMediaQuery('(min-width: 1024px)');
@@ -113,9 +117,9 @@ export default function ListenPage() {
     const [isLoadingStream, setIsLoadingStream] = useState(false);
     const [streamError, setStreamError] = useState<string | null>(null);
 
-    // Fetch Stream URL
+    // Fetch Stream URL and Menu Settings
     useEffect(() => {
-        import('@/app/actions').then(({ getStationSettings }) => {
+        import('@/app/actions').then(({ getStationSettings, getMenuSettings }) => {
             getStationSettings().then((settings: any) => {
                 if (settings.streamUrl) {
                     setStreamUrl(settings.streamUrl);
@@ -126,6 +130,14 @@ export default function ListenPage() {
             }).catch(err => {
                 console.error('Failed to load stream settings:', err);
                 setStreamError('Failed to load stream configuration.');
+            });
+
+            // Fetch menu settings
+            getMenuSettings().then((menuSettings: { menuEnabled: boolean; menuItems: MenuItem[] }) => {
+                setMenuEnabled(menuSettings.menuEnabled);
+                setMenuItems(menuSettings.menuItems);
+            }).catch(err => {
+                console.error('Failed to load menu settings:', err);
             });
         });
     }, []);
@@ -300,7 +312,7 @@ export default function ListenPage() {
             )}
 
             {/* Floating Menu FAB */}
-            <FloatingMenu />
+            <FloatingMenu menuEnabled={menuEnabled} menuItems={menuItems} />
         </div>
     );
 }

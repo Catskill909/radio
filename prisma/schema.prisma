@@ -124,6 +124,10 @@ model StationSettings {
   audioSampleRate Int?                            // 22050, 44100, 48000 (null = auto)
   audioVBR        Boolean @default(true)          // true = VBR, false = CBR
   
+  // Custom Menu Settings (Public Front-End)
+  menuEnabled     Boolean @default(true)          // Master toggle for floating menu visibility
+  menuItems       String?                         // JSON array of menu items
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

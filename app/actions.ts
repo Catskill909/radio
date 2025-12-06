@@ -1482,3 +1482,51 @@ export async function updateStationSettings(formData: FormData) {
     revalidatePath("/listen"); // Revalidate listen page as it uses branding settings
 }
 
+// ============================================
+// Custom Menu Settings Actions
+// ============================================
+
+interface MenuItem {
+    id: string;
+    order: number;
+    label: string;
+    icon: string;
+    actionType: 'url' | 'modal';
+    url?: string;
+    modalHeader?: string;
+    modalBody?: string;
+}
+
+export async function updateMenuSettings(menuEnabled: boolean, menuItems: MenuItem[]) {
+    await prisma.stationSettings.upsert({
+        where: { id: 'station' },
+        update: {
+            menuEnabled,
+            menuItems: JSON.stringify(menuItems)
+        },
+        create: {
+            id: 'station',
+            timezone: 'UTC',
+            menuEnabled,
+            menuItems: JSON.stringify(menuItems)
+        }
+    });
+
+    revalidatePath("/settings");
+    revalidatePath("/listen");
+}
+
+export async function getMenuSettings() {
+    const settings = await prisma.stationSettings.findUnique({
+        where: { id: 'station' },
+        select: {
+            menuEnabled: true,
+            menuItems: true
+        }
+    });
+
+    return {
+        menuEnabled: settings?.menuEnabled ?? true,
+        menuItems: settings?.menuItems ? JSON.parse(settings.menuItems) : []
+    };
+}
