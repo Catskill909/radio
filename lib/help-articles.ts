@@ -154,7 +154,7 @@ export const helpArticles: Record<string, HelpArticle> = {
         order: 2,
         filePath: '/content/help/settings/api-reference.md',
         relatedTopics: ['rss-feed-management', 'user-guide'],
-        keywords: ['api', 'developer', 'endpoints', 'json']
+        keywords: ['api', 'developer', 'endpoints', 'json', 'now-playing', 'schedule', 'shows', 'station', 'streams', 'recordings', 'rss', 'feed', 'pagination', 'limit', 'integration', 'mobile app', 'widget']
     },
     'editing-episodes': {
         id: 'editing-episodes',

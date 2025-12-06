@@ -489,6 +489,36 @@ StationDock is built with intentional design choices that prioritize a premium, 
 
 ---
 
+## 17. Public API
+
+**Status:** Shipped
+
+StationDock provides a comprehensive JSON API for integrating with external apps, websites, and mobile applications.
+
+- **Core Endpoints**
+  - `GET /api/public/now-playing` – Current show, next show, station branding
+  - `GET /api/public/schedule` – Schedule slots for date range with show details
+  - `GET /api/public/shows` – All shows with pagination, filtering, and sorting
+  - `GET /api/public/shows/[id]` – Single show details with episodes
+  - `GET /api/public/station` – Station metadata, branding, and stream URL
+  - `GET /api/public/streams` – Enabled streams with health status
+  - `GET /api/public/recordings` – Completed recordings archive
+  - `GET /api/public/podcasts` – Shows with full RSS feed URLs (environment-aware)
+- **RSS Feeds**
+  - `GET /api/feed` – Global RSS 2.0 feed for all published episodes
+  - `GET /api/feed/show/[showId]` – Per-show iTunes-compatible RSS feed
+- **Pagination & Filtering**
+  - All list endpoints support `?limit=10&offset=0&sort=recent` query parameters
+  - Filter shows by type (`?type=Music`) or host (`?host=DJ`)
+  - Sort options: `recent`, `oldest`, `alphabetical`
+- **Use Cases**
+  - Mobile app integration (now playing + schedule + shows)
+  - Website widgets (now playing display)
+  - External schedule displays (lobby screens, digital signage)
+  - Podcast directory submission (RSS feeds)
+
+---
+
 ## Future Features & Roadmap
 
 This section is intentionally lightweight – it is meant to be edited as priorities change.

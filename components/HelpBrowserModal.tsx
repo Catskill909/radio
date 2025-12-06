@@ -62,12 +62,12 @@ export default function HelpBrowserModal({ isOpen, onClose, initialArticleId = '
         }
     }
 
-    // Load initial article when modal opens
+    // Load the initialArticleId when modal opens
     useEffect(() => {
-        if (isOpen && currentArticleId) {
-            loadArticle(currentArticleId)
+        if (isOpen) {
+            loadArticle(initialArticleId)
         }
-    }, [isOpen, currentArticleId])
+    }, [isOpen, initialArticleId])
 
     return (
         <Transition appear show={isOpen} as={Fragment}>

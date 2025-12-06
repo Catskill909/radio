@@ -136,6 +136,29 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Focus Management** – Modals trap focus inside and restore it when closed
 - **WCAG-Aligned** – Built with accessibility best practices using Radix UI primitives
 
+### 🔌 Public API
+StationDock provides a comprehensive JSON API for integrating with external apps, websites, and services:
+
+**Core Endpoints:**
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/public/now-playing` | Current show, next show, station branding |
+| `GET /api/public/schedule` | Schedule slots for date range |
+| `GET /api/public/shows` | All shows with pagination |
+| `GET /api/public/shows/[id]` | Single show details |
+| `GET /api/public/station` | Station metadata & branding |
+| `GET /api/public/streams` | Enabled streams with health |
+| `GET /api/public/recordings` | Completed recordings archive |
+| `GET /api/public/podcasts` | Shows with full RSS feed URLs |
+
+**RSS Feeds:**
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/feed` | Global RSS feed (all shows) |
+| `GET /api/feed/show/[showId]` | Per-show iTunes-compatible RSS |
+
+**Pagination:** All list endpoints support `?limit=10&offset=0&sort=recent` query parameters.
+
 ## Tech Stack
 
 - **Frontend:** Next.js 14 (App Router), React, TypeScript, TailwindCSS
