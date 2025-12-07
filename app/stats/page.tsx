@@ -13,7 +13,8 @@ import {
     XCircle,
     Clock,
     Play,
-    AlertTriangle
+    AlertTriangle,
+    Loader2
 } from 'lucide-react'
 import StationClock from '@/components/StationClock'
 import HelpIcon from '@/components/HelpIcon'
@@ -41,6 +42,8 @@ export default function StatsPage() {
     const [siteListeners, setSiteListeners] = useState(0)
     const [isMounted, setIsMounted] = useState(false)
     const [timezone, setTimezone] = useState('UTC')
+    const [isLoadingStreams, setIsLoadingStreams] = useState(true)
+    const [isLoadingRecordings, setIsLoadingRecordings] = useState(true)
 
     // Avoid hydration mismatch
     useEffect(() => {
@@ -139,6 +142,7 @@ export default function StatsPage() {
 
     // Fetch initial stream data
     useEffect(() => {
+        setIsLoadingStreams(true)
         fetch('/api/streams')
             .then(res => res.json())
             .then(data => {
@@ -152,10 +156,12 @@ export default function StatsPage() {
                 }
             })
             .catch(err => console.error('Failed to fetch streams:', err))
+            .finally(() => setIsLoadingStreams(false))
     }, [])
 
     // Fetch recent recordings on page load
     useEffect(() => {
+        setIsLoadingRecordings(true)
         fetch('/api/stats/recent-recordings')
             .then(res => res.json())
             .then(data => {
@@ -169,6 +175,7 @@ export default function StatsPage() {
                 }
             })
             .catch(err => console.error('Failed to fetch recent recordings:', err))
+            .finally(() => setIsLoadingRecordings(false))
     }, [])
 
     const onlineStreams = streams.filter(s => s.status === 'online').length
@@ -242,7 +249,11 @@ export default function StatsPage() {
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Online</span>
-                                <span className="text-green-400">{onlineStreams} / {streams.length}</span>
+                                {isLoadingStreams ? (
+                                    <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                                ) : (
+                                    <span className="text-green-400">{onlineStreams} / {streams.length}</span>
+                                )}
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Site Listeners</span>
@@ -260,7 +271,11 @@ export default function StatsPage() {
                         <div className="space-y-2">
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Recent Events</span>
-                                <span className="text-gray-200">{recordingEvents.length}</span>
+                                {isLoadingRecordings ? (
+                                    <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                                ) : (
+                                    <span className="text-gray-200">{recordingEvents.length}</span>
+                                )}
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Last Activity</span>
@@ -288,7 +303,12 @@ export default function StatsPage() {
                             View All →
                         </a>
                     </div>
-                    {recordingEvents.length === 0 ? (
+                    {isLoadingRecordings ? (
+                        <div className="flex items-center justify-center py-8 gap-3">
+                            <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                            <span className="text-gray-400">Loading recording events...</span>
+                        </div>
+                    ) : recordingEvents.length === 0 ? (
                         <p className="text-gray-500 text-center py-4">
                             No recording events yet. Events will appear here in real-time when recordings start, complete, or fail.
                         </p>
@@ -329,7 +349,12 @@ export default function StatsPage() {
                         <Radio className="w-5 h-5 text-gray-400" />
                         Stream Status
                     </h2>
-                    {streams.length === 0 ? (
+                    {isLoadingStreams ? (
+                        <div className="flex items-center justify-center py-8 gap-3">
+                            <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                            <span className="text-gray-400">Loading streams...</span>
+                        </div>
+                    ) : streams.length === 0 ? (
                         <p className="text-gray-500 text-center py-4">No streams configured.</p>
                     ) : (
                         <div className="space-y-2">
