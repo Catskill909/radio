@@ -568,35 +568,15 @@ This section is intentionally lightweight – it is meant to be edited as priori
 
 ### P2 – Medium-Term
 
-- **WebSocket Real-Time Updates** 🔄
-  - **Stream Health Alerts** ✅ **SHIPPED**: Instant notifications when streams go offline (Live indicator on Streams page)
-  - **Foundation** ✅ **SHIPPED**: Socket.IO server running at `/api/socket` with client hook
-  - **Instant Show Transitions** ✅ **SHIPPED**: Now Playing updates pushed at show transition time via recorder-service
-  - **Live Listener Count** ✅ **SHIPPED**: Real-time site listener count on Stats dashboard
-  - **Recording Status Broadcasting** ✅ **SHIPPED**: Recording started/completed/failed events pushed to Stats dashboard
-  - **Schedule Sync**: Multi-user admin environments see schedule changes instantly (planned)
-  - **Benefits**: 
-    - Zero-latency updates (no polling delay)
-    - Reduced server load (only sends when data changes)
-    - Enhanced user experience across admin and public interfaces
-  - **Implementation**: 
-    - Socket.IO with WebSocket-only transport (no polling fallback needed)
-    - Automatic reconnection handling
-    - Fallback polling at reduced frequency when connected
+- **WebSocket Schedule Sync** (Planned)
+  - Multi-user admin environments see schedule changes instantly
+  - Real-time slot creation/deletion pushed to all connected clients
+  - Benefits: Zero-latency updates for collaborative editing
 
-- **Public-Facing Listener Experience** ✅ **SHIPPED** (Exceeds original vision)
-  - **Full Listen Page** (`/listen`): Premium public experience featuring:
-    - Full-featured audio player with show artwork, title, host, LIVE badge, and time remaining
-    - Tabbed 7-day schedule navigation with intuitive day switching
-    - Clickable show cards with detailed modals (description, host, type, podcast links)
-    - Responsive desktop and mobile layouts
-    - Loading states and buffering feedback
-  - **Custom Floating Menu**: Configurable hamburger menu with drag-and-drop ordering, URL or modal actions
-  - **Now Playing API**: `/api/public/now-playing` for current show metadata
-  - **Public Schedule API**: `/api/public/schedule` for week schedule data
-  - **Remaining (Embeddable Widgets)**:
-    - Schedule Widget: Drop-in script for external websites (planned)
-    - Player Widget: Portable embed player (planned)
+- **Embeddable Widgets** (Planned)
+  - **Schedule Widget**: Drop-in `<script>` for external websites showing day's schedule
+  - **Player Widget**: Portable embed player with now-playing display
+  - Configurable styling to match host site
 
 - **Analytics & Reporting**
   - Per-show and per-episode download counts
