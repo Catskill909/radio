@@ -52,7 +52,7 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
     return (
         // Mobile: top-[64px] to be below MobileHeader (pt-3 + content + pb-3 ≈ 64px)
         // Desktop: lg:top-[100px] to be below TopPlayerBar (lg: overrides mobile value)
-        <div className="sticky top-[64px] lg:top-[100px] z-30 bg-black/95 backdrop-blur lg:border-b lg:border-gray-800">
+        <div className="sticky top-[64px] lg:top-[100px] z-30 bg-black/95 backdrop-blur">
             <div className="flex items-center justify-between gap-0 px-1 lg:justify-center lg:gap-2 lg:px-4">
                 {/* Previous Week Button */}
                 <button

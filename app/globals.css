@@ -43,6 +43,16 @@ body {
   background: #475569;
 }
 
+/* Hide scrollbar utility class */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 /* Calendar Overrides for High Contrast */
 .rbc-calendar {
   color: #e2e8f0 !important;
