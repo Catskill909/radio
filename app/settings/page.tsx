@@ -23,20 +23,30 @@ export default async function SettingsPage() {
 
     return (
         <div className="h-full flex flex-col">
-            <div className="mb-6 flex items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
-                        Settings
-                        <HelpIcon articleId="station-settings" tooltip="Configure station-wide preferences like timezone and identity." />
-                    </h1>
-                    <p className="text-gray-400 mt-2">Configure station-wide preferences like timezone and identity.</p>
+            {/* Sticky Header */}
+            <div className="sticky top-0 z-20 bg-gray-950 pb-6 relative">
+                <div className="flex items-center justify-between gap-4 pt-6 px-6">
+                    <div>
+                        <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
+                            Settings
+                            <HelpIcon articleId="station-settings" tooltip="Configure station-wide preferences like timezone and identity." />
+                        </h1>
+                        <p className="text-gray-400 mt-2">Configure station-wide preferences like timezone and identity.</p>
+                    </div>
+                    <div className="flex-shrink-0">
+                        <StationClock timezone={timezone} />
+                    </div>
                 </div>
-                <div className="flex-shrink-0">
-                    <StationClock timezone={timezone} />
-                </div>
+                {/* Gradient fade extending below header */}
+                <div
+                    className="absolute left-0 right-0 h-6 pointer-events-none"
+                    style={{
+                        bottom: '-24px',
+                        background: 'linear-gradient(to bottom, rgb(3, 7, 18) 0%, transparent 100%)'
+                    }}
+                />
             </div>
-
-            <div className="flex-1 overflow-y-auto pb-8 pr-4 space-y-8">
+            <div className="flex-1 overflow-y-auto pb-8 pr-4 pt-6 space-y-8 px-6">
                 {/* Full Width: Site Branding (Public Front-End) */}
                 <section>
                     <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">

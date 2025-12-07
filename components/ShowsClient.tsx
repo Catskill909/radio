@@ -79,130 +79,145 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
 
     return (
         <>
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
-                        Shows
-                        <HelpIcon articleId="creating-your-first-show" tooltip="Learn about creating shows" />
-                    </h1>
-                    <Link
-                        href="/shows/new"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"
-                    >
-                        <Plus className="w-5 h-5" />
-                        Create Show
-                    </Link>
-                </div>
-
-                {/* Search Box */}
-                <div className="relative max-w-2xl">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Search className="w-5 h-5 text-gray-500" />
+            <div className="h-full flex flex-col">
+                {/* Sticky Header */}
+                <div className="sticky top-0 z-10 bg-gray-950 pb-4 pt-6 px-6 space-y-6 relative">
+                    <div className="flex items-center justify-between">
+                        <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
+                            Shows
+                            <HelpIcon articleId="creating-your-first-show" tooltip="Learn about creating shows" />
+                        </h1>
+                        <Link
+                            href="/shows/new"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Create Show
+                        </Link>
                     </div>
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search shows by title, host, type, or tags..."
-                        className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-11 pr-11 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-all"
-                    />
+
+                    {/* Search Box */}
+                    <div className="relative max-w-2xl">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search className="w-5 h-5 text-gray-500" />
+                        </div>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search shows by title, host, type, or tags..."
+                            className="w-full bg-gray-900 border border-gray-800 rounded-lg pl-11 pr-11 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-all"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Results count when searching */}
                     {searchQuery && (
-                        <button
-                            onClick={() => setSearchQuery('')}
-                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
+                        <p className="text-sm text-gray-400">
+                            Found {filteredShows.length} {filteredShows.length === 1 ? 'show' : 'shows'}
+                        </p>
                     )}
+
+                    {/* Gradient fade extending below header */}
+                    <div
+                        className="absolute left-0 right-0 h-6 pointer-events-none"
+                        style={{
+                            bottom: '-24px',
+                            background: 'linear-gradient(to bottom, rgb(3, 7, 18) 0%, transparent 100%)'
+                        }}
+                    />
                 </div>
 
-                {/* Results count when searching */}
-                {searchQuery && (
-                    <p className="text-sm text-gray-400">
-                        Found {filteredShows.length} {filteredShows.length === 1 ? 'show' : 'shows'}
-                    </p>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {filteredShows.map((show) => (
-                        <div
-                            key={show.id}
-                            className="bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden hover:border-[#444] transition-all shadow-md flex flex-col"
-                        >
-                            <div className="flex flex-row h-full">
-                                {(show.image || stationLogoUrl) && (
-                                    <div className="w-1/3 relative shrink-0">
-                                        <img
-                                            src={getImageUrl(show.image || stationLogoUrl, 'card') || ''}
-                                            alt={show.title}
-                                            className="w-full h-full object-cover absolute inset-0"
-                                        />
-                                    </div>
-                                )}
-                                <div className={`flex-1 p-5 flex flex-col ${(show.image || stationLogoUrl) ? 'w-2/3' : 'w-full'}`}>
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h2 className="text-lg font-medium text-gray-100 leading-tight mb-1">{show.title}</h2>
-                                            {show.host && (
-                                                <p className="text-xs text-gray-400">Host: {show.host}</p>
-                                            )}
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto px-6 pb-6 pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {filteredShows.map((show) => (
+                            <div
+                                key={show.id}
+                                className="bg-[#1e1e1e] border border-[#333] rounded-lg overflow-hidden hover:border-[#444] transition-all shadow-md flex flex-col"
+                            >
+                                <div className="flex flex-row h-full">
+                                    {(show.image || stationLogoUrl) && (
+                                        <div className="w-1/3 relative shrink-0">
+                                            <img
+                                                src={getImageUrl(show.image || stationLogoUrl, 'card') || ''}
+                                                alt={show.title}
+                                                className="w-full h-full object-cover absolute inset-0"
+                                            />
                                         </div>
-                                        <span className="text-xs font-medium text-gray-400 bg-[#2a2a2a] px-2 py-0.5 rounded border border-[#333]">
-                                            {show.type}
-                                        </span>
-                                    </div>
-
-                                    {show.description && (
-                                        <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-grow">{show.description}</p>
                                     )}
+                                    <div className={`flex-1 p-5 flex flex-col ${(show.image || stationLogoUrl) ? 'w-2/3' : 'w-full'}`}>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div>
+                                                <h2 className="text-lg font-medium text-gray-100 leading-tight mb-1">{show.title}</h2>
+                                                {show.host && (
+                                                    <p className="text-xs text-gray-400">Host: {show.host}</p>
+                                                )}
+                                            </div>
+                                            <span className="text-xs font-medium text-gray-400 bg-[#2a2a2a] px-2 py-0.5 rounded border border-[#333]">
+                                                {show.type}
+                                            </span>
+                                        </div>
 
-                                    <div className="flex items-center gap-2 mt-auto pt-2">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedShow(show)
-                                                setRssModalOpen(true)
-                                            }}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors"
-                                        >
-                                            <Rss className="w-3 h-3" />
-                                            Feed
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setSelectedShow(show)
-                                                setEditModalOpen(true)
-                                            }}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors"
-                                        >
-                                            <Edit className="w-3 h-3" />
-                                            Edit
-                                        </button>
-                                        <div className="flex-grow"></div>
-                                        <Tooltip content="Delete Show">
+                                        {show.description && (
+                                            <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-grow">{show.description}</p>
+                                        )}
+
+                                        <div className="flex items-center gap-2 mt-auto pt-2">
                                             <button
                                                 onClick={() => {
                                                     setSelectedShow(show)
-                                                    setDeleteModalOpen(true)
+                                                    setRssModalOpen(true)
                                                 }}
-                                                className="flex items-center justify-center p-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded transition-colors"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors"
                                             >
-                                                <Trash2 className="w-3 h-3" />
+                                                <Rss className="w-3 h-3" />
+                                                Feed
                                             </button>
-                                        </Tooltip>
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedShow(show)
+                                                    setEditModalOpen(true)
+                                                }}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors"
+                                            >
+                                                <Edit className="w-3 h-3" />
+                                                Edit
+                                            </button>
+                                            <div className="flex-grow"></div>
+                                            <Tooltip content="Delete Show">
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedShow(show)
+                                                        setDeleteModalOpen(true)
+                                                    }}
+                                                    className="flex items-center justify-center p-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded transition-colors"
+                                                >
+                                                    <Trash2 className="w-3 h-3" />
+                                                </button>
+                                            </Tooltip>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
 
-                    {filteredShows.length === 0 && (
-                        <div className="col-span-full text-center py-12 text-gray-500">
-                            {searchQuery
-                                ? `No shows found matching "${searchQuery}"`
-                                : 'No shows created yet. Click "Create Show" to get started.'
-                            }
-                        </div>
-                    )}
+                        {filteredShows.length === 0 && (
+                            <div className="col-span-full text-center py-12 text-gray-500">
+                                {searchQuery
+                                    ? `No shows found matching "${searchQuery}"`
+                                    : 'No shows created yet. Click "Create Show" to get started.'
+                                }
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

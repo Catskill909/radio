@@ -177,7 +177,7 @@ export default function StatsPage() {
     return (
         <div className="h-full flex flex-col">
             {/* Sticky Header */}
-            <div className="sticky top-0 z-10 bg-gray-950 pb-4 pt-6 px-6 flex items-center justify-between gap-4">
+            <div className="sticky top-0 z-10 bg-gray-950 pb-4 pt-6 px-6 flex items-center justify-between gap-4 relative">
                 <div>
                     <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
                         Station Stats
@@ -200,10 +200,18 @@ export default function StatsPage() {
                 <div className="flex-shrink-0">
                     <StationClock timezone={timezone} />
                 </div>
+                {/* Gradient fade extending below header */}
+                <div
+                    className="absolute left-0 right-0 h-6 pointer-events-none"
+                    style={{
+                        bottom: '-24px',
+                        background: 'linear-gradient(to bottom, rgb(3, 7, 18) 0%, transparent 100%)'
+                    }}
+                />
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-6">
+            <div className="flex-1 overflow-y-auto px-6 pb-6 pt-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* WebSocket Status */}
                     <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
