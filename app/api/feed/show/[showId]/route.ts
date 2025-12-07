@@ -158,6 +158,7 @@ export async function GET(
                 { "itunes:duration": (episode as any).duration || 0 },
                 { "itunes:explicit": (episode as any).explicit ? "yes" : "no" },
                 ...(episodeImage ? [{ "itunes:image": { _attr: { href: episodeImage } } }] : []),
+                ...((episode as any).tags ? [{ "itunes:keywords": (episode as any).tags }] : []),
             ],
         });
     });
