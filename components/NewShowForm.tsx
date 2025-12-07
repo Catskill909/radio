@@ -42,6 +42,10 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
             newErrors.type = "Please select a show type";
         }
 
+        if (!categoryValue) {
+            newErrors.category = "Please select a category";
+        }
+
         // If there are errors, show them and don't submit
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
@@ -211,10 +215,12 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
 
 
                         {/* Category - Span 4 */}
-                        <div className="col-span-12 md:col-span-4 space-y-1.5">
+                        <div className="col-span-12 md:col-span-4 space-y-1.5" data-error={!!errors.category}>
                             <ItunesCategorySelect
                                 value={categoryValue}
                                 onChange={setCategoryValue}
+                                required={true}
+                                error={errors.category}
                             />
                             <input type="hidden" name="category" value={categoryValue} />
                         </div>

@@ -13,10 +13,11 @@ import {
 interface ItunesCategorySelectProps {
     value?: string | null;
     onChange: (value: string) => void;
-    error?: boolean;
+    error?: string;
+    required?: boolean;
 }
 
-export default function ItunesCategorySelect({ value, onChange, error }: ItunesCategorySelectProps) {
+export default function ItunesCategorySelect({ value, onChange, error, required }: ItunesCategorySelectProps) {
     const { category: initialCategory, subcategory: initialSubcategory } = parseCategory(value);
 
     const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -64,7 +65,7 @@ export default function ItunesCategorySelect({ value, onChange, error }: ItunesC
             {/* Category Dropdown */}
             <div>
                 <label htmlFor="itunes-category" className="block text-sm font-medium text-gray-300 mb-1">
-                    iTunes Category
+                    iTunes Category {required && <span className="text-red-500">*</span>}
                 </label>
                 <select
                     id="itunes-category"
@@ -82,6 +83,9 @@ export default function ItunesCategorySelect({ value, onChange, error }: ItunesC
                         </option>
                     ))}
                 </select>
+                {error && (
+                    <p className="text-red-500 text-xs mt-1">{error}</p>
+                )}
             </div>
 
             {/* Subcategory Dropdown (Conditional) */}

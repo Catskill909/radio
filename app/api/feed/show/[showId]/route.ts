@@ -111,6 +111,7 @@ export async function GET(
         feed_url: `${baseUrl}/api/feed/show/${showId}`,
         site_url: show.link || baseUrl,
         language: show.language || "en",
+        copyright: show.copyright || undefined,
         pubDate: new Date(),
         ttl: 60,
         image_url: showImage,
@@ -129,7 +130,7 @@ export async function GET(
                     { "itunes:email": ownerEmail }
                 ]
             },
-            { "itunes:explicit": show.explicit ? "yes" : "no" },
+            { "itunes:explicit": show.explicit ? "true" : "false" },
             { "itunes:type": show.itunesType || "episodic" },
             ...(show.tags ? [{ "itunes:keywords": show.tags }] : []),
             ...(showImage ? [{ "itunes:image": { _attr: { href: showImage } } }] : []),
@@ -156,7 +157,7 @@ export async function GET(
                 { "itunes:author": (episode as any).host || show.host || "Radio Suite" },
                 { "itunes:episodeType": "full" },
                 { "itunes:duration": (episode as any).duration || 0 },
-                { "itunes:explicit": (episode as any).explicit ? "yes" : "no" },
+                { "itunes:explicit": (episode as any).explicit ? "true" : "false" },
                 ...(episodeImage ? [{ "itunes:image": { _attr: { href: episodeImage } } }] : []),
                 ...((episode as any).tags ? [{ "itunes:keywords": (episode as any).tags }] : []),
             ],

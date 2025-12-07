@@ -58,6 +58,7 @@ export default function ScheduleModal({
     // Error modal state
     const [errorModalOpen, setErrorModalOpen] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
+    const [categoryError, setCategoryError] = useState('')
 
     // New show fields
     const [newShowTitle, setNewShowTitle] = useState('')
@@ -151,6 +152,13 @@ export default function ScheduleModal({
     }
 
     const handleCreateAndSchedule = async () => {
+        // Validate required fields
+        if (!newShowCategory) {
+            setCategoryError('Please select a category')
+            return
+        }
+        setCategoryError('')
+
         if (!newShowTitle || !selectedSlot) return
 
         // Convert start time: "User clicked 5:45 PM" -> "5:45 PM Station Time" -> UTC
@@ -398,6 +406,8 @@ export default function ScheduleModal({
                                     <ItunesCategorySelect
                                         value={newShowCategory}
                                         onChange={setNewShowCategory}
+                                        required={true}
+                                        error={categoryError}
                                     />
                                 </div>
                             </div>
