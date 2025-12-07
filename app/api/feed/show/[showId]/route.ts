@@ -119,6 +119,7 @@ export async function GET(
         },
         custom_elements: [
             { "itunes:author": authorName },
+            { "itunes:subtitle": show.description?.substring(0, 255) || "" },
             { "itunes:summary": show.description || "" },
             itunesCategory,
             {
