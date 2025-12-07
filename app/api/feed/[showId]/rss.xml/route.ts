@@ -118,6 +118,7 @@ export async function GET(
         },
         custom_elements: [
             { 'itunes:author': authorName },
+            ...(showImage ? [{ 'itunes:image': { _attr: { href: showImage } } }] : []),
             { 'itunes:subtitle': show.description?.substring(0, 255) || "" },
             { 'itunes:summary': show.description || "" },
             {
