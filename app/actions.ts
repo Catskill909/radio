@@ -1043,7 +1043,7 @@ export async function updateEpisode(id: string, formData: FormData) {
 
     // Revalidate RSS feed if we have a show ID
     if (episode?.recording?.scheduleSlot?.showId) {
-        revalidatePath(`/api/feed/${episode.recording.scheduleSlot.showId}/rss.xml`);
+        revalidatePath(`/api/feed/show/${episode.recording.scheduleSlot.showId}`);
     }
 }
 

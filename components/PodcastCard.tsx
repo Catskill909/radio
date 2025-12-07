@@ -35,7 +35,7 @@ export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastC
         return () => clearTimeout(timer);
     }, []);
 
-    const feedUrl = `${origin}/api/feed/${show.id}/rss.xml`;
+    const feedUrl = `${origin}/api/feed/show/${show.id}`;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(feedUrl);
