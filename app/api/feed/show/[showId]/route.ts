@@ -119,6 +119,7 @@ export async function GET(
         },
         custom_elements: [
             { "itunes:author": authorName },
+            { "itunes:title": show.title },
             { "itunes:subtitle": show.description?.substring(0, 255) || "" },
             { "itunes:summary": show.description || "" },
             itunesCategory,
@@ -153,8 +154,9 @@ export async function GET(
             },
             custom_elements: [
                 { "itunes:author": (episode as any).host || show.host || "Radio Suite" },
+                { "itunes:episodeType": "full" },
                 { "itunes:duration": (episode as any).duration || 0 },
-                { "itunes:explicit": "no" },
+                { "itunes:explicit": (episode as any).explicit ? "yes" : "no" },
                 ...(episodeImage ? [{ "itunes:image": { _attr: { href: episodeImage } } }] : []),
             ],
         });
