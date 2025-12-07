@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { X, Copy, Check, Calendar, Rss } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { ShowDetail, Episode } from './types';
 import EpisodeCard from './EpisodeCard';
 
@@ -70,6 +71,9 @@ export default function ShowModal({
                     className="fixed inset-x-0 bottom-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50 w-full sm:max-w-md h-[85vh] sm:h-[80vh] bg-gray-900 rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl flex flex-col animate-slide-up"
                     aria-describedby={undefined}
                 >
+                    <VisuallyHidden.Root>
+                        <Dialog.Title>{show?.title || 'Show Details'}</Dialog.Title>
+                    </VisuallyHidden.Root>
                     {/* Header / Close */}
                     <div className="absolute top-4 right-4 z-10">
                         <Dialog.Close asChild>
@@ -101,7 +105,7 @@ export default function ShowModal({
                                     <div className="inline-block px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded mb-2 border border-blue-500/30">
                                         {show.type}
                                     </div>
-                                    <Dialog.Title className="text-3xl font-bold text-white mb-1 leading-tight">{show.title}</Dialog.Title>
+                                    <h2 className="text-3xl font-bold text-white mb-1 leading-tight">{show.title}</h2>
                                     {show.host && (
                                         <p className="text-gray-300 font-medium">with {show.host}</p>
                                     )}

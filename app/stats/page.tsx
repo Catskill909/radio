@@ -71,13 +71,19 @@ export default function StatsPage() {
         })
 
         const cleanupRecording = on('recording:started', (data: any) => {
-            setRecordingEvents(prev => [{
-                type: 'started' as const,
-                showTitle: data.showTitle,
-                slotId: data.slotId,
-                recordingId: data.recordingId,
-                timestamp: new Date()
-            }, ...prev].slice(0, 10)) // Keep last 10 events
+            setRecordingEvents(prev => {
+                // Check if this slotId already exists to avoid duplicates
+                if (prev.some(e => e.slotId === data.slotId && e.type === 'started')) {
+                    return prev
+                }
+                return [{
+                    type: 'started' as const,
+                    showTitle: data.showTitle,
+                    slotId: data.slotId,
+                    recordingId: data.recordingId,
+                    timestamp: new Date()
+                }, ...prev].slice(0, 10)
+            })
         })
 
         const cleanupCompleted = on('recording:completed', (data: any) => {
@@ -226,7 +232,7 @@ export default function StatsPage() {
                             <span className="text-gray-400">Last Activity</span>
                             <span className="text-gray-200">
                                 {isMounted && recordingEvents.length > 0
-                                    ? formatDistanceToNow(recordingEvents[0].timestamp, { addSuffix: true })
+                                    ? (recordingEvents[0].type === 'started' ? 'in progress' : formatDistanceToNow(recordingEvents[0].timestamp, { addSuffix: true }))
                                     : 'None yet'}
                             </span>
                         </div>
@@ -274,7 +280,7 @@ export default function StatsPage() {
                                 </span>
                                 {isMounted && (
                                     <span className="text-xs text-gray-500">
-                                        {formatDistanceToNow(event.timestamp, { addSuffix: true })}
+                                        {event.type === 'started' ? 'in progress' : formatDistanceToNow(event.timestamp, { addSuffix: true })}
                                     </span>
                                 )}
                             </div>

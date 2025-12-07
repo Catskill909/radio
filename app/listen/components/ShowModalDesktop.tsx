@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { X, Copy, Check, Calendar, Rss } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { ShowDetail, Episode } from './types';
 import EpisodeCard from './EpisodeCard';
 
@@ -68,6 +69,9 @@ export default function ShowModalDesktop({
                     className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[900px] h-[600px] bg-gray-900 rounded-2xl overflow-hidden shadow-2xl flex animate-fade-in border border-gray-800"
                     aria-describedby={undefined}
                 >
+                    <VisuallyHidden.Root>
+                        <Dialog.Title>{show?.title || 'Show Details'}</Dialog.Title>
+                    </VisuallyHidden.Root>
                     <Dialog.Close asChild>
                         <button
                             className="absolute top-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
@@ -96,7 +100,7 @@ export default function ShowModalDesktop({
                                         <div className="inline-block px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded mb-2 border border-blue-500/30">
                                             {show.type}
                                         </div>
-                                        <Dialog.Title className="text-3xl font-bold text-white mb-1 leading-tight">{show.title}</Dialog.Title>
+                                        <h2 className="text-3xl font-bold text-white mb-1 leading-tight">{show.title}</h2>
                                         {show.host && (
                                             <p className="text-gray-400 font-medium">with {show.host}</p>
                                         )}
