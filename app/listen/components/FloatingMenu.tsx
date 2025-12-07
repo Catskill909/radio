@@ -33,9 +33,10 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
     const [activeModal, setActiveModal] = useState<MenuItem | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
-    // Use provided items or defaults, sorted by order
+    // Use provided items or defaults, sorted by order (descending to match flex-col-reverse)
+    // This makes the menu display items in the same order as the settings view (top-to-bottom)
     const items = (menuItems && menuItems.length > 0 ? menuItems : DEFAULT_MENU_ITEMS)
-        .sort((a, b) => a.order - b.order);
+        .sort((a, b) => b.order - a.order);
 
     // Close menu when clicking outside
     useEffect(() => {

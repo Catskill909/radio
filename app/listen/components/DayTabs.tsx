@@ -63,74 +63,77 @@ export default function DayTabs({ selectedDay, onDayChange, days }: DayTabsProps
                     <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6 text-gray-400 group-hover:text-white transition-colors" strokeWidth={3} />
                 </button>
 
-                {/* Back to Today Button - Appears to the left of day tabs when today is not visible */}
-                <div
-                    className={`
-                        transition-all duration-300 ease-in-out
-                        ${isTodayVisible ? 'w-0 opacity-0 overflow-hidden' : 'w-auto opacity-100'}
-                    `}
-                >
-                    <button
-                        onClick={handleBackToToday}
+                {/* Desktop: Group TODAY button and day tabs together so they stay centered */}
+                <div className="flex flex-1 items-center lg:flex-none lg:justify-center lg:gap-2">
+                    {/* Back to Today Button - Appears to the left of day tabs when today is not visible */}
+                    <div
                         className={`
-                            group flex flex-col items-center justify-center 
-                            min-w-[38px] min-h-[40px] py-1 px-1.5 rounded-lg
-                            lg:min-w-[60px] lg:h-[68px] lg:py-2 lg:px-3 lg:rounded-xl
-                            bg-gradient-to-br from-gray-800/90 to-gray-900/90
-                            border border-gray-700/50 lg:backdrop-blur-xl
-                            hover:border-gray-600 hover:from-gray-700 hover:to-gray-800
-                            transition-all duration-200 ease-out
-                            hover:scale-105 active:scale-95 lg:shadow-lg lg:hover:shadow-xl
-                            cursor-pointer
-                            focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
-                            ${isTodayVisible ? 'invisible' : 'visible'}
+                            transition-all duration-300 ease-in-out
+                            ${isTodayVisible ? 'w-0 opacity-0 overflow-hidden' : 'w-auto opacity-100'}
                         `}
-                        aria-label="Jump back to today"
                     >
-                        <span className="text-[9px] lg:text-xs font-medium uppercase tracking-wide lg:tracking-wider text-gray-300 group-hover:text-white transition-colors">
-                            TODAY
-                        </span>
-                        <span className="text-sm lg:text-lg font-bold text-white">
-                            {format(today, 'd')}
-                        </span>
-                    </button>
-                </div>
+                        <button
+                            onClick={handleBackToToday}
+                            className={`
+                                group flex flex-col items-center justify-center 
+                                min-w-[38px] min-h-[40px] py-1 px-1.5 rounded-lg
+                                lg:min-w-[60px] lg:h-[68px] lg:py-2 lg:px-3 lg:rounded-xl
+                                bg-gradient-to-br from-gray-800/90 to-gray-900/90
+                                border border-gray-700/50 lg:backdrop-blur-xl
+                                hover:border-gray-600 hover:from-gray-700 hover:to-gray-800
+                                transition-all duration-200 ease-out
+                                hover:scale-105 active:scale-95 lg:shadow-lg lg:hover:shadow-xl
+                                cursor-pointer
+                                focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
+                                ${isTodayVisible ? 'invisible' : 'visible'}
+                            `}
+                            aria-label="Jump back to today"
+                        >
+                            <span className="text-[9px] lg:text-xs font-medium uppercase tracking-wide lg:tracking-wider text-gray-300 group-hover:text-white transition-colors">
+                                TODAY
+                            </span>
+                            <span className="text-sm lg:text-lg font-bold text-white">
+                                {format(today, 'd')}
+                            </span>
+                        </button>
+                    </div>
 
-                <div
-                    ref={scrollRef}
-                    className="flex flex-1 overflow-x-auto no-scrollbar py-2 lg:py-3 gap-0.5 lg:gap-2 snap-x justify-center"
-                >
-                    {days.map((date) => {
-                        const isActive = isSameDay(date, selectedDay);
-                        const isToday = isSameDay(date, today);
+                    <div
+                        ref={scrollRef}
+                        className="flex flex-1 lg:flex-none overflow-x-auto no-scrollbar py-2 lg:py-3 gap-0.5 lg:gap-2 snap-x justify-center"
+                    >
+                        {days.map((date) => {
+                            const isActive = isSameDay(date, selectedDay);
+                            const isToday = isSameDay(date, today);
 
-                        return (
-                            <button
-                                key={date.toISOString()}
-                                onClick={() => onDayChange(date)}
-                                data-active={isActive}
-                                aria-label={`${format(date, 'EEEE, MMMM d')}${isToday ? ' (today)' : ''}`}
-                                className={`
+                            return (
+                                <button
+                                    key={date.toISOString()}
+                                    onClick={() => onDayChange(date)}
+                                    data-active={isActive}
+                                    aria-label={`${format(date, 'EEEE, MMMM d')}${isToday ? ' (today)' : ''}`}
+                                    className={`
                     flex flex-col items-center justify-center 
                     min-w-[38px] min-h-[40px] py-1 px-1.5 rounded-lg
                     lg:min-w-[60px] lg:min-h-[48px] lg:py-2 lg:px-3 lg:rounded-xl
                     transition-all snap-center cursor-pointer
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
                     ${isActive
-                                        ? 'bg-white text-black shadow-lg scale-105'
-                                        : 'bg-gray-900 text-gray-400 hover:bg-gray-800 hover:text-white hover:scale-105 active:scale-95 active:bg-gray-700'
-                                    }
+                                            ? 'bg-white text-black shadow-lg scale-105'
+                                            : 'bg-gray-900 text-gray-400 hover:bg-gray-800 hover:text-white hover:scale-105 active:scale-95 active:bg-gray-700'
+                                        }
                   `}
-                            >
-                                <span className="text-[9px] lg:text-xs font-medium uppercase tracking-wide lg:tracking-wider">
-                                    {isToday ? 'TODAY' : isActive ? format(date, 'MMM').toUpperCase() : format(date, 'EEE')}
-                                </span>
-                                <span className={`text-sm lg:text-lg font-bold ${isActive ? 'text-black' : 'text-white'}`}>
-                                    {format(date, 'd')}
-                                </span>
-                            </button>
-                        );
-                    })}
+                                >
+                                    <span className="text-[9px] lg:text-xs font-medium uppercase tracking-wide lg:tracking-wider">
+                                        {isToday ? 'TODAY' : isActive ? format(date, 'MMM').toUpperCase() : format(date, 'EEE')}
+                                    </span>
+                                    <span className={`text-sm lg:text-lg font-bold ${isActive ? 'text-black' : 'text-white'}`}>
+                                        {format(date, 'd')}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
                 {/* Next Week Button */}
