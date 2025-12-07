@@ -227,6 +227,15 @@ export const helpArticles: Record<string, HelpArticle> = {
         filePath: '/content/help/settings/station-stream.md',
         relatedTopics: ['adding-icecast-streams', 'public-listen-page'],
         keywords: ['stream', 'audio', 'icecast', 'live', 'listen']
+    },
+    'station-stats': {
+        id: 'station-stats',
+        title: 'Station Stats Dashboard',
+        category: 'Getting Started',
+        order: 5,
+        filePath: '/content/help/getting-started/station-stats.md',
+        relatedTopics: ['stream-health-monitoring', 'recording-configuration'],
+        keywords: ['stats', 'dashboard', 'websocket', 'recordings', 'streams', 'real-time', 'monitoring']
     }
 }
 

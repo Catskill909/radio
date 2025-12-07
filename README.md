@@ -48,6 +48,7 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - Week and day views
 - Visual indicators for recurring shows
 - Click events to create and edit shows directly from the calendar
+- **Inline show editing** – View and edit full show settings when scheduling existing shows
 - **User-friendly error handling** – Schedule conflicts and validation errors display in helpful modal dialogs with:
   - Clear conflict details (conflicting show name and time)
   - Actionable suggestions for resolution

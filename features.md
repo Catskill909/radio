@@ -67,6 +67,7 @@ StationDock is built with intentional design choices that prioritize a premium, 
 - **Scheduling workflows**
   - Click an empty time slot to schedule
   - **Select existing show** or **create new show in-place** from the modal
+  - **Inline show editing**: When selecting existing show, full show settings (metadata, recording) are exposed for review/editing before scheduling 🆕
   - Duration selector with recurring weekly toggle
   - Edit existing slot via modal (start time, duration, recurring flag)
   - Delete slot with confirmation
