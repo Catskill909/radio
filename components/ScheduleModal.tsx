@@ -7,6 +7,8 @@ import ImageUpload from '@/components/ImageUpload'
 import RecordingControls from '@/components/RecordingControls'
 import ScheduleErrorModal from '@/components/ScheduleErrorModal'
 import ItunesCategorySelect from '@/components/iTunesCategorySelect'
+import EditShowForm from '@/components/EditShowForm'
+import { Show as PrismaShow } from '@prisma/client'
 
 interface Show {
     id: string
@@ -21,8 +23,8 @@ interface Show {
     category?: string | null
     itunesType?: string
     tags?: string | null
-    recordingEnabled?: boolean
-    recordingSource?: string | null
+    recordingEnabled: boolean
+    recordingSource: string | null
     language?: string
     copyright?: string | null
     link?: string | null
@@ -296,6 +298,7 @@ export default function ScheduleModal({
                                 </select>
                             </div>
 
+                            {/* Duration and Recurring - important scheduling options */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-gray-300">
@@ -331,6 +334,17 @@ export default function ScheduleModal({
                                     </label>
                                 </div>
                             </div>
+
+                            {/* Show Settings - displayed when a show is selected */}
+                            {selectedShowId && shows.find(s => s.id === selectedShowId) && (
+                                <div className="border-t border-gray-700 pt-4">
+                                    <EditShowForm
+                                        show={shows.find(s => s.id === selectedShowId) as unknown as PrismaShow}
+                                        streams={streams}
+                                        hideRecordingControls={false}
+                                    />
+                                </div>
+                            )}
 
                             <button
                                 onClick={handleScheduleExisting}
