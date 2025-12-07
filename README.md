@@ -74,6 +74,7 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Automatic recurring extension** – Background job extends recurring shows as they approach the end of their scheduled horizon so long-running series never silently fall off the calendar.
 - **Smart transcoding**: Automatically detects stream format and transcodes when needed
 - **Configurable quality**: Control encoding settings from Settings page
+- **Self-healing recovery**: Verifies files before marking complete, recovers orphaned recordings on restart, auto-cleans old backup files
 
 ### 🎛️ Audio Encoding Quality
 - **Codec selection** - MP3, AAC, Opus, or FLAC

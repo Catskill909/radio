@@ -367,6 +367,24 @@ async function handleRecordingCompletion(recording: any, slot: any, filePath: st
         where: { id: 'station' }
     })
 
+    // Self-healing: Verify file exists and has content before marking COMPLETED
+    if (!fs.existsSync(filePath) || size < 1024) {
+        console.error(`[SELF-HEAL] Recording file missing or too small for ${slot.show.title} (size: ${size} bytes)`)
+        await prisma.recording.update({
+            where: { id: recording.id },
+            data: { status: 'FAILED', endTime: endTime }
+        })
+        broadcastRecordingEvent({
+            type: 'failed',
+            slotId: slot.id,
+            recordingId: recording.id,
+            showTitle: slot.show.title,
+            showId: slot.show.id,
+            error: 'Recording file missing or empty'
+        })
+        return
+    }
+
     const updatedRecording = await prisma.recording.update({
         where: { id: recording.id },
         data: {
@@ -538,6 +556,39 @@ async function recoverOrphanedRecordings() {
     }
 }
 
+// Clean up old backup files from audio editing (older than 7 days)
+function cleanupOldBackups() {
+    try {
+        const files = fs.readdirSync(RECORDINGS_DIR)
+        const backupFiles = files.filter(f => f.includes('.backup_'))
+
+        if (backupFiles.length === 0) return
+
+        const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000)
+        let cleaned = 0
+
+        for (const file of backupFiles) {
+            const filePath = path.join(RECORDINGS_DIR, file)
+            try {
+                const stats = fs.statSync(filePath)
+                if (stats.mtimeMs < sevenDaysAgo) {
+                    fs.unlinkSync(filePath)
+                    console.log(`[CLEANUP] Removed old backup: ${file}`)
+                    cleaned++
+                }
+            } catch (e) {
+                // Skip files that can't be accessed
+            }
+        }
+
+        if (cleaned > 0) {
+            console.log(`[CLEANUP] Removed ${cleaned} old backup file(s)`)
+        }
+    } catch (error) {
+        console.error('[CLEANUP] Error cleaning backups:', error)
+    }
+}
+
 // Graceful Shutdown
 
 function cleanup() {
@@ -660,8 +711,13 @@ extendRecurringShows() // Initial run on startup
 setInterval(checkShowTransitions, 5000)
 checkShowTransitions() // Initial run
 
+// Run backup cleanup once per day (every 24 hours)
+setInterval(cleanupOldBackups, 24 * 60 * 60 * 1000)
+cleanupOldBackups() // Initial run on startup
+
 console.log('Recorder service started.')
 console.log('Auto-extension enabled: recurring shows will be extended automatically.')
 console.log('Now Playing: monitoring for show transitions.')
 console.log('Orphan recovery: enabled on startup.')
+console.log('Backup cleanup: enabled (removes backups older than 7 days).')
 

@@ -87,23 +87,31 @@ export default function StatsPage() {
         })
 
         const cleanupCompleted = on('recording:completed', (data: any) => {
-            setRecordingEvents(prev => [{
-                type: 'completed' as const,
-                showTitle: data.showTitle,
-                slotId: data.slotId,
-                recordingId: data.recordingId,
-                timestamp: new Date()
-            }, ...prev].slice(0, 10))
+            setRecordingEvents(prev => {
+                // Remove the 'started' event for this slot since it's now completed
+                const filtered = prev.filter(e => !(e.slotId === data.slotId && e.type === 'started'))
+                return [{
+                    type: 'completed' as const,
+                    showTitle: data.showTitle,
+                    slotId: data.slotId,
+                    recordingId: data.recordingId,
+                    timestamp: new Date()
+                }, ...filtered].slice(0, 10)
+            })
         })
 
         const cleanupFailed = on('recording:failed', (data: any) => {
-            setRecordingEvents(prev => [{
-                type: 'failed' as const,
-                showTitle: data.showTitle,
-                slotId: data.slotId,
-                error: data.error,
-                timestamp: new Date()
-            }, ...prev].slice(0, 10))
+            setRecordingEvents(prev => {
+                // Remove the 'started' event for this slot since it failed
+                const filtered = prev.filter(e => !(e.slotId === data.slotId && e.type === 'started'))
+                return [{
+                    type: 'failed' as const,
+                    showTitle: data.showTitle,
+                    slotId: data.slotId,
+                    error: data.error,
+                    timestamp: new Date()
+                }, ...filtered].slice(0, 10)
+            })
         })
 
         const cleanupListeners = on('listeners:count', (data: { count: number }) => {

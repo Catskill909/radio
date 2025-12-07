@@ -212,6 +212,11 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - **Use Case**: Disable recording for replays/rebroadcasts while keeping original broadcasts recorded
   - **Database**: `recordingOverride` field on `ScheduleSlot` (null = use show default, true/false = override)
   - **Auto-Scroll UX**: Modal scrolls to reveal scope options when toggle is changed
+- **Self-Healing & Recovery** 🆕
+  - **File Verification**: Recordings verify file exists and has content before marking COMPLETED; marks FAILED if file is missing or too small (<1KB)
+  - **Orphan Recovery**: On service restart, detects recordings stuck in RECORDING status and finalizes or marks as failed
+  - **Automatic Backup Cleanup**: Removes old `.backup_` files from audio editing (>7 days) to prevent accumulation
+  - **Graceful Degradation**: Service continues operating even if individual recordings fail
 
 ---
 
