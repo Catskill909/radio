@@ -140,6 +140,12 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Focus Management** – Modals trap focus inside and restore it when closed
 - **WCAG-Aligned** – Built with accessibility best practices using Radix UI primitives
 
+### 🔐 Admin Authentication
+- **Password Protection** – Secure admin access with environment variable-based password
+- **Cookie-Based Sessions** – HTTP-only cookies with 7-day expiry
+- **Public Listen Page** – `/listen` remains publicly accessible without login
+- **Secure by Default** – HTTPS-only cookies, signed tokens, automatic session timeout
+
 ### 🔌 Public API
 StationDock provides a comprehensive JSON API for integrating with external apps, websites, and services:
 
@@ -226,6 +232,7 @@ npx prisma migrate dev
 5. Create a `.env` file:
 ```env
 DATABASE_URL="file:./dev.db"
+ADMIN_PASSWORD=your-secure-password-here
 # NEXT_PUBLIC_BASE_URL is optional - RSS feeds auto-detect domain from requests
 ```
 

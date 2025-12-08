@@ -1,14 +1,15 @@
 'use client'
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Radio } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { clsx } from "clsx";
 import { Tooltip } from "./Tooltip";
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
     const [isCollapsed, setIsCollapsed] = useState(true); // Default to collapsed
 
     const links = [
@@ -23,10 +24,16 @@ export default function Sidebar() {
         { href: "/help", label: "Help & Support", icon: "fa-solid fa-circle-question" },
     ];
 
+    const handleLogout = async () => {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        router.push('/login');
+        router.refresh();
+    };
+
     return (
         <aside
             className={clsx(
-                "bg-gray-800 border-r border-gray-700 flex flex-col transition-all duration-300 ease-in-out relative",
+                "h-full bg-gray-800 border-r border-gray-700 flex flex-col transition-all duration-300 ease-in-out relative",
                 isCollapsed ? "w-20" : "w-64"
             )}
         >
@@ -120,6 +127,32 @@ export default function Sidebar() {
                     );
                 })}
             </nav>
+
+            {/* Logout Button */}
+            <div className="px-3 pb-16 mt-auto">
+                <Tooltip
+                    content="Sign Out"
+                    placement="right"
+                    disabled={!isCollapsed}
+                >
+                    <button
+                        onClick={handleLogout}
+                        className={clsx(
+                            "w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 whitespace-nowrap overflow-hidden",
+                            "text-gray-400 hover:bg-red-500/10 hover:text-red-400",
+                            isCollapsed ? "justify-center" : ""
+                        )}
+                    >
+                        <i className="fa-solid fa-right-from-bracket w-5 flex-shrink-0 text-center" style={{ fontSize: '1.25rem' }} />
+                        {!isCollapsed && (
+                            <span className="font-['Barlow_Semi_Condensed'] font-semibold tracking-wide">
+                                Sign Out
+                            </span>
+                        )}
+                    </button>
+                </Tooltip>
+            </div>
         </aside>
     );
 }
+

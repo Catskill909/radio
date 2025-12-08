@@ -402,6 +402,30 @@ StationDock is built with intentional design choices that prioritize a premium, 
 
 ---
 
+## 12.5. Admin Authentication
+
+**Status:** Shipped
+
+- **Password Protection**
+  - Single admin password stored as environment variable (`ADMIN_PASSWORD`)
+  - Branded login page with StationDock logo
+  - Password field with show/hide toggle (eye icon)
+  - Automatic redirect to requested page after login
+- **Cookie-Based Sessions**
+  - HTTP-only cookies prevent XSS attacks
+  - Secure flag ensures HTTPS-only in production
+  - SameSite strict prevents CSRF attacks
+  - 7-day session expiry with automatic timeout
+- **Public vs Protected Routes**
+  - `/listen` remains publicly accessible without login
+  - `/api/public/*` and `/api/feed/*` remain open for RSS and external apps
+  - All admin pages require authentication
+- **Logout**
+  - Sign Out button in sidebar navigation
+  - Clears session cookie and redirects to login
+
+---
+
 ## 13. In-App Help System
 
 **Status:** Shipped
