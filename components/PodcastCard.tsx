@@ -73,7 +73,7 @@ export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastC
                         {/* Manage Episodes Button */}
                         <button
                             onClick={() => setDrawerOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
+                            className="w-fit flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
                         >
                             <List className="w-4 h-4" />
                             Manage Episodes
