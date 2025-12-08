@@ -18,6 +18,7 @@ const staticPaths = [
     '/images',
     '/uploads',
     '/favicon.ico',
+    '/features.html',
     '/file.svg',
     '/globe.svg',
     '/next.svg',
