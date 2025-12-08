@@ -8,7 +8,7 @@ related: ["publishing-episodes", "creating-your-first-show"]
 
 # RSS Feed Management
 
-Every show in Radio Suite automatically generates a compliant RSS feed suitable for distribution to major platforms like Apple Podcasts, Spotify, and Google Podcasts.
+Every show in StationDock automatically generates a compliant RSS feed suitable for distribution to major platforms like Apple Podcasts, Spotify, and Google Podcasts.
 
 ## Accessing Your Feed
 
@@ -49,4 +49,4 @@ Once your feed is valid, you can submit it to directories:
 - **Google Podcasts:** Automatically indexed, but you can use Google Podcasts Manager.
 
 > [!NOTE]
-> It may take up to 24 hours for new episodes to appear on these platforms after you publish them in Radio Suite, as they cache your RSS feed.
+> It may take up to 24 hours for new episodes to appear on these platforms after you publish them in StationDock, as they cache your RSS feed.

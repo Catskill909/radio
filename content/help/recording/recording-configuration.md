@@ -89,7 +89,7 @@ Configure how your recordings are encoded:
 
 ### Smart Transcoding
 
-Radio Suite intelligently handles audio encoding:
+StationDock intelligently handles audio encoding:
 
 **Copy Mode** (Fast, no quality loss)
 - If source stream uses MP3 codec

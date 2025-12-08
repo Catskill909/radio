@@ -8,7 +8,7 @@ related: ["recording-configuration", "publishing-episodes"]
 
 # Managing Recordings
 
-Radio Suite automatically records your scheduled shows. You can manage these files from the **Recordings** page.
+StationDock automatically records your scheduled shows. You can manage these files from the **Recordings** page.
 
 ## Recording Statuses
 

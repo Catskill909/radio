@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
         return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
     };
 
-    const feedTitle = stationSettings?.name || "Radio Suite Podcast";
-    const feedDescription = stationSettings?.description || "All episodes from Radio Suite";
+    const feedTitle = stationSettings?.name || "StationDock Podcast";
+    const feedDescription = stationSettings?.description || "All episodes from StationDock";
     const feedImage = getAbsoluteUrl(stationSettings?.logoUrl || null);
 
     // Create RSS feed
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
             itunes: "http://www.itunes.com/dtds/podcast-1.0.dtd",
         },
         custom_elements: [
-            { "itunes:author": stationSettings?.name || "Radio Suite" },
+            { "itunes:author": stationSettings?.name || "StationDock" },
             { "itunes:summary": feedDescription },
             ...(feedImage ? [{ "itunes:image": { _attr: { href: feedImage } } }] : []),
         ],
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
                 size: (episode.recording as any).size || 0,
             },
             custom_elements: [
-                { "itunes:author": (episode as any).host || show?.host || show?.author || stationSettings?.name || "Radio Suite" },
+                { "itunes:author": (episode as any).host || show?.host || show?.author || stationSettings?.name || "StationDock" },
                 { "itunes:duration": (episode as any).duration || 0 },
                 ...(episodeImage ? [{ "itunes:image": { _attr: { href: episodeImage } } }] : []),
             ],

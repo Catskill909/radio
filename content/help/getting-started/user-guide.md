@@ -1,6 +1,6 @@
 ---
 title: User Guide
-description: A complete index of Radio Suite features and guides.
+description: A complete index of StationDock features and guides.
 category: Getting Started
 icon: fa-solid fa-book
 related: ["welcome", "api-reference"]
@@ -8,10 +8,10 @@ related: ["welcome", "api-reference"]
 
 # User Guide
 
-Welcome to the Radio Suite User Guide. This index provides quick access to documentation for all major features.
+Welcome to the StationDock User Guide. This index provides quick access to documentation for all major features.
 
 ## Getting Started
-- **[Welcome to Radio Suite](?article=welcome):** An overview of the dashboard and main concepts.
+- **[Welcome to StationDock](?article=welcome):** An overview of the dashboard and main concepts.
 - **[Public Listen Page](?article=public-listen-page):** How to configure and share your station's public player.
 
 ## Shows & Scheduling

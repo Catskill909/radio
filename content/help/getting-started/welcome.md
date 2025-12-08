@@ -1,5 +1,5 @@
 ---
-title: "Welcome to Radio Suite"
+title: "Welcome to StationDock"
 category: "Getting Started"
 order: 1
 relatedTopics:
@@ -12,9 +12,9 @@ keywords:
   - "getting started"
 ---
 
-# Welcome to Radio Suite
+# Welcome to StationDock
 
-Radio Suite is a comprehensive radio station management system that helps you schedule shows, record audio, and distribute podcasts — all from one beautiful interface.
+StationDock is a comprehensive radio station management system that helps you schedule shows, record audio, and distribute podcasts — all from one beautiful interface.
 
 ## What You Can Do
 
@@ -22,7 +22,7 @@ Radio Suite is a comprehensive radio station management system that helps you sc
 Create and organize your radio shows with complete metadata for podcast distribution. Each show can have its own artwork, description, hosts, and RSS feed.
 
 ### Smart Scheduling
-Use the visual calendar to schedule shows with drag-and-drop ease. Set up recurring shows that automatically extend into the future, preventing scheduling conflicts.
+Use the visual calendar to schedule shows with a simple click. Set up recurring shows that automatically extend into the future, preventing scheduling conflicts.
 
 ### Automated Recording
 Connect to Icecast streams and automatically record your broadcasts. Recordings are captured at scheduled times without manual intervention.
@@ -36,7 +36,7 @@ Configure encoding settings per-show or globally. Choose codec, bitrate, sample 
 ## Key Concepts
 
 ### Station Timezone
-Radio Suite uses a **single station timezone** for all scheduling and recording. This ensures everyone sees the same time regardless of their location. Set your timezone in Settings.
+StationDock uses a **single station timezone** for all scheduling and recording. This ensures everyone sees the same time regardless of their location. Set your timezone in Settings.
 
 ### Shows
 A **Show** is a program you broadcast (e.g., "Morning Coffee Talk", "Evening Jazz Hour"). Shows have:

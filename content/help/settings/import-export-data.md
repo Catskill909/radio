@@ -109,7 +109,7 @@ radio-suite-export-2025-12-01.zip
 
 - The ZIP file may be corrupted
 - Re-export the data and try again
-- Ensure you're uploading a Radio Suite export file (not a random ZIP)
+- Ensure you're uploading a StationDock export file (not a random ZIP)
 
 ## Related Topics
 

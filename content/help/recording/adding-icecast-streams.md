@@ -14,11 +14,11 @@ keywords:
 
 # Adding Icecast Streams
 
-Connect Radio Suite to your Icecast server to enable automated recording of live broadcasts.
+Connect StationDock to your Icecast server to enable automated recording of live broadcasts.
 
 ## What is an Icecast Stream?
 
-Icecast is a streaming media server that broadcasts audio over the internet. Radio Suite connects to Icecast streams to:
+Icecast is a streaming media server that broadcasts audio over the internet. StationDock connects to Icecast streams to:
 
 - **Record live broadcasts** automatically
 - **Monitor stream health** in real-time
@@ -30,7 +30,7 @@ Before adding a stream, you need:
 
 1. **Icecast Server Running** - Your station's Icecast server must be online
 2. **Stream URL** - Complete URL to the mount point
-3. **Network Access** - Radio Suite server must reach the Icecast server
+3. **Network Access** - StationDock server must reach the Icecast server
 
 ## Adding Your First Stream
 
@@ -83,7 +83,7 @@ If your Icecast server requires authentication, include credentials in the URL:
 http://username:password@icecast.example.com:8000/stream.mp3
 ```
 
-> **⚠️ Security Note:** Credentials are stored in the database. Use a dedicated read-only Icecast account for Radio Suite.
+> **⚠️ Security Note:** Credentials are stored in the database. Use a dedicated read-only Icecast account for StationDock.
 
 ## Common Stream Types
 
@@ -104,7 +104,7 @@ http://username:password@icecast.example.com:8000/stream.mp3
 
 ## Stream Health Monitoring
 
-Radio Suite automatically monitors stream health:
+StationDock automatically monitors stream health:
 
 **Status Indicators:**
 - 🟢 **Online** - Stream active, audio flowing
@@ -154,10 +154,10 @@ Radio Suite automatically monitors stream health:
 **Possible Causes:**
 - Network connectivity issues
 - Icecast server not responding
-- Firewall blocking Radio Suite server
+- Firewall blocking StationDock server
 
 **Solutions:**
-1. Ping Icecast server from Radio Suite server
+1. Ping Icecast server from StationDock server
 2. Check Icecast server logs
 3. Verify no firewalls blocking outbound connections
 

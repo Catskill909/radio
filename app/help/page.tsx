@@ -15,14 +15,20 @@ export default function HelpPage() {
 
     return (
         <div className="h-full flex flex-col p-6 overflow-y-auto">
-            <div className="mb-6">
-                <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
-                    <HelpCircle className="w-10 h-10 text-indigo-400" />
-                    Help & Support
-                </h1>
-                <p className="text-gray-400 mt-2">
-                    Get assistance with StationDock and learn how to make the most of your station.
-                </p>
+            <div className="mb-6 flex items-center gap-6">
+                <img
+                    src="/images/stationdock2.png"
+                    alt="StationDock Logo"
+                    className="w-32 h-32 object-contain"
+                />
+                <div>
+                    <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
+                        Help & Support
+                    </h1>
+                    <p className="text-gray-400 mt-2">
+                        Get assistance with StationDock and learn how to make the most of your station.
+                    </p>
+                </div>
             </div>
 
             <div className="flex-1 pb-8">

@@ -14,11 +14,11 @@ keywords:
 
 # Understanding Station Timezone
 
-Radio Suite uses a **single station timezone** for all scheduling and recording. This ensures everyone sees the same broadcast times regardless of their location.
+StationDock uses a **single station timezone** for all scheduling and recording. This ensures everyone sees the same broadcast times regardless of their location.
 
 ## Key Concept: One Timezone for All
 
-Traditional radio stations broadcast from a single location with a fixed timezone. Radio Suite mimics this:
+Traditional radio stations broadcast from a single location with a fixed timezone. StationDock mimics this:
 
 - **All schedules** display in station timezone
 - **All recordings** start/stop in station timezone
@@ -37,7 +37,7 @@ This prevents confusion when team members are in different locations.
 
 ### Available Timezones
 
-Radio Suite uses **IANA timezone database** names:
+StationDock uses **IANA timezone database** names:
 
 **US Timezones:**
 - `America/New_York` - Eastern Time

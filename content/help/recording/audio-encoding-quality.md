@@ -8,7 +8,7 @@ related: ["recording-configuration", "adding-icecast-streams"]
 
 # Audio Encoding Quality Guide
 
-Radio Suite offers flexible audio encoding options to balance sound quality with file size. This guide explains the available settings and helps you choose the right configuration for your station.
+StationDock offers flexible audio encoding options to balance sound quality with file size. This guide explains the available settings and helps you choose the right configuration for your station.
 
 ## Available Codecs
 

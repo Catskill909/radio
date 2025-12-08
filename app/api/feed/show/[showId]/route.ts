@@ -82,7 +82,7 @@ export async function GET(
     const showImage = getAbsoluteUrl(show.image) || getAbsoluteUrl(stationSettings?.logoUrl || null);
 
     // Fallback metadata helper
-    const authorName = show.author || show.host || stationSettings?.name || "Radio Suite";
+    const authorName = show.author || show.host || stationSettings?.name || "StationDock";
     const ownerEmail = show.email || stationSettings?.email || "podcasts@radiosuite.com";
 
     // Parse category for nested structure
@@ -154,7 +154,7 @@ export async function GET(
                 size: (episode.recording as any).size || 0,
             },
             custom_elements: [
-                { "itunes:author": (episode as any).host || show.host || "Radio Suite" },
+                { "itunes:author": (episode as any).host || show.host || "StationDock" },
                 { "itunes:episodeType": "full" },
                 { "itunes:duration": (episode as any).duration || 0 },
                 { "itunes:explicit": (episode as any).explicit ? "true" : "false" },

@@ -115,7 +115,7 @@ To manually create an episode from a recording:
 
 ### How It Works
 
-Radio Suite generates iTunes-compatible RSS feeds:
+StationDock generates iTunes-compatible RSS feeds:
 
 **Feed URL Format:**
 ```

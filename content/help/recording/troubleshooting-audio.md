@@ -27,7 +27,7 @@ If you are experiencing issues with audio playback or recording, check these com
 
 ### "Recordings are shorter than scheduled"
 - **Cause:** The stream went offline during the show.
-- **Fix:** Check your internet connection stability at the source. Radio Suite stops recording if the stream drops for an extended period.
+- **Fix:** Check your internet connection stability at the source. StationDock stops recording if the stream drops for an extended period.
 
 ### "Audio quality sounds poor or 'underwater'"
 - **Cause:** Low bitrate or mismatched sample rates.
@@ -38,4 +38,4 @@ If you are experiencing issues with audio playback or recording, check these com
 
 ### "Recordings have skips or glitches"
 - **Cause:** CPU overload or network packet loss.
-- **Fix:** Ensure the server running Radio Suite has sufficient CPU resources. Transcoding (e.g., converting FLAC to MP3 on the fly) can be CPU intensive.
+- **Fix:** Ensure the server running StationDock has sufficient CPU resources. Transcoding (e.g., converting FLAC to MP3 on the fly) can be CPU intensive.

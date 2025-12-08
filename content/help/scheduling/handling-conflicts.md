@@ -8,11 +8,11 @@ related: ["scheduling-basics", "recurring-shows"]
 
 # Handling Schedule Conflicts
 
-Managing a busy radio station schedule often involves juggling multiple shows and time slots. Occasional conflicts are inevitable, but Radio Suite provides tools to help you identify and resolve them quickly.
+Managing a busy radio station schedule often involves juggling multiple shows and time slots. Occasional conflicts are inevitable, but StationDock provides tools to help you identify and resolve them quickly.
 
 ## Identifying Conflicts
 
-Radio Suite automatically checks for conflicts whenever you:
+StationDock automatically checks for conflicts whenever you:
 - Create a new show with a schedule
 - Add a new time slot to an existing show
 - Edit an existing time slot
@@ -42,7 +42,7 @@ You want to schedule a new weekly show on Mondays at 10:00 AM, but there is alre
 - **Find a New Slot:** Use the Schedule view to find an open gap in the programming.
 
 ### 3. Midnight Crossings
-Shows that cross midnight (e.g., 11:00 PM to 1:00 AM) can sometimes cause confusion. Radio Suite handles these by splitting the slot across two days visually, but treating it as a single logical block.
+Shows that cross midnight (e.g., 11:00 PM to 1:00 AM) can sometimes cause confusion. StationDock handles these by splitting the slot across two days visually, but treating it as a single logical block.
 
 **Resolution:**
 - Ensure you are looking at the correct day when checking for availability. A show starting late Tuesday night will occupy time on Wednesday morning.

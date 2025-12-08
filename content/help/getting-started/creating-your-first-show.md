@@ -28,10 +28,10 @@ The full-screen form appears with all the fields you need.
 ### Title
 Give your show a memorable name (e.g., "Morning Jazz," "Tech Talk Radio")
 
-### Host
+### Host (Optional)
 Enter the host's name — this appears in podcast feeds and show details
 
-### Description
+### Description (Optional)
 Write a compelling description for listeners. This is used in:
 - RSS feed `<description>` tag
 - Show cards throughout the app
@@ -47,15 +47,17 @@ Choose the category that best describes your show:
 
 This affects visual styling in the schedule calendar.
 
-## Step 3: Podcast Metadata
+## Step 3: Podcast Metadata (Optional)
 
-These fields ensure your RSS feed is iTunes-compatible:
+These fields ensure your RSS feed is iTunes-compatible. **All fields below are optional** — if left empty, StationDock will use your [Station Identity settings](?article=station-identity) as fallbacks.
+
+> **💡 Tip:** Configure your Station Identity first (Settings → Station Identity), and StationDock will automatically fill in Author, Email, and Cover Artwork for any shows that don't have their own values.
 
 ### Author
-The person or organization producing the show
+The person or organization producing the show. Falls back to your Station Name if empty.
 
 ### Email
-Contact email for the show (appears in RSS `<itunes:owner>`)
+Contact email for the show (appears in RSS `<itunes:owner>`). Falls back to your Station Contact Email if empty.
 
 ### Category
 Choose a podcast category (e.g., "Music," "News," "Comedy")
@@ -67,13 +69,13 @@ Comma-separated keywords for discoverability
 Toggle on if your show contains explicit language or content
 
 ### Language
-Default is English (`en`) — change if needed
+Default is English (`en-us`) — change if needed
 
 ### Copyright
 Copyright information (e.g., "© 2024 Your Station Name")
 
 ### Website Link
-Optional URL to the show's website
+URL to the show's website
 
 ## Step 4: Recording Settings
 
@@ -85,11 +87,13 @@ Select an Icecast stream from the dropdown. You must add streams in the **Stream
 
 > **💡 Tip:** If you don't see your stream, go to **Streams** → **+ Add Stream** to add it.
 
-## Step 5: Cover Artwork
+## Step 5: Cover Artwork (Optional)
 
-Upload a square image (recommended 3000x3000px):
+Upload a **square image** between **1400x1400** and **3000x3000 pixels**:
 - **Drag & drop** an image onto the upload area
 - OR **click** to browse files
+
+> **⚠️ Image Requirements:** Your image must be square (same width and height) and between 1400×1400 and 3000×3000 pixels. Images that are too small, too large, or not square will be rejected.
 
 Supports JPG and PNG. The image appears in:
 - Schedule calendar
@@ -97,7 +101,7 @@ Supports JPG and PNG. The image appears in:
 - Episode cards
 - Public listen page
 
-> **📖 Note:** If you don't upload an image, the station's default artwork (from Settings) is used.
+> **📖 Note:** If you don't upload an image, your station's Default Artwork (from [Station Identity](?article=station-identity)) is used automatically.
 
 ## Step 6: Create the Show
 

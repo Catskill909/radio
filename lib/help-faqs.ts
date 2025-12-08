@@ -28,7 +28,7 @@ export const helpFAQs: FAQItem[] = [
         id: 'dst-handling',
         category: 'Scheduling',
         question: 'How are timezones and DST handled?',
-        answer: 'Radio Suite uses a single **Station Timezone** setting. All schedules and recordings happen according to this timezone. Recurring shows automatically adjust for Daylight Saving Time changes to maintain the same local clock time.'
+        answer: 'StationDock uses a single **Station Timezone** setting. All schedules and recordings happen according to this timezone. Recurring shows automatically adjust for Daylight Saving Time changes to maintain the same local clock time.'
     },
     {
         id: 'episode-editing',

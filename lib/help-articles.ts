@@ -14,7 +14,7 @@ export interface HelpArticle {
 export const helpArticles: Record<string, HelpArticle> = {
     'welcome': {
         id: 'welcome',
-        title: 'Welcome to Radio Suite',
+        title: 'Welcome to StationDock',
         category: 'Getting Started',
         order: 1,
         filePath: '/content/help/getting-started/welcome.md',

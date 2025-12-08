@@ -1,6 +1,6 @@
 ---
 title: API Reference
-description: Technical documentation for Radio Suite's public API endpoints.
+description: Technical documentation for StationDock's public API endpoints.
 category: Settings & Configuration
 icon: fa-solid fa-code
 related: ["rss-feed-management", "user-guide"]

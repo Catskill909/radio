@@ -65,7 +65,7 @@ Generates:
 
 ### Auto-Extension
 
-Radio Suite maintains recurring schedules automatically:
+StationDock maintains recurring schedules automatically:
 
 - **Background job** runs nightly
 - **Checks** all recurring patterns
