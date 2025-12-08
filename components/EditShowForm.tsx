@@ -14,9 +14,12 @@ interface EditShowFormProps {
     show: Show;
     streams: { id: string; name: string; url: string }[];
     hideRecordingControls?: boolean;  // Hide when used in slot context (slot has its own controls)
+    hideActionButtons?: boolean;  // Hide Update/Delete buttons when used in scheduling context
+    formId?: string;  // Optional form ID for external button submission
+    onAfterSubmit?: () => void;  // Callback after successful form submission
 }
 
-export default function EditShowForm({ show, streams, hideRecordingControls = false }: EditShowFormProps) {
+export default function EditShowForm({ show, streams, hideRecordingControls = false, hideActionButtons = false, formId, onAfterSubmit }: EditShowFormProps) {
     const [imageUrl, setImageUrl] = useState(show.image || "");
     const [categoryValue, setCategoryValue] = useState(show.category || "");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -27,6 +30,10 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
     // Wrap the server action to pass the ID
     const handleSubmit = async (formData: FormData) => {
         await updateShow(show.id, formData);
+        // Call onAfterSubmit callback if provided (e.g., to schedule the show after updating)
+        if (onAfterSubmit) {
+            onAfterSubmit();
+        }
     };
 
     const handleDelete = async () => {
@@ -37,7 +44,7 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
 
     return (
         <>
-            <form action={handleSubmit} className="grid grid-cols-12 gap-4">
+            <form id={formId} action={handleSubmit} className="grid grid-cols-12 gap-4">
                 {/* Title - Span 12 */}
                 <div className="col-span-12 space-y-1.5">
                     <label htmlFor="title" className="block text-sm font-medium text-gray-300">
@@ -278,24 +285,26 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                     </div>
                 </div>
 
-                {/* Buttons - Span 12 (but restricted width) */}
-                <div className="col-span-12 pt-4 flex gap-3">
-                    <button
-                        type="submit"
-                        className="w-full md:w-auto px-8 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-bold py-3 transition-all shadow-lg text-sm"
-                    >
-                        Update Show
-                    </button>
-                    <Tooltip content="Delete Show">
+                {/* Buttons - Span 12 (but restricted width) - hidden in scheduling context */}
+                {!hideActionButtons && (
+                    <div className="col-span-12 pt-4 flex gap-3">
                         <button
-                            type="button"
-                            onClick={() => setShowDeleteModal(true)}
-                            className="w-full md:w-auto px-6 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-md transition-colors shadow-lg hover:shadow-red-500/20 text-sm"
+                            type="submit"
+                            className="w-full md:w-auto px-8 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-bold py-3 transition-all shadow-lg text-sm"
                         >
-                            Delete
+                            Update Show
                         </button>
-                    </Tooltip>
-                </div>
+                        <Tooltip content="Delete Show">
+                            <button
+                                type="button"
+                                onClick={() => setShowDeleteModal(true)}
+                                className="w-full md:w-auto px-6 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-md transition-colors shadow-lg hover:shadow-red-500/20 text-sm"
+                            >
+                                Delete
+                            </button>
+                        </Tooltip>
+                    </div>
+                )}
             </form>
 
             <DeleteConfirmModal

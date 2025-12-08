@@ -417,12 +417,31 @@ export default function ScheduleModal({
                                                 <span className="ml-3 text-gray-400">Loading show details...</span>
                                             </div>
                                         ) : (
-                                            <EditShowForm
-                                                key={selectedShowId}
-                                                show={shows.find(s => s.id === selectedShowId) as unknown as PrismaShow}
-                                                streams={streams}
-                                                hideRecordingControls={false}
-                                            />
+                                            <>
+                                                <EditShowForm
+                                                    key={selectedShowId}
+                                                    show={shows.find(s => s.id === selectedShowId) as unknown as PrismaShow}
+                                                    streams={streams}
+                                                    hideRecordingControls={false}
+                                                    hideActionButtons={true}
+                                                    formId="schedule-edit-show-form"
+                                                    onAfterSubmit={handleScheduleExisting}
+                                                />
+                                                {/* Schedule Show button at the bottom - submits the form which updates + schedules */}
+                                                <div className="flex justify-center pt-6 mt-4 border-t border-gray-700">
+                                                    <button
+                                                        type="submit"
+                                                        form="schedule-edit-show-form"
+                                                        disabled={!selectedShowId}
+                                                        className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/10 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:animate-none text-white font-medium transition-all animate-[pulse-border_2s_ease-in-out_infinite]"
+                                                        style={{
+                                                            animation: selectedShowId ? 'pulse-border 2s ease-in-out infinite' : 'none'
+                                                        }}
+                                                    >
+                                                        Schedule Show
+                                                    </button>
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 )}
@@ -673,26 +692,29 @@ export default function ScheduleModal({
                                 </div>
                             </div>
 
-                            {/* Recording Settings & Cover Image - Border top for visual separation */}
-                            <div className="pt-4 border-t border-gray-700 space-y-4">
-                                {/* Recording Settings */}
-                                <div>
-                                    <RecordingControls
-                                        recordingEnabled={recordingEnabled}
-                                        onRecordingEnabledChange={setRecordingEnabled}
-                                        recordingSource={recordingSource}
-                                        onRecordingSourceChange={setRecordingSource}
-                                        streams={streams}
-                                    />
-                                </div>
+                            {/* Recording Settings & Cover Image - Side by side layout matching Select Existing Show tab */}
+                            <div className="pt-4 border-t border-gray-700">
+                                <div className="grid grid-cols-12 gap-4">
+                                    {/* Recording Settings - Span 8 */}
+                                    <div className="col-span-12 md:col-span-8">
+                                        <RecordingControls
+                                            recordingEnabled={recordingEnabled}
+                                            onRecordingEnabledChange={setRecordingEnabled}
+                                            recordingSource={recordingSource}
+                                            onRecordingSourceChange={setRecordingSource}
+                                            streams={streams}
+                                        />
+                                    </div>
 
-                                {/* Cover Image */}
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Cover Image
-                                    </label>
-                                    <div className="w-full max-w-sm">
+                                    {/* Cover Image - Span 4 */}
+                                    <div className="col-span-12 md:col-span-4 space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Cover Image
+                                        </label>
                                         <ImageUpload value={imageUrl} onChange={setImageUrl} />
+                                        <p className="text-xs text-gray-500">
+                                            If no image is uploaded, the Station Identity image will be used.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
