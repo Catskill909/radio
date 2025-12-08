@@ -67,6 +67,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
     const [recordingScope, setRecordingScope] = useState<'single' | 'this-and-future'>('single')
     const [recordingChanged, setRecordingChanged] = useState(false)
     const [isSavingRecording, setIsSavingRecording] = useState(false)
+    const [showSourceRequiredModal, setShowSourceRequiredModal] = useState(false)
     const scopeSelectorRef = useRef<HTMLDivElement>(null)
     const modalRef = useRef<HTMLDivElement>(null)
 
@@ -117,6 +118,12 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
     }
 
     const handleSaveRecording = async () => {
+        // Validate: if recording is enabled, a source must be selected
+        if (recordingEnabled && !recordingSource) {
+            setShowSourceRequiredModal(true)
+            return
+        }
+
         setIsSavingRecording(true)
         setError(null)
         try {
@@ -147,6 +154,49 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
 
     return (
         <>
+            {/* Source Required Modal */}
+            {showSourceRequiredModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[1100] flex items-center justify-center p-4">
+                    <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-red-900/50 to-orange-900/30 px-6 py-5 border-b border-gray-700/50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                                    <AlertCircle className="w-5 h-5 text-red-400" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white">Recording Source Required</h3>
+                                    <p className="text-sm text-gray-400 mt-0.5">Please configure your recording settings</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="px-6 py-5">
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                                To enable recording for this broadcast, you need to select a stream source.
+                                Without a source, the system won't know which audio stream to capture.
+                            </p>
+                            <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                                <p className="text-xs text-gray-400">
+                                    <span className="text-gray-300 font-medium">Tip:</span> Select an Icecast stream from the "Recording Source" dropdown to specify which audio feed should be recorded.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 bg-gray-800/30 border-t border-gray-700/50 flex justify-end">
+                            <button
+                                onClick={() => setShowSourceRequiredModal(false)}
+                                className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg text-sm font-medium transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/30"
+                            >
+                                Got it, I'll select a source
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[1050] flex items-center justify-center p-4">
                 <div ref={modalRef} className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                     {/* Header */}
