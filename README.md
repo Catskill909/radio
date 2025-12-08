@@ -44,6 +44,8 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 
 ### 📅 Advanced Scheduling
 - **Click-to-add scheduling** with a simple visual calendar
+- **Visual Show Picker** – Browse shows in a compact card grid with images, titles, and type badges; search/filter by title, host, or type
+- **Guided UX flow** – Auto-scrolling modal guides users from show selection → duration settings → scheduling with visual anchors
 - **Recurring shows** – Automatically generate weekly slots ~1 year ahead (52 weeks) with background auto-extension so successful shows can run for years.
 - Week and day views
 - Visual indicators for recurring shows

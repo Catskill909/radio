@@ -33,11 +33,11 @@ export const helpArticles: Record<string, HelpArticle> = {
     'scheduling-basics': {
         id: 'scheduling-basics',
         title: 'Scheduling Basics',
-        category: 'Getting Started',
-        order: 3,
-        filePath: '/content/help/getting-started/scheduling-basics.md',
+        category: 'Scheduling',
+        order: 0,
+        filePath: '/content/help/scheduling/scheduling-basics.md',
         relatedTopics: ['recurring-shows', 'station-timezone'],
-        keywords: ['schedule', 'calendar', 'time slot', 'scheduling']
+        keywords: ['schedule', 'calendar', 'time slot', 'scheduling', 'show picker']
     },
     'recording-configuration': {
         id: 'recording-configuration',

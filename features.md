@@ -67,7 +67,11 @@ StationDock is built with intentional design choices that prioritize a premium, 
 - **Scheduling workflows**
   - Click an empty time slot to schedule
   - **Select existing show** or **create new show in-place** from the modal
-  - **Inline show editing**: When selecting existing show, full show settings (metadata, recording) are exposed for review/editing before scheduling 🆕
+  - **Visual Show Picker** 🆕: Compact card grid with images, titles, and type badges for browsing shows
+    - Search/filter by title, host, or type
+    - Alphabetically sorted for easy navigation
+  - **Guided UX flow** 🆕: After selecting a show, modal auto-scrolls to reveal Duration/Repeat settings with cards peeking at the top as visual anchor
+  - **Inline show editing**: When selecting existing show, full show settings (metadata, recording) are exposed for review/editing before scheduling
   - Duration selector with recurring weekly toggle
   - Edit existing slot via modal (start time, duration, recurring flag)
   - Delete slot with confirmation
@@ -370,6 +374,8 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - Status badges, spinners, and stale-data indicators across the app
   - **Unsaved changes detection** - Save buttons highlight blue with pulse animation when changes made
   - Success confirmations with green highlighting
+  - **Pulsing CTA buttons** 🆕 - Schedule Show button pulses with glowing border to draw attention
+  - **Modal state reset** 🆕 - Modals reset to initial state (scroll position, selected items, active tab) when reopened
 
 ---
 

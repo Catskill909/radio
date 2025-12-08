@@ -1,13 +1,14 @@
 'use client'
 
 import { X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createScheduleSlot, createShow } from '@/app/actions'
 import ImageUpload from '@/components/ImageUpload'
 import RecordingControls from '@/components/RecordingControls'
 import ScheduleErrorModal from '@/components/ScheduleErrorModal'
 import ItunesCategorySelect from '@/components/iTunesCategorySelect'
 import EditShowForm from '@/components/EditShowForm'
+import ShowPicker from '@/components/ShowPicker'
 import { Show as PrismaShow } from '@prisma/client'
 
 interface Show {
@@ -61,6 +62,7 @@ export default function ScheduleModal({
     const [errorModalOpen, setErrorModalOpen] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
     const [categoryError, setCategoryError] = useState('')
+    const [isLoadingShow, setIsLoadingShow] = useState(false)
 
     // New show fields
     const [newShowTitle, setNewShowTitle] = useState('')
@@ -80,6 +82,41 @@ export default function ScheduleModal({
     const [recordingEnabled, setRecordingEnabled] = useState(false)
     const [recordingSource, setRecordingSource] = useState('')
 
+    // Ref for auto-scroll when show is selected
+    const durationSectionRef = useRef<HTMLDivElement>(null)
+    const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+    // Auto-scroll to show duration section while keeping cards peeking
+    useEffect(() => {
+        if (selectedShowId && scrollContainerRef.current && durationSectionRef.current) {
+            setTimeout(() => {
+                const container = scrollContainerRef.current
+                const durationSection = durationSectionRef.current
+                if (container && durationSection) {
+                    // Use getBoundingClientRect for accurate positioning
+                    const containerRect = container.getBoundingClientRect()
+                    const durationRect = durationSection.getBoundingClientRect()
+                    // Current scroll position + duration's position relative to container - peek amount
+                    const scrollTarget = container.scrollTop + (durationRect.top - containerRect.top) - 85
+                    container.scrollTo({
+                        top: Math.max(0, scrollTarget),
+                        behavior: 'smooth'
+                    })
+                }
+            }, 200) // Slightly longer delay to ensure DOM is ready
+        }
+    }, [selectedShowId])
+
+    // Show brief loading state when switching shows
+    const handleShowSelect = (showId: string) => {
+        if (showId !== selectedShowId) {
+            setIsLoadingShow(true)
+            setSelectedShowId(showId)
+            // Brief delay for visual feedback then show form
+            setTimeout(() => setIsLoadingShow(false), 200)
+        }
+    }
+
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose()
@@ -87,6 +124,15 @@ export default function ScheduleModal({
         if (isOpen) {
             document.addEventListener('keydown', handleEscape)
             document.body.style.overflow = 'hidden'
+        } else {
+            // Reset modal state when closed
+            setSelectedShowId('')
+            setIsLoadingShow(false)
+            setActiveTab('select') // Always open on Select Existing tab
+            // Scroll back to top when modal reopens
+            if (scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTop = 0
+            }
         }
         return () => {
             document.removeEventListener('keydown', handleEscape)
@@ -250,7 +296,13 @@ export default function ScheduleModal({
                 {/* Tabs */}
                 <div className="flex border-b border-gray-800">
                     <button
-                        onClick={() => setActiveTab('select')}
+                        onClick={() => {
+                            setActiveTab('select')
+                            // Reset scroll to top when switching tabs
+                            if (scrollContainerRef.current) {
+                                scrollContainerRef.current.scrollTop = 0
+                            }
+                        }}
                         className={`flex-1 px-6 py-4 font-medium transition-colors ${activeTab === 'select'
                             ? 'text-blue-500 border-b-2 border-blue-500'
                             : 'text-gray-400 hover:text-gray-300'
@@ -259,7 +311,13 @@ export default function ScheduleModal({
                         Select Existing Show
                     </button>
                     <button
-                        onClick={() => setActiveTab('create')}
+                        onClick={() => {
+                            setActiveTab('create')
+                            // Reset scroll to top when switching tabs
+                            if (scrollContainerRef.current) {
+                                scrollContainerRef.current.scrollTop = 0
+                            }
+                        }}
                         className={`flex-1 px-6 py-4 font-medium transition-colors ${activeTab === 'create'
                             ? 'text-blue-500 border-b-2 border-blue-500'
                             : 'text-gray-400 hover:text-gray-300'
@@ -270,7 +328,7 @@ export default function ScheduleModal({
                 </div>
 
                 {/* Content - Scrollable */}
-                <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                <div ref={scrollContainerRef} className="p-6 space-y-6 overflow-y-auto flex-1 scroll-smooth">
                     {/* Time Slot Info */}
                     <div className="p-4 bg-gray-800 rounded-lg">
                         <p className="text-sm text-gray-400">Time Slot</p>
@@ -280,79 +338,102 @@ export default function ScheduleModal({
                     {/* Select Existing Tab */}
                     {activeTab === 'select' && (
                         <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-300">
-                                    Select Show
-                                </label>
-                                <select
-                                    value={selectedShowId}
-                                    onChange={(e) => setSelectedShowId(e.target.value)}
-                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-200"
-                                >
-                                    <option value="">Choose a show...</option>
-                                    {shows.map((show) => (
-                                        <option key={show.id} value={show.id}>
-                                            {show.title}{show.host ? ` - ${show.host}` : ''}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Duration and Recurring - important scheduling options */}
-                            <div className="grid grid-cols-2 gap-4">
+                            {/* Show Picker - stays full height */}
+                            <div>
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-gray-300">
-                                        Duration (minutes)
+                                        Select Show
                                     </label>
-                                    <input
-                                        type="number"
-                                        value={duration}
-                                        onChange={(e) => {
-                                            const val = e.target.value === '' ? '' : parseInt(e.target.value);
-                                            setDuration(val as any);
-                                        }}
-                                        onBlur={(e) => {
-                                            if (!e.target.value || isNaN(parseInt(e.target.value))) {
-                                                setDuration(60);
-                                            }
-                                        }}
-                                        min="15"
-                                        step="15"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    <ShowPicker
+                                        shows={shows}
+                                        selectedShowId={selectedShowId}
+                                        onSelect={handleShowSelect}
                                     />
-                                </div>
-
-                                <div className="space-y-2 flex items-end">
-                                    <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-500 transition-colors w-full">
-                                        <input
-                                            type="checkbox"
-                                            checked={isRecurring}
-                                            onChange={(e) => setIsRecurring(e.target.checked)}
-                                            className="w-5 h-5 text-blue-600 rounded border-gray-700 bg-gray-900 focus:ring-blue-500"
-                                        />
-                                        <span className="text-gray-300 font-medium">Repeat Weekly</span>
-                                    </label>
                                 </div>
                             </div>
 
-                            {/* Show Settings - displayed when a show is selected */}
-                            {selectedShowId && shows.find(s => s.id === selectedShowId) && (
-                                <div className="border-t border-gray-700 pt-4">
-                                    <EditShowForm
-                                        show={shows.find(s => s.id === selectedShowId) as unknown as PrismaShow}
-                                        streams={streams}
-                                        hideRecordingControls={false}
-                                    />
+                            {/* Guided Flow - slides in when show is selected */}
+                            <div className={`transition-all duration-300 ease-out overflow-hidden ${selectedShowId
+                                ? 'max-h-[2000px] opacity-100'
+                                : 'max-h-0 opacity-0'
+                                }`}>
+                                {/* Duration and Recurring */}
+                                <div ref={durationSectionRef} className="grid grid-cols-2 gap-4 mb-4 scroll-mt-56">
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Duration (minutes)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={duration}
+                                            onChange={(e) => {
+                                                const val = e.target.value === '' ? '' : parseInt(e.target.value);
+                                                setDuration(val as any);
+                                            }}
+                                            onBlur={(e) => {
+                                                if (!e.target.value || isNaN(parseInt(e.target.value))) {
+                                                    setDuration(60);
+                                                }
+                                            }}
+                                            min="15"
+                                            step="15"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2 flex items-end">
+                                        <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-500 transition-colors w-full">
+                                            <input
+                                                type="checkbox"
+                                                checked={isRecurring}
+                                                onChange={(e) => setIsRecurring(e.target.checked)}
+                                                className="w-5 h-5 text-blue-600 rounded border-gray-700 bg-gray-900 focus:ring-blue-500"
+                                            />
+                                            <span className="text-gray-300 font-medium">Repeat Weekly</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Schedule Button - compact, centered, outlined style with pulse */}
+                                <div className="flex justify-center mb-6">
+                                    <button
+                                        onClick={handleScheduleExisting}
+                                        disabled={!selectedShowId}
+                                        className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/10 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:animate-none text-white font-medium transition-all animate-[pulse-border_2s_ease-in-out_infinite]"
+                                        style={{
+                                            animation: selectedShowId ? 'pulse-border 2s ease-in-out infinite' : 'none'
+                                        }}
+                                    >
+                                        Schedule Show
+                                    </button>
+                                </div>
+
+                                {/* Show Settings - for optional editing */}
+                                {selectedShowId && shows.find(s => s.id === selectedShowId) && (
+                                    <div className="border-t border-gray-700 pt-4">
+                                        {isLoadingShow ? (
+                                            <div className="flex items-center justify-center py-8">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                                                <span className="ml-3 text-gray-400">Loading show details...</span>
+                                            </div>
+                                        ) : (
+                                            <EditShowForm
+                                                key={selectedShowId}
+                                                show={shows.find(s => s.id === selectedShowId) as unknown as PrismaShow}
+                                                streams={streams}
+                                                hideRecordingControls={false}
+                                            />
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Placeholder when no show selected */}
+                            {!selectedShowId && (
+                                <div className="text-center py-6 text-gray-400 border-t border-gray-800">
+                                    <p>Select a show above to schedule it</p>
                                 </div>
                             )}
-
-                            <button
-                                onClick={handleScheduleExisting}
-                                disabled={!selectedShowId}
-                                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 rounded-lg transition-colors shadow-lg hover:shadow-blue-500/20"
-                            >
-                                Schedule Show
-                            </button>
                         </div>
                     )}
 

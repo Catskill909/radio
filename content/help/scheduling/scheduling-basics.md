@@ -1,7 +1,7 @@
 ---
 title: "Scheduling Basics"
-category: "Getting Started"  
-order: 3
+category: "Scheduling"  
+order: 0
 relatedTopics:
   - "recurring-shows"
   - "handling-conflicts"
@@ -10,6 +10,7 @@ keywords:
   - "calendar"
   - "time slot"
   - "scheduling"
+  - "show picker"
 ---
 
 # Scheduling Basics
@@ -34,15 +35,29 @@ The Schedule page shows your programming in a visual calendar format:
 
 ### Select a Show
 
-Choose from two options:
+The **Show Picker** displays all your shows as visual cards:
 
-**Option 1: Use Existing Show**
-- Select a show from the dropdown
-- All show metadata is pre-filled
+**Visual Card Interface**
+- Each show appears as a **compact card** with its image
+- Shows are **sorted alphabetically** for easy browsing
+- **Color-coded type badges** distinguish show types:
+  - 🎵 Purple badges for music shows
+  - 🎙️ Blue badges for podcast shows
+- Cards display **Local** or **Syndicated** labels
 
-**Option 2: Create New Show**
-- Click "Create New Show" in the modal
-- Fill in show details
+**Search & Filter**
+- Use the **search bar** at the top to find shows quickly
+- Search matches on show **title**, **host**, or **type**
+- Clear search with the **X button** to see all shows
+
+**Selecting a Show**
+- **Click any card** to select that show
+- Selected show has a **blue border** highlight
+- Current selection shown at bottom: "Selected: Show Name"
+
+**Create New Show**
+- Click "**+ Create New Show**" if your show doesn't exist
+- Fill in show details in the new show form
 - Schedule automatically after creation
 
 ### Set the Time
