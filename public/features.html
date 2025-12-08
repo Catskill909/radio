@@ -33,16 +33,15 @@
             gap: 0.75rem;
         }
 
-        .header i {
-            color: #4ade80;
-            font-size: 1.25rem;
+        .header-logo {
+            height: 64px;
+            width: auto;
         }
 
         .header h1 {
             font-family: 'Oswald', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.8rem;
             font-weight: 500;
-            text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
@@ -82,6 +81,13 @@
             border: 1px solid #252525;
             border-radius: 12px;
             padding: 1.5rem;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: #3a3a3a;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         .card h3 {
@@ -124,19 +130,21 @@
         .footer {
             text-align: center;
             padding: 2rem;
-            color: #555;
-            font-size: 0.85rem;
+            color: #666;
+            font-size: 0.9rem;
             border-top: 1px solid #222;
             margin-top: 2rem;
         }
 
         .footer a {
-            color: #888;
+            color: #4ade80;
             text-decoration: none;
+            transition: color 0.2s ease;
         }
 
         .footer a:hover {
-            color: #e5e5e5;
+            color: #86efac;
+            text-decoration: underline;
         }
 
         @media (max-width: 640px) {
@@ -157,7 +165,7 @@
 
 <body>
     <header class="header">
-        <i class="fas fa-radio"></i>
+        <img src="/images/stationdock2.png" alt="StationDock" class="header-logo">
         <h1>StationDock Features</h1>
     </header>
 
@@ -283,7 +291,7 @@
     </main>
 
     <footer class="footer">
-        <a href="https://github.com/Catskill909/radio" target="_blank">View on GitHub</a>
+        © 2025 Built and designed by <a href="https://starkey.digital" target="_blank">starkey.digital</a>
     </footer>
 </body>
 
