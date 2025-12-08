@@ -1,6 +1,6 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
 import { createScheduleSlot, createShow } from '@/app/actions'
 import ImageUpload from '@/components/ImageUpload'
@@ -63,6 +63,9 @@ export default function ScheduleModal({
     const [errorMessage, setErrorMessage] = useState('')
     const [categoryError, setCategoryError] = useState('')
     const [isLoadingShow, setIsLoadingShow] = useState(false)
+
+    // Validation modal for required fields
+    const [validationModalOpen, setValidationModalOpen] = useState(false)
 
     // New show fields
     const [newShowTitle, setNewShowTitle] = useState('')
@@ -488,8 +491,8 @@ export default function ScheduleModal({
                                 </div>
                             </div>
 
-                            {/* Email, Author, Category */}
-                            <div className="grid grid-cols-3 gap-4">
+                            {/* Email, Author */}
+                            <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="block text-sm font-medium text-gray-300">
                                         Contact Email
@@ -513,15 +516,6 @@ export default function ScheduleModal({
                                         onChange={(e) => setNewShowAuthor(e.target.value)}
                                         placeholder="e.g. Radio Station Name"
                                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <ItunesCategorySelect
-                                        value={newShowCategory}
-                                        onChange={setNewShowCategory}
-                                        required={true}
-                                        error={categoryError}
                                     />
                                 </div>
                             </div>
@@ -568,6 +562,16 @@ export default function ScheduleModal({
                                 </div>
                             </div>
 
+                            {/* iTunes Category - Required */}
+                            <div className="space-y-2 max-w-xs">
+                                <ItunesCategorySelect
+                                    value={newShowCategory}
+                                    onChange={setNewShowCategory}
+                                    required={true}
+                                    error={categoryError}
+                                />
+                            </div>
+
                             {/* Tags */}
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium text-gray-300">
@@ -610,7 +614,7 @@ export default function ScheduleModal({
                             </div>
 
                             {/* iTunes Type */}
-                            <div className="space-y-2">
+                            <div className="space-y-2 max-w-xs">
                                 <label className="block text-sm font-medium text-gray-300">
                                     iTunes Type
                                 </label>
@@ -720,9 +724,14 @@ export default function ScheduleModal({
                             </div>
 
                             <button
-                                onClick={handleCreateAndSchedule}
-                                disabled={!newShowTitle}
-                                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-4 rounded-lg transition-colors shadow-lg hover:shadow-blue-500/20"
+                                onClick={() => {
+                                    if (!newShowTitle || !newShowCategory) {
+                                        setValidationModalOpen(true)
+                                        return
+                                    }
+                                    handleCreateAndSchedule()
+                                }}
+                                className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all ${(!newShowTitle || !newShowCategory) ? 'opacity-50' : ''}`}
                             >
                                 Create & Schedule Show
                             </button>
@@ -737,6 +746,38 @@ export default function ScheduleModal({
                 onClose={() => setErrorModalOpen(false)}
                 errorMessage={errorMessage}
             />
+
+            {/* Validation Modal - Friendly reminder to fill required fields */}
+            {validationModalOpen && (
+                <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setValidationModalOpen(false)}
+                    />
+                    <div className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+                        <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-semibold text-white mb-2">Almost There!</h3>
+                            <p className="text-gray-400 mb-6">
+                                Please fill in the required fields before creating your show:
+                                <br /><br />
+                                <span className="text-white font-medium">• Show Title</span><br />
+                                <span className="text-white font-medium">• iTunes Category</span>
+                            </p>
+                            <button
+                                onClick={() => setValidationModalOpen(false)}
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"
+                            >
+                                Got It
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     )
 }
