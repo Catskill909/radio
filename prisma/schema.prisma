@@ -128,6 +128,12 @@ model StationSettings {
   menuEnabled     Boolean @default(true)          // Master toggle for floating menu visibility
   menuItems       String?                         // JSON array of menu items
   
+  // ACRCloud Song Recognition
+  acrcloudEnabled       Boolean @default(false)   // Master toggle for song recognition
+  acrcloudHost          String?                   // e.g., "identify-us-west-2.acrcloud.com"
+  acrcloudAccessKey     String?                   // API access key (env var takes precedence in production)
+  acrcloudAccessSecret  String?                   // API access secret (env var takes precedence in production)
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

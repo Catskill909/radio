@@ -136,6 +136,13 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Responsive Design** – Desktop and mobile layouts with collapsing headers
 - **Custom Floating Menu** – Configurable hamburger menu with drag-and-drop ordering, link to URLs or display custom modal content with size controls (Compact/Standard/Expanded) and a built-in WYSIWYG rich text editor for formatting modal content
 
+### 🎵 Song Recognition (ACRCloud)
+- **Automatic Song Identification** – Identify songs playing on your stream via ACRCloud audio fingerprinting
+- **Settings Integration** – Configure API credentials directly in the Settings page
+- **Test Mode** – Preview stream audio and test identification before enabling
+- **Rich Metadata Display** – Shows cover art, song title, artist, and album
+- **Production Ready** – Supports environment variables for secure credential management in production
+
 ### ♿ Accessibility
 - **Keyboard Navigation** – Full keyboard support for all interactive elements with visible focus indicators
 - **Screen Reader Support** – ARIA labels on buttons, modals, and navigation elements
@@ -407,6 +414,7 @@ radio-suite/
 - [x] Time display accuracy improvements (ceiling rounding, faster polling)
 - [x] Automatic image variant generation (card/icon sizes for faster page loads)
 - [x] Per-slot recording control with scope selector (single/all future broadcasts)
+- [x] Song Recognition via ACRCloud integration (audio fingerprinting, cover art, metadata display)
 
 ### Next Up
 - [ ] Enhanced public-facing pages (show details, host bios)

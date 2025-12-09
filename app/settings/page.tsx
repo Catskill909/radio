@@ -1,4 +1,4 @@
-import { getStationSettings, getStreams, getMenuSettings } from "@/app/actions";
+import { getStationSettings, getStreams, getMenuSettings, getAcrcloudSettings } from "@/app/actions";
 import StationClock from "@/components/StationClock";
 import StationIdentityForm from "@/components/StationIdentityForm";
 import StationTimezoneForm from "@/components/StationTimezoneForm";
@@ -8,6 +8,7 @@ import SiteBrandingForm from "@/components/SiteBrandingForm";
 import CustomMenuForm from "@/components/CustomMenuForm";
 import HelpIcon from '@/components/HelpIcon';
 import DataManagement from "@/components/DataManagement";
+import ACRCloudSettings from "@/components/ACRCloudSettings";
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,7 @@ export default async function SettingsPage() {
     const settings = await getStationSettings();
     const streams = await getStreams();
     const menuSettings = await getMenuSettings();
+    const acrcloudSettings = await getAcrcloudSettings();
     const timezone = settings.timezone || "UTC";
 
     return (
@@ -122,6 +124,18 @@ export default async function SettingsPage() {
                         audioVBR: (settings as any).audioVBR ?? true,
                     }}
                 />
+
+                {/* Full Width: ACRCloud Song Recognition */}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        Song Recognition
+                        <HelpIcon articleId="song-recognition" tooltip="Automatically identify songs playing on your stream." />
+                    </h2>
+                    <ACRCloudSettings
+                        initialSettings={acrcloudSettings}
+                        availableStreams={streams}
+                    />
+                </section>
             </div>
         </div>
     );

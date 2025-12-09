@@ -60,3 +60,6 @@ dev.db*
 
 # Uploads directory (user-generated images)
 /uploads/
+
+# Temporary reference project - delete after ACRCloud integration planning
+/song-api/

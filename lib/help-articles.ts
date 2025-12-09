@@ -236,6 +236,15 @@ export const helpArticles: Record<string, HelpArticle> = {
         filePath: '/content/help/getting-started/station-stats.md',
         relatedTopics: ['stream-health-monitoring', 'recording-configuration'],
         keywords: ['stats', 'dashboard', 'websocket', 'recordings', 'streams', 'real-time', 'monitoring']
+    },
+    'song-recognition': {
+        id: 'song-recognition',
+        title: 'Song Recognition (ACRCloud)',
+        category: 'Settings & Configuration',
+        order: 8,
+        filePath: '/content/help/settings/song-recognition.md',
+        relatedTopics: ['station-stream', 'adding-icecast-streams'],
+        keywords: ['acrcloud', 'song', 'recognition', 'identify', 'music', 'fingerprint', 'cover art', 'now playing']
     }
 }
 

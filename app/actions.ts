@@ -1531,3 +1531,59 @@ export async function getMenuSettings() {
         menuItems: settings?.menuItems ? JSON.parse(settings.menuItems) : []
     };
 }
+
+// ============================================
+// ACRCloud Song Recognition Actions
+// ============================================
+
+export async function getAcrcloudSettings() {
+    // Note: Using 'as any' to work around IDE TypeScript caching
+    // The Prisma schema has these fields, run 'npx prisma generate' if errors persist
+    const settings = await prisma.stationSettings.findUnique({
+        where: { id: 'station' }
+    }) as any;
+
+    // Check if environment variables are set (takes precedence in production)
+    const envConfigured = !!(
+        process.env.ACRCLOUD_HOST &&
+        process.env.ACRCLOUD_ACCESS_KEY &&
+        process.env.ACRCLOUD_ACCESS_SECRET
+    );
+
+    return {
+        enabled: settings?.acrcloudEnabled ?? false,
+        host: settings?.acrcloudHost ?? '',
+        accessKey: settings?.acrcloudAccessKey ?? '',
+        accessSecret: settings?.acrcloudAccessSecret ?? '',
+        envConfigured // Let the UI know if env vars will override
+    };
+}
+
+export async function updateAcrcloudSettings(
+    enabled: boolean,
+    host: string,
+    accessKey: string,
+    accessSecret: string
+) {
+    // Note: Using 'as any' to work around IDE TypeScript caching
+    await (prisma.stationSettings.upsert as any)({
+        where: { id: 'station' },
+        update: {
+            acrcloudEnabled: enabled,
+            acrcloudHost: host.trim() || null,
+            acrcloudAccessKey: accessKey.trim() || null,
+            acrcloudAccessSecret: accessSecret.trim() || null
+        },
+        create: {
+            id: 'station',
+            timezone: 'UTC',
+            acrcloudEnabled: enabled,
+            acrcloudHost: host.trim() || null,
+            acrcloudAccessKey: accessKey.trim() || null,
+            acrcloudAccessSecret: accessSecret.trim() || null
+        }
+    });
+
+    revalidatePath("/settings");
+}
+

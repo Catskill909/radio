@@ -405,6 +405,14 @@ StationDock is built with intentional design choices that prioritize a premium, 
     - Quality presets for quick configuration
     - Real-time file size estimates
     - Unsaved changes detection with visual feedback
+  - **Song Recognition (ACRCloud)** 🆕
+    - Automatic song identification via ACRCloud audio fingerprinting
+    - Enable/disable toggle with credentials form
+    - Host region selector (US West, EU West, Asia Pacific)
+    - Test mode with stream selector and play/pause preview
+    - Live identification with cover art, title, artist, and album display
+    - Environment variable support for production (ACRCLOUD_HOST, ACRCLOUD_ACCESS_KEY, ACRCLOUD_ACCESS_SECRET)
+    - Help documentation with setup instructions
   - Two-column grid layout for optimal space utilization
 
 ---
