@@ -29,21 +29,43 @@ const SIZE_CONFIG = {
     },
 };
 
+// Check if content is HTML (from WYSIWYG editor) or plain text (legacy)
+const isHtmlContent = (text: string): boolean => {
+    return text.trim().startsWith('<');
+};
+
+// Convert plain text to HTML (for backwards compatibility)
+const plainTextToHtml = (text: string): string => {
+    return text
+        .split('\n\n')
+        .map(paragraph => `<p>${paragraph.replace(/\n/g, '<br/>')}</p>`)
+        .join('');
+};
+
 export default function InfoModal({ isOpen, onClose, icon, header, body, size = 'standard' }: InfoModalProps) {
     const sizeConfig = SIZE_CONFIG[size];
 
-    // Render body with line breaks preserved
-    const renderBody = (text: string) => {
-        return text.split('\n\n').map((paragraph, i) => (
-            <p key={i} className="mb-4 last:mb-0 text-gray-300 leading-relaxed">
-                {paragraph.split('\n').map((line, j) => (
-                    <span key={j}>
-                        {line}
-                        {j < paragraph.split('\n').length - 1 && <br />}
-                    </span>
-                ))}
-            </p>
-        ));
+    // Render body - supports both HTML (rich text) and plain text (legacy)
+    const renderBody = () => {
+        if (!body) return null;
+
+        // Determine the HTML content
+        const htmlContent = isHtmlContent(body) ? body : plainTextToHtml(body);
+
+        return (
+            <div
+                className="prose prose-invert prose-sm max-w-none text-gray-300 leading-relaxed
+                    prose-p:mb-4 prose-p:last:mb-0
+                    prose-a:text-blue-400 prose-a:underline hover:prose-a:text-blue-300
+                    prose-strong:text-white prose-strong:font-semibold
+                    prose-em:text-gray-200
+                    prose-ul:list-disc prose-ul:pl-5 prose-ul:my-2
+                    prose-ol:list-decimal prose-ol:pl-5 prose-ol:my-2
+                    prose-li:my-1
+                    prose-img:max-w-full prose-img:h-auto prose-img:rounded-lg prose-img:shadow-md prose-img:my-4"
+                dangerouslySetInnerHTML={{ __html: htmlContent }}
+            />
+        );
     };
 
     return (
@@ -89,7 +111,7 @@ export default function InfoModal({ isOpen, onClose, icon, header, body, size = 
 
                     {/* Body - scrollable with thin modern scrollbar */}
                     <div className="p-6 overflow-y-auto flex-1 thin-scrollbar">
-                        {renderBody(body)}
+                        {renderBody()}
                     </div>
                 </Dialog.Content>
             </Dialog.Portal>

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Trash2, Plus, ExternalLink, GripVertical } from 'lucide-react';
+import { Trash2, Plus, ExternalLink, GripVertical, Pencil } from 'lucide-react';
 import Switch from './Switch';
+import ModalContentEditor from './ModalContentEditor';
 import { updateMenuSettings } from '@/app/actions';
 
 export interface MenuItem {
@@ -40,6 +41,7 @@ export default function CustomMenuForm({ initialMenuEnabled, initialMenuItems }:
     const [saveMessage, setSaveMessage] = useState('');
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+    const [editorOpenId, setEditorOpenId] = useState<string | null>(null);
 
     const handleAddItem = () => {
         if (menuItems.length >= 8) return;
@@ -139,6 +141,9 @@ export default function CustomMenuForm({ initialMenuEnabled, initialMenuItems }:
                             onDragEnd={handleDragEnd}
                             isDragging={draggedIndex === index}
                             isDragOver={dragOverIndex === index}
+                            isEditorOpen={editorOpenId === item.id}
+                            onOpenEditor={() => setEditorOpenId(item.id)}
+                            onCloseEditor={() => setEditorOpenId(null)}
                         />
                     ))}
                 </div>
@@ -191,6 +196,9 @@ interface MenuItemEditorProps {
     onDragEnd: () => void;
     isDragging: boolean;
     isDragOver: boolean;
+    isEditorOpen: boolean;
+    onOpenEditor: () => void;
+    onCloseEditor: () => void;
 }
 
 function MenuItemEditor({
@@ -202,7 +210,10 @@ function MenuItemEditor({
     onDragOver,
     onDragEnd,
     isDragging,
-    isDragOver
+    isDragOver,
+    isEditorOpen,
+    onOpenEditor,
+    onCloseEditor,
 }: MenuItemEditorProps) {
     return (
         <div
@@ -321,38 +332,54 @@ function MenuItemEditor({
                                                 maxLength={50}
                                                 className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-white text-sm placeholder-gray-500"
                                             />
-                                            <textarea
-                                                value={item.modalBody || ''}
-                                                onChange={(e) => onUpdate({ modalBody: e.target.value })}
-                                                placeholder="Modal content"
-                                                rows={3}
-                                                maxLength={2000}
-                                                className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-white text-sm placeholder-gray-500 resize-y min-h-[60px]"
-                                            />
-                                            {/* Modal Size Selector */}
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs text-gray-400">Size:</span>
-                                                <div className="inline-flex rounded-lg overflow-hidden">
-                                                    {(['compact', 'standard', 'expanded'] as const).map((size, index) => (
-                                                        <button
-                                                            key={size}
-                                                            type="button"
-                                                            onClick={() => onUpdate({ modalSize: size })}
-                                                            className={`px-3 py-1 text-xs font-medium capitalize transition-all cursor-pointer border
-                                                                ${index === 0 ? 'rounded-l-lg' : ''} 
-                                                                ${index === 2 ? 'rounded-r-lg' : ''} 
-                                                                ${index > 0 ? '-ml-px' : ''}
-                                                                ${(item.modalSize || 'standard') === size
-                                                                    ? 'border-blue-500/50 bg-blue-500/10 text-white'
-                                                                    : 'border-gray-700 bg-transparent text-gray-400 hover:border-gray-600 hover:text-gray-200'
-                                                                }
-                                                            `}
-                                                        >
-                                                            {size}
-                                                        </button>
-                                                    ))}
+                                            {/* Edit Content Button + Size Selector Row */}
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={onOpenEditor}
+                                                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-lg text-sm text-gray-300 hover:text-white transition-all cursor-pointer"
+                                                >
+                                                    <Pencil className="w-4 h-4" />
+                                                    Edit Content
+                                                </button>
+                                                {/* Modal Size Selector */}
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-gray-400">Size:</span>
+                                                    <div className="inline-flex rounded-lg overflow-hidden">
+                                                        {(['compact', 'standard', 'expanded'] as const).map((size, idx) => (
+                                                            <button
+                                                                key={size}
+                                                                type="button"
+                                                                onClick={() => onUpdate({ modalSize: size })}
+                                                                className={`px-3 py-1 text-xs font-medium capitalize transition-all cursor-pointer border
+                                                                    ${idx === 0 ? 'rounded-l-lg' : ''} 
+                                                                    ${idx === 2 ? 'rounded-r-lg' : ''} 
+                                                                    ${idx > 0 ? '-ml-px' : ''}
+                                                                    ${(item.modalSize || 'standard') === size
+                                                                        ? 'border-blue-500/50 bg-blue-500/10 text-white'
+                                                                        : 'border-gray-700 bg-transparent text-gray-400 hover:border-gray-600 hover:text-gray-200'
+                                                                    }
+                                                                `}
+                                                            >
+                                                                {size}
+                                                            </button>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </div>
+                                            {/* Modal Content Editor */}
+                                            <ModalContentEditor
+                                                isOpen={isEditorOpen}
+                                                onClose={onCloseEditor}
+                                                onSave={(content) => {
+                                                    onUpdate({ modalBody: content });
+                                                    onCloseEditor();
+                                                }}
+                                                initialContent={item.modalBody || ''}
+                                                icon={item.icon}
+                                                header={item.modalHeader || 'Modal Title'}
+                                                size={item.modalSize || 'standard'}
+                                            />
                                         </div>
                                     )}
                                 </div>

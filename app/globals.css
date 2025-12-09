@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* stylelint-disable-next-line at-rule-no-unknown */
+@plugin "@tailwindcss/typography";
 
 :root {
   --foreground-rgb: 255, 255, 255;

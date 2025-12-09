@@ -134,7 +134,7 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Unified Audio Player Card** – Right-aligned player with show artwork, title, host, time remaining, and play/pause controls
 - **Loading Indicators** – Spinner during stream buffering with visual feedback
 - **Responsive Design** – Desktop and mobile layouts with collapsing headers
-- **Custom Floating Menu** – Configurable hamburger menu with drag-and-drop ordering, link to URLs or display custom modal content with size controls (Compact/Standard/Expanded)
+- **Custom Floating Menu** – Configurable hamburger menu with drag-and-drop ordering, link to URLs or display custom modal content with size controls (Compact/Standard/Expanded) and a built-in WYSIWYG rich text editor for formatting modal content
 
 ### ♿ Accessibility
 - **Keyboard Navigation** – Full keyboard support for all interactive elements with visible focus indicators

@@ -181,6 +181,11 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - Up to 8 menu items with drag-and-drop reordering
   - Two action types: URL (opens in new tab) or Modal (popup overlay)
   - **Modal Size Controls**: Choose Compact, Standard, or Expanded width presets per modal
+  - **WYSIWYG Rich Text Editor**: In-context modal content editing with live preview
+    - Formatting toolbar: Bold, Italic, Links, Bullet Lists, Numbered Lists
+    - Editor visually matches the front-end modal appearance
+    - Save button highlights when content is modified
+    - HTML content with backwards compatibility for plain text
   - Responsive modal design: sized on desktop, full-screen overlay on mobile
   - Font Awesome icon picker with live preview
   - Master toggle to show/hide entire menu
