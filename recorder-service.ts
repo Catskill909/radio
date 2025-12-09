@@ -746,12 +746,12 @@ checkShowTransitions() // Initial run
 setInterval(cleanupOldBackups, 24 * 60 * 60 * 1000)
 cleanupOldBackups() // Initial run on startup
 
-// Run orphan recovery periodically (every 5 minutes) to catch stuck recordings faster
-setInterval(recoverOrphanedRecordings, 5 * 60 * 1000)
+// Run orphan recovery periodically (every 15 minutes) to catch stuck recordings after deploys
+setInterval(recoverOrphanedRecordings, 15 * 60 * 1000)
 
 console.log('Recorder service started.')
 console.log('Auto-extension enabled: recurring shows will be extended automatically.')
 console.log('Now Playing: monitoring for show transitions.')
-console.log('Orphan recovery: enabled on startup + every 5 minutes.')
+console.log('Orphan recovery: enabled on startup + every 15 minutes.')
 console.log('Backup cleanup: enabled (removes backups older than 7 days).')
 
