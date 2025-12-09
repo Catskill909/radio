@@ -47,7 +47,7 @@ export default function HelpPage() {
                                 <span className="text-indigo-400 mt-1">•</span>
                                 <button
                                     onClick={() => handleBrowseClick('welcome')}
-                                    className="text-left hover:text-indigo-400 transition-colors hover:underline"
+                                    className="text-left hover:text-indigo-400 transition-colors hover:underline cursor-pointer"
                                 >
                                     Welcome to StationDock
                                 </button>
@@ -56,7 +56,7 @@ export default function HelpPage() {
                                 <span className="text-indigo-400 mt-1">•</span>
                                 <button
                                     onClick={() => handleBrowseClick('creating-your-first-show')}
-                                    className="text-left hover:text-indigo-400 transition-colors hover:underline"
+                                    className="text-left hover:text-indigo-400 transition-colors hover:underline cursor-pointer"
                                 >
                                     Creating Your First Show
                                 </button>
@@ -65,7 +65,7 @@ export default function HelpPage() {
                                 <span className="text-indigo-400 mt-1">•</span>
                                 <button
                                     onClick={() => handleBrowseClick('scheduling-basics')}
-                                    className="text-left hover:text-indigo-400 transition-colors hover:underline"
+                                    className="text-left hover:text-indigo-400 transition-colors hover:underline cursor-pointer"
                                 >
                                     Scheduling Basics
                                 </button>
@@ -74,7 +74,7 @@ export default function HelpPage() {
                                 <span className="text-indigo-400 mt-1">•</span>
                                 <button
                                     onClick={() => handleBrowseClick('recording-configuration')}
-                                    className="text-left hover:text-indigo-400 transition-colors hover:underline"
+                                    className="text-left hover:text-indigo-400 transition-colors hover:underline cursor-pointer"
                                 >
                                     Recording Configuration
                                 </button>
@@ -82,7 +82,7 @@ export default function HelpPage() {
                         </ul>
                         <button
                             onClick={() => handleBrowseClick('welcome')}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-indigo-500/50 hover:border-indigo-500 bg-transparent hover:bg-indigo-500/5 text-white font-medium transition-all text-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-indigo-500/50 hover:border-indigo-500 bg-transparent hover:bg-indigo-500/5 text-white font-medium transition-all text-sm cursor-pointer"
                         >
                             <BookOpen className="w-4 h-4" />
                             Browse All Articles
@@ -101,14 +101,14 @@ export default function HelpPage() {
                         <div className="space-y-3">
                             <button
                                 onClick={() => handleBrowseClick('user-guide')}
-                                className="w-full text-left block px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/50 hover:border-gray-600"
+                                className="w-full text-left block px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/50 hover:border-gray-600 cursor-pointer"
                             >
                                 <div className="font-medium text-gray-200">User Guide</div>
                                 <div className="text-sm text-gray-400">Complete walkthrough of all features</div>
                             </button>
                             <button
                                 onClick={() => handleBrowseClick('api-reference')}
-                                className="w-full text-left block px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/50 hover:border-gray-600"
+                                className="w-full text-left block px-4 py-3 bg-gray-800/50 hover:bg-gray-800 rounded-lg transition-colors border border-gray-700/50 hover:border-gray-600 cursor-pointer"
                             >
                                 <div className="font-medium text-gray-200">API Reference</div>
                                 <div className="text-sm text-gray-400">Technical documentation for developers</div>
@@ -128,7 +128,7 @@ export default function HelpPage() {
                         <div className="space-y-3">
                             <div className="flex items-center gap-2 text-gray-300">
                                 <Mail className="w-4 h-4 text-gray-500" />
-                                <a href="mailto:support@radiosuite.app" className="hover:text-indigo-400 transition-colors">
+                                <a href="mailto:support@radiosuite.app" className="hover:text-indigo-400 transition-colors cursor-pointer">
                                     support@radiosuite.app
                                 </a>
                             </div>

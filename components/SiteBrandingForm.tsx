@@ -179,15 +179,15 @@ export default function SiteBrandingForm({ initialSettings }: SiteBrandingFormPr
                     <button
                         type="submit"
                         disabled={isPending}
-                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-sm font-medium text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-sm font-medium text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         {isPending ? 'Saving...' : 'Save Branding Settings'}
                     </button>
                     {saveMessage && (
                         <span
                             className={`text-sm font-medium animate-fade-in ${saveMessage.includes('Error')
-                                    ? 'text-red-400'
-                                    : 'text-green-400'
+                                ? 'text-red-400'
+                                : 'text-green-400'
                                 }`}
                         >
                             {saveMessage}

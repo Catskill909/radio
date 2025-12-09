@@ -133,7 +133,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                 {searchQuery && (
                     <button
                         onClick={() => setSearchQuery('')}
-                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -153,7 +153,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                     <button
                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                     >
                         ← Previous
                     </button>
@@ -163,7 +163,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                     <button
                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                     >
                         Next →
                     </button>
@@ -241,7 +241,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                                         <a
                                             href={`/api/audio/${recording.filePath}`}
                                             download={`${recording.scheduleSlot?.show?.title || 'recording'} - ${format(new Date(recording.startTime), 'yyyy-MM-dd')}.${recording.filePath.split('.').pop()}`}
-                                            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-600 bg-gray-800/50 hover:bg-gray-700/50 text-xs font-medium text-gray-300 hover:text-gray-100 transition-all"
+                                            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-600 bg-gray-800/50 hover:bg-gray-700/50 text-xs font-medium text-gray-300 hover:text-gray-100 transition-all cursor-pointer"
                                         >
                                             <Download className="w-3.5 h-3.5" />
                                             Download
@@ -253,7 +253,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                                     {recording.status === "COMPLETED" && !recording.episode && (
                                         <Link
                                             href={`/recordings/${recording.id}/publish`}
-                                            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-xs font-medium text-white transition-all whitespace-nowrap"
+                                            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-xs font-medium text-white transition-all whitespace-nowrap cursor-pointer"
                                         >
                                             Publish
                                         </Link>
@@ -261,7 +261,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
 
                                     <button
                                         onClick={() => setRecordingToDelete(recording.id)}
-                                        className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-all"
+                                        className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-all cursor-pointer"
                                         title="Delete Recording"
                                     >
                                         <Trash2 className="w-4 h-4" />
@@ -296,7 +296,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                     <button
                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                     >
                         ← Previous
                     </button>
@@ -306,7 +306,7 @@ export default function RecordingsList({ recordings }: RecordingsListProps) {
                     <button
                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                     >
                         Next →
                     </button>

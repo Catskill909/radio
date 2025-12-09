@@ -73,7 +73,7 @@ export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastC
                         {/* Manage Episodes Button */}
                         <button
                             onClick={() => setDrawerOpen(true)}
-                            className="w-fit flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
+                            className="w-fit flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium cursor-pointer"
                         >
                             <List className="w-4 h-4" />
                             Manage Episodes
@@ -94,7 +94,7 @@ export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastC
                                 </div>
                                 <button
                                     onClick={handleCopy}
-                                    className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700 transition-colors"
+                                    className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700 transition-colors cursor-pointer"
                                     title="Copy RSS URL"
                                 >
                                     <Copy className="w-4 h-4" />
@@ -103,7 +103,7 @@ export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastC
                                     href={feedUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700 transition-colors"
+                                    className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700 transition-colors cursor-pointer"
                                     title="Open Feed"
                                 >
                                     <ExternalLink className="w-4 h-4" />

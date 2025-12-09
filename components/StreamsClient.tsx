@@ -226,14 +226,14 @@ export default function StreamsClient({ initialStreams }: StreamsClientProps) {
                         <button
                             onClick={handleManualRefresh}
                             disabled={isRefreshing}
-                            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium disabled:opacity-50"
+                            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg flex items-center gap-2 transition-colors font-medium disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                         >
                             <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
                             Refresh
                         </button>
                         <button
                             onClick={() => setAddModalOpen(true)}
-                            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all cursor-pointer"
                         >
                             <Plus className="w-5 h-5" />
                             Add Stream

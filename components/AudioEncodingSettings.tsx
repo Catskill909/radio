@@ -81,11 +81,11 @@ export default function AudioEncodingSettings({ initialSettings }: AudioEncoding
                 </div>
                 <button
                     onClick={handleSave}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${saved
-                            ? 'bg-green-600 text-white'
-                            : hasChanges
-                                ? 'bg-blue-600 hover:bg-blue-700 text-white animate-pulse'
-                                : 'bg-gray-700 hover:bg-gray-600 text-white'
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer ${saved
+                        ? 'bg-green-600 text-white'
+                        : hasChanges
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white animate-pulse'
+                            : 'bg-gray-700 hover:bg-gray-600 text-white'
                         }`}
                 >
                     {saved ? (
@@ -107,19 +107,19 @@ export default function AudioEncodingSettings({ initialSettings }: AudioEncoding
                 <div className="flex gap-2">
                     <button
                         onClick={() => applyPreset('voice')}
-                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition-colors"
+                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition-colors cursor-pointer"
                     >
                         Voice (96kbps)
                     </button>
                     <button
                         onClick={() => applyPreset('music')}
-                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition-colors"
+                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition-colors cursor-pointer"
                     >
                         Music (192kbps)
                     </button>
                     <button
                         onClick={() => applyPreset('archival')}
-                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition-colors"
+                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition-colors cursor-pointer"
                     >
                         Archival (Lossless)
                     </button>

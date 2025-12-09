@@ -6,6 +6,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import HelpSidebar from './HelpSidebar'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { searchHelpArticles, type HelpArticle } from '@/lib/help-articles'
 
 interface HelpBrowserModalProps {
@@ -124,7 +125,7 @@ export default function HelpBrowserModal({ isOpen, onClose, initialArticleId = '
                                                             handleArticleClick(article.id)
                                                             setShowSearchResults(false)
                                                         }}
-                                                        className="w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-0"
+                                                        className="w-full text-left px-4 py-3 hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-0 cursor-pointer"
                                                     >
                                                         <div className="text-sm font-medium text-white">{article.title}</div>
                                                         <div className="text-xs text-gray-400 mt-1">{article.category}</div>
@@ -142,7 +143,7 @@ export default function HelpBrowserModal({ isOpen, onClose, initialArticleId = '
 
                                     <button
                                         onClick={onClose}
-                                        className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg flex-shrink-0"
+                                        className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg flex-shrink-0 cursor-pointer"
                                     >
                                         <X className="w-6 h-6" />
                                     </button>
@@ -171,7 +172,7 @@ export default function HelpBrowserModal({ isOpen, onClose, initialArticleId = '
                                                     <p className="text-red-400">{error}</p>
                                                     <button
                                                         onClick={() => loadArticle(currentArticleId)}
-                                                        className="mt-4 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm transition-colors"
+                                                        className="mt-4 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded text-sm transition-colors cursor-pointer"
                                                     >
                                                         Try Again
                                                     </button>
@@ -182,6 +183,7 @@ export default function HelpBrowserModal({ isOpen, onClose, initialArticleId = '
                                                 {/* Article Content */}
                                                 <div className="prose prose-invert prose-lg max-w-none">
                                                     <ReactMarkdown
+                                                        remarkPlugins={[remarkGfm]}
                                                         components={{
                                                             h1: ({ children }) => (
                                                                 <h1 className="text-3xl font-bold text-white mt-8 mb-4" style={{ fontFamily: 'Oswald, sans-serif' }}>
@@ -238,10 +240,42 @@ export default function HelpBrowserModal({ isOpen, onClose, initialArticleId = '
                                                                     {children}
                                                                 </blockquote>
                                                             ),
+                                                            table: ({ children }) => (
+                                                                <div className="overflow-x-auto my-4">
+                                                                    <table className="w-full border-collapse text-sm">
+                                                                        {children}
+                                                                    </table>
+                                                                </div>
+                                                            ),
+                                                            thead: ({ children }) => (
+                                                                <thead className="bg-gray-800 border-b border-gray-600">
+                                                                    {children}
+                                                                </thead>
+                                                            ),
+                                                            tbody: ({ children }) => (
+                                                                <tbody className="divide-y divide-gray-700">
+                                                                    {children}
+                                                                </tbody>
+                                                            ),
+                                                            tr: ({ children }) => (
+                                                                <tr className="hover:bg-gray-800/50">
+                                                                    {children}
+                                                                </tr>
+                                                            ),
+                                                            th: ({ children }) => (
+                                                                <th className="px-4 py-2 text-left text-gray-200 font-semibold">
+                                                                    {children}
+                                                                </th>
+                                                            ),
+                                                            td: ({ children }) => (
+                                                                <td className="px-4 py-2 text-gray-300">
+                                                                    {children}
+                                                                </td>
+                                                            ),
                                                             a: ({ children, href }) => (
                                                                 <a
                                                                     href={href}
-                                                                    className="text-indigo-400 hover:text-indigo-300 underline transition-colors"
+                                                                    className="text-indigo-400 hover:text-indigo-300 underline transition-colors cursor-pointer"
                                                                     onClick={(e) => {
                                                                         // Handle internal help links
                                                                         if (href?.startsWith('/help/')) {

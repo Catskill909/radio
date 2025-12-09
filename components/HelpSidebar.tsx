@@ -40,7 +40,7 @@ export default function HelpSidebar({ onArticleClick, currentArticleId }: HelpSi
                                 {/* Category Header */}
                                 <button
                                     onClick={() => toggleCategory(category.name)}
-                                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left hover:bg-gray-800 transition-colors group"
+                                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left hover:bg-gray-800 transition-colors group cursor-pointer"
                                 >
                                     {isExpanded ? (
                                         <ChevronDown className="w-4 h-4 text-gray-400" />
@@ -64,7 +64,7 @@ export default function HelpSidebar({ onArticleClick, currentArticleId }: HelpSi
                                                 key={article.id}
                                                 onClick={() => onArticleClick(article.id)}
                                                 className={`
-                                                    w-full text-left px-3 py-1.5 rounded text-sm transition-colors
+                                                    w-full text-left px-3 py-1.5 rounded text-sm transition-colors cursor-pointer
                                                     ${currentArticleId === article.id
                                                         ? 'bg-indigo-500/20 text-indigo-300 font-medium'
                                                         : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'

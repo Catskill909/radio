@@ -176,7 +176,7 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                                                     setSelectedShow(show)
                                                     setRssModalOpen(true)
                                                 }}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors cursor-pointer"
                                             >
                                                 <Rss className="w-3 h-3" />
                                                 Feed
@@ -186,7 +186,7 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                                                     setSelectedShow(show)
                                                     setEditModalOpen(true)
                                                 }}
-                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333] text-gray-300 text-xs rounded border border-[#333] transition-colors cursor-pointer"
                                             >
                                                 <Edit className="w-3 h-3" />
                                                 Edit
@@ -198,7 +198,7 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                                                         setSelectedShow(show)
                                                         setDeleteModalOpen(true)
                                                     }}
-                                                    className="flex items-center justify-center p-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded transition-colors"
+                                                    className="flex items-center justify-center p-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded transition-colors cursor-pointer"
                                                 >
                                                     <Trash2 className="w-3 h-3" />
                                                 </button>

@@ -60,7 +60,7 @@ export default function EpisodesClient({ initialShows, timezone, stationLogoUrl 
                     {searchQuery && (
                         <button
                             onClick={() => setSearchQuery('')}
-                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
                         >
                             <X className="w-5 h-5" />
                         </button>

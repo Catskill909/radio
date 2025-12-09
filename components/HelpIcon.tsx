@@ -22,7 +22,7 @@ export default function HelpIcon({ articleId, tooltip = 'View help', className =
         <>
             <button
                 onClick={() => setModalOpen(true)}
-                className={`inline-flex items-center justify-center p-1 rounded-full hover:bg-gray-700 transition-colors group ${className}`}
+                className={`inline-flex items-center justify-center p-1 rounded-full hover:bg-gray-700 transition-colors group cursor-pointer ${className}`}
                 title={tooltip}
             >
                 <HelpCircle className="w-4 h-4 text-gray-400 group-hover:text-indigo-400 transition-colors" />

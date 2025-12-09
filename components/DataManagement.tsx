@@ -65,7 +65,7 @@ export default function DataManagement() {
                     {/* Export Button */}
                     <a
                         href="/api/export"
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-700"
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-700 cursor-pointer"
                     >
                         <Download className="w-4 h-4" />
                         Export All Data
@@ -83,7 +83,7 @@ export default function DataManagement() {
                         <button
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isImporting}
-                            className="flex items-center justify-center gap-2 px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-200 border border-red-900/50 rounded-lg transition-colors w-full sm:w-auto"
+                            className="flex items-center justify-center gap-2 px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-200 border border-red-900/50 rounded-lg transition-colors w-full sm:w-auto cursor-pointer"
                         >
                             {isImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                             Import Data (Replace All)
@@ -136,13 +136,13 @@ export default function DataManagement() {
                                     setSelectedFile(null);
                                     if (fileInputRef.current) fileInputRef.current.value = "";
                                 }}
-                                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                                className="px-4 py-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleImport}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors cursor-pointer"
                             >
                                 Yes, Replace Everything
                             </button>

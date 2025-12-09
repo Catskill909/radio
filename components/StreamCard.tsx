@@ -142,7 +142,7 @@ export default function StreamCard({ stream, onEdit, isPlaying, isLoading, onTog
                     {/* Toggle Switch */}
                     <button
                         onClick={handleToggle}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isEnabled ? 'bg-[#626ac4]' : 'bg-gray-700'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${isEnabled ? 'bg-[#626ac4]' : 'bg-gray-700'
                             }`}
                     >
                         <span
@@ -235,21 +235,21 @@ export default function StreamCard({ stream, onEdit, isPlaying, isLoading, onTog
                         <button
                             onClick={handleRefresh}
                             disabled={isRefreshing}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                         >
                             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                             Refresh
                         </button>
                         <button
                             onClick={onEdit}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors cursor-pointer"
                         >
                             <Edit className="w-4 h-4" />
                             Edit
                         </button>
                         <button
                             onClick={() => setDeleteModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors cursor-pointer"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
@@ -259,7 +259,7 @@ export default function StreamCard({ stream, onEdit, isPlaying, isLoading, onTog
                     <button
                         onClick={onTogglePlay}
                         disabled={isLoading || !isEnabled || stream.status === 'offline' || stream.status === 'error'}
-                        className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-white/10 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-white/10 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
                         title={isPlaying ? "Pause Stream" : "Preview Stream"}
                     >
                         {isLoading ? (
