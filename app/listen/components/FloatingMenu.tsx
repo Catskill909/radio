@@ -12,6 +12,7 @@ export interface MenuItem {
     url?: string;
     modalHeader?: string;
     modalBody?: string;
+    modalSize?: 'compact' | 'standard' | 'expanded';
 }
 
 interface FloatingMenuProps {
@@ -211,6 +212,7 @@ export default function FloatingMenu({ menuEnabled = true, menuItems }: Floating
                     icon={activeModal.icon}
                     header={activeModal.modalHeader || ''}
                     body={activeModal.modalBody || ''}
+                    size={activeModal.modalSize || 'standard'}
                 />
             )}
         </>

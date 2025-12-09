@@ -180,6 +180,8 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - Configurable hamburger-style menu in bottom-right corner
   - Up to 8 menu items with drag-and-drop reordering
   - Two action types: URL (opens in new tab) or Modal (popup overlay)
+  - **Modal Size Controls**: Choose Compact, Standard, or Expanded width presets per modal
+  - Responsive modal design: sized on desktop, full-screen overlay on mobile
   - Font Awesome icon picker with live preview
   - Master toggle to show/hide entire menu
   - Settings UI in admin panel for easy configuration

@@ -14,6 +14,7 @@ export interface MenuItem {
     url?: string;
     modalHeader?: string;
     modalBody?: string;
+    modalSize?: 'compact' | 'standard' | 'expanded';
 }
 
 interface CustomMenuFormProps {
@@ -48,6 +49,7 @@ export default function CustomMenuForm({ initialMenuEnabled, initialMenuItems }:
             label: 'New Item',
             icon: 'fa-solid fa-star',
             actionType: 'url',
+            modalSize: 'standard',
             url: 'https://example.com',
         };
         setMenuItems([...menuItems, newItem]);
@@ -327,6 +329,30 @@ function MenuItemEditor({
                                                 maxLength={2000}
                                                 className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded text-white text-sm placeholder-gray-500 resize-y min-h-[60px]"
                                             />
+                                            {/* Modal Size Selector */}
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs text-gray-400">Size:</span>
+                                                <div className="inline-flex rounded-lg overflow-hidden">
+                                                    {(['compact', 'standard', 'expanded'] as const).map((size, index) => (
+                                                        <button
+                                                            key={size}
+                                                            type="button"
+                                                            onClick={() => onUpdate({ modalSize: size })}
+                                                            className={`px-3 py-1 text-xs font-medium capitalize transition-all cursor-pointer border
+                                                                ${index === 0 ? 'rounded-l-lg' : ''} 
+                                                                ${index === 2 ? 'rounded-r-lg' : ''} 
+                                                                ${index > 0 ? '-ml-px' : ''}
+                                                                ${(item.modalSize || 'standard') === size
+                                                                    ? 'border-blue-500/50 bg-blue-500/10 text-white'
+                                                                    : 'border-gray-700 bg-transparent text-gray-400 hover:border-gray-600 hover:text-gray-200'
+                                                                }
+                                                            `}
+                                                        >
+                                                            {size}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
                                 </div>

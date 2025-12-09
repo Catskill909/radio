@@ -44,6 +44,12 @@ Enter the full URL including `https://` (e.g., `https://example.com/about`).
 #### Modal Items
 - **Header**: The title shown at the top of the modal (max 50 characters)
 - **Body**: The main content. Use Enter to create line breaks which will be preserved in the display (max 2000 characters)
+- **Size**: Choose from three width presets:
+  - **Compact**: Smaller modal (448px) for brief content like contact info
+  - **Standard**: Default size (576px) for typical content
+  - **Expanded**: Larger modal (768px) for detailed information or long text
+
+Modal height adapts to content with scrolling for longer text. On mobile devices, all modals display as full-screen overlays regardless of size setting.
 
 ## Default Items
 

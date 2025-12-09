@@ -55,6 +55,29 @@ body {
   /* Firefox */
 }
 
+/* Thin scrollbar utility class for modals */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 transparent;
+}
+
 /* Calendar Overrides for High Contrast */
 .rbc-calendar {
   color: #e2e8f0 !important;

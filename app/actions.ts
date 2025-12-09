@@ -1495,6 +1495,7 @@ interface MenuItem {
     url?: string;
     modalHeader?: string;
     modalBody?: string;
+    modalSize?: 'compact' | 'standard' | 'expanded';
 }
 
 export async function updateMenuSettings(menuEnabled: boolean, menuItems: MenuItem[]) {

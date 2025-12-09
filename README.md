@@ -2,6 +2,8 @@
 
 **A modern, all-in-one radio station management system.**
 
+> **⚠️ AI AGENT NOTE:** Do NOT use browser_subagent or browser testing tools on this project. The user will perform all manual testing. Browser automation slows down the machine significantly.
+
 StationDock combines a powerful **admin dashboard** for scheduling and automation with a clean **public-facing listener site**. It handles everything from planning your weekly grid to recording live broadcasts and automatically publishing them as podcasts.
 
 ### Key Capabilities:
@@ -132,7 +134,7 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Unified Audio Player Card** – Right-aligned player with show artwork, title, host, time remaining, and play/pause controls
 - **Loading Indicators** – Spinner during stream buffering with visual feedback
 - **Responsive Design** – Desktop and mobile layouts with collapsing headers
-- **Custom Floating Menu** – Configurable hamburger menu with drag-and-drop ordering, link to URLs or display custom modal content
+- **Custom Floating Menu** – Configurable hamburger menu with drag-and-drop ordering, link to URLs or display custom modal content with size controls (Compact/Standard/Expanded)
 
 ### ♿ Accessibility
 - **Keyboard Navigation** – Full keyboard support for all interactive elements with visible focus indicators
