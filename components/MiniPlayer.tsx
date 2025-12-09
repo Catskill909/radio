@@ -4,24 +4,28 @@ import { useEffect, useState, useRef } from 'react';
 import { Play, Pause, Loader2 } from 'lucide-react';
 import { getImageUrl } from '@/lib/image-utils';
 
-// Scrolling text styles
+// Scrolling text styles - only applied when text overflows
 const scrollingStyles = `
 @keyframes marquee {
-    0%, 20% { transform: translateX(0); }
-    80%, 100% { transform: translateX(calc(-100% + 140px)); }
+    0%, 15% { transform: translateX(0); }
+    85%, 100% { transform: translateX(calc(-100% + 180px)); }
 }
 .marquee-container {
     overflow: hidden;
-    max-width: 140px;
+    max-width: 180px;
 }
-.marquee-text {
+.marquee-text-scroll {
     display: inline-block;
     white-space: nowrap;
-    animation: marquee 8s ease-in-out infinite;
-    animation-delay: 1s;
+    animation: marquee 6s ease-in-out infinite;
+    animation-delay: 2s;
 }
-.marquee-text:hover {
+.marquee-text-scroll:hover {
     animation-play-state: paused;
+}
+.marquee-text-static {
+    display: inline-block;
+    white-space: nowrap;
 }
 `;
 
@@ -52,7 +56,10 @@ export default function MiniPlayer({ streamUrl: initialStreamUrl }: MiniPlayerPr
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoadingStream, setIsLoadingStream] = useState(false);
     const [streamUrl, setStreamUrl] = useState<string | null>(initialStreamUrl || null);
+    const [shouldScroll, setShouldScroll] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const titleRef = useRef<HTMLHeadingElement | null>(null);
+    const containerRef = useRef<HTMLDivElement | null>(null);
 
     // Fetch Now Playing data
     useEffect(() => {
@@ -82,6 +89,23 @@ export default function MiniPlayer({ streamUrl: initialStreamUrl }: MiniPlayerPr
             });
         }
     }, [initialStreamUrl]);
+
+    // Check if title text overflows container
+    useEffect(() => {
+        const checkOverflow = () => {
+            if (titleRef.current && containerRef.current) {
+                const textWidth = titleRef.current.scrollWidth;
+                const containerWidth = containerRef.current.clientWidth;
+                setShouldScroll(textWidth > containerWidth);
+            }
+        };
+
+        // Check on mount and when nowPlaying changes
+        checkOverflow();
+        // Small delay to ensure fonts are loaded
+        const timeout = setTimeout(checkOverflow, 100);
+        return () => clearTimeout(timeout);
+    }, [nowPlaying]);
 
     // Audio Element Management
     useEffect(() => {
@@ -175,10 +199,15 @@ export default function MiniPlayer({ streamUrl: initialStreamUrl }: MiniPlayerPr
             </div>
 
             {/* Metadata - Compact with scrolling title */}
-            <div className="flex flex-col justify-center min-w-[140px]">
+            <div className="flex flex-col justify-center min-w-[180px]">
                 <div className="flex items-center gap-1.5">
-                    <div className="marquee-container">
-                        <h2 className="marquee-text text-white font-semibold text-sm leading-tight">{title}</h2>
+                    <div className="marquee-container" ref={containerRef}>
+                        <h2
+                            ref={titleRef}
+                            className={`${shouldScroll ? 'marquee-text-scroll' : 'marquee-text-static'} text-white font-semibold text-sm leading-tight`}
+                        >
+                            {title}
+                        </h2>
                     </div>
                     {currentShow && (
                         <span className="bg-red-600 text-white text-[9px] font-bold px-1 py-0.5 rounded animate-pulse flex-shrink-0">
@@ -186,7 +215,7 @@ export default function MiniPlayer({ streamUrl: initialStreamUrl }: MiniPlayerPr
                         </span>
                     )}
                 </div>
-                <p className="text-gray-400 text-xs mt-0.5 truncate max-w-[140px]">{subtitle}</p>
+                <p className="text-gray-400 text-xs mt-0.5 truncate max-w-[180px]">{subtitle}</p>
             </div>
 
             {/* Time Remaining - Compact */}
