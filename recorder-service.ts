@@ -434,12 +434,13 @@ async function handleRecordingCompletion(recording: any, slot: any, filePath: st
     })
 }
 
-// Recover orphaned recordings (stuck in RECORDING status after service restart)
+// Recover orphaned recordings (stuck in RECORDING status)
+// Runs on startup AND periodically to catch stuck recordings faster
 async function recoverOrphanedRecordings() {
     const now = new Date()
 
-    // Find recordings that are marked as RECORDING but their slot has ended
-    const orphanedRecordings = await prisma.recording.findMany({
+    // CASE 1: Recordings where slot has ended (original case)
+    const endedSlotOrphans = await prisma.recording.findMany({
         where: {
             status: 'RECORDING',
             scheduleSlot: {
@@ -453,9 +454,39 @@ async function recoverOrphanedRecordings() {
         }
     })
 
+    // CASE 2: Recordings where slot was deleted (orphaned FK)
+    const noSlotOrphans = await prisma.recording.findMany({
+        where: {
+            status: 'RECORDING',
+            scheduleSlotId: null
+        }
+    })
+
+    // CASE 3: Recordings where recording was manually disabled mid-stream
+    const disabledOrphans = await prisma.recording.findMany({
+        where: {
+            status: 'RECORDING',
+            scheduleSlot: {
+                recordingOverride: false
+            }
+        },
+        include: {
+            scheduleSlot: {
+                include: { show: true }
+            }
+        }
+    })
+
+    // Combine all orphans (deduplicate by ID)
+    const allOrphansMap = new Map<string, any>()
+    for (const r of endedSlotOrphans) allOrphansMap.set(r.id, r)
+    for (const r of noSlotOrphans) allOrphansMap.set(r.id, r)
+    for (const r of disabledOrphans) allOrphansMap.set(r.id, r)
+    const orphanedRecordings = Array.from(allOrphansMap.values())
+
     if (orphanedRecordings.length === 0) return
 
-    console.log(`[RECOVERY] Found ${orphanedRecordings.length} orphaned recording(s)`)
+    console.log(`[RECOVERY] Found ${orphanedRecordings.length} orphaned recording(s) (ended: ${endedSlotOrphans.length}, no-slot: ${noSlotOrphans.length}, disabled: ${disabledOrphans.length})`)
 
     for (const recording of orphanedRecordings) {
         const showTitle = recording.scheduleSlot?.show?.title || 'Unknown'
@@ -715,9 +746,12 @@ checkShowTransitions() // Initial run
 setInterval(cleanupOldBackups, 24 * 60 * 60 * 1000)
 cleanupOldBackups() // Initial run on startup
 
+// Run orphan recovery periodically (every 5 minutes) to catch stuck recordings faster
+setInterval(recoverOrphanedRecordings, 5 * 60 * 1000)
+
 console.log('Recorder service started.')
 console.log('Auto-extension enabled: recurring shows will be extended automatically.')
 console.log('Now Playing: monitoring for show transitions.')
-console.log('Orphan recovery: enabled on startup.')
+console.log('Orphan recovery: enabled on startup + every 5 minutes.')
 console.log('Backup cleanup: enabled (removes backups older than 7 days).')
 
