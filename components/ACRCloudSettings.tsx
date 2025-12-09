@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { updateAcrcloudSettings } from '@/app/actions';
-import { Check, Music, Play, Pause, Search, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { updateAcrcloudSettings, updateAcrcloudLimit } from '@/app/actions';
+import { Check, Music, Play, Pause, Search, AlertCircle, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import Switch from './Switch';
 import { IcecastStream } from '@prisma/client';
 import HelpIcon from './HelpIcon';
@@ -14,6 +14,9 @@ interface ACRCloudSettingsProps {
         accessKey: string;
         accessSecret: string;
         envConfigured: boolean;
+        monthlyLimit: number;
+        requestCount: number;
+        resetDate: string | null;
     };
     availableStreams: IcecastStream[];
 }
@@ -53,6 +56,11 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
     // Save state
     const [saved, setSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Usage tracking state
+    const [requestCount, setRequestCount] = useState(initialSettings.requestCount);
+    const [monthlyLimit, setMonthlyLimit] = useState(initialSettings.monthlyLimit);
+    const [limitReached, setLimitReached] = useState(false);
 
     // Audio ref
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -101,6 +109,11 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
             return;
         }
 
+        if (limitReached) {
+            setError(`Monthly limit reached (${requestCount}/${monthlyLimit}). Increase limit or wait until next month.`);
+            return;
+        }
+
         setIsIdentifying(true);
         setError(null);
         setIdentifiedSong(null);
@@ -114,7 +127,18 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
 
             const result = await response.json();
 
-            if (result.success && result.song) {
+            // Update usage count from response
+            if (result.usage) {
+                setRequestCount(result.usage.count);
+                if (result.usage.count >= result.usage.limit) {
+                    setLimitReached(true);
+                }
+            }
+
+            if (result.limitReached) {
+                setLimitReached(true);
+                setError(result.error || 'Monthly limit reached');
+            } else if (result.success && result.song) {
                 setIdentifiedSong(result.song);
             } else {
                 setError(result.error || 'Song not recognized');
@@ -158,6 +182,75 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
                 </div>
                 <Switch checked={enabled} onChange={setEnabled} />
             </div>
+
+            {/* Usage Meter */}
+            {enabled && (
+                <div className="mt-4 p-4 bg-gray-800/50 border border-gray-700/50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-300">Monthly Usage</span>
+                        <span className="text-sm text-gray-400">
+                            {requestCount} / {monthlyLimit} requests
+                        </span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-700 rounded-full h-2.5 mb-3">
+                        <div
+                            className={`h-2.5 rounded-full transition-all ${requestCount >= monthlyLimit
+                                    ? 'bg-red-500'
+                                    : requestCount >= monthlyLimit * 0.8
+                                        ? 'bg-yellow-500'
+                                        : 'bg-green-500'
+                                }`}
+                            style={{ width: `${Math.min(100, (requestCount / monthlyLimit) * 100)}%` }}
+                        />
+                    </div>
+
+                    {/* Limit Exceeded Warning */}
+                    {requestCount >= monthlyLimit && (
+                        <div className="flex items-center gap-2 text-red-400 text-xs mb-3">
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <span>Limit reached! Increase limit below or wait until next month.</span>
+                        </div>
+                    )}
+
+                    {/* Warning at 80% */}
+                    {requestCount >= monthlyLimit * 0.8 && requestCount < monthlyLimit && (
+                        <div className="flex items-center gap-2 text-yellow-400 text-xs mb-3">
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <span>Approaching monthly limit ({Math.round((requestCount / monthlyLimit) * 100)}% used)</span>
+                        </div>
+                    )}
+
+                    {/* Limit Input */}
+                    <div className="flex items-center gap-3">
+                        <label className="text-xs text-gray-400">Monthly limit:</label>
+                        <input
+                            type="number"
+                            value={monthlyLimit}
+                            onChange={(e) => setMonthlyLimit(Math.max(1, parseInt(e.target.value) || 1))}
+                            min="1"
+                            max="10000"
+                            className="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                        />
+                        <button
+                            onClick={async () => {
+                                await updateAcrcloudLimit(monthlyLimit);
+                                // Reset limitReached if we've increased the limit above current count
+                                if (monthlyLimit > requestCount) {
+                                    setLimitReached(false);
+                                }
+                            }}
+                            className="px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors cursor-pointer"
+                        >
+                            Update
+                        </button>
+                        <span className="text-xs text-gray-500">
+                            ≈ ${((monthlyLimit / 1000) * 5.40).toFixed(2)}/mo max
+                        </span>
+                    </div>
+                </div>
+            )}
 
             {/* Environment Variables Notice OR Credentials Form */}
             {initialSettings.envConfigured ? (

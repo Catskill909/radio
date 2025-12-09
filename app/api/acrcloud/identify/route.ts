@@ -6,11 +6,23 @@
  * 
  * Captures audio from the given stream URL and identifies the song
  * using ACRCloud's audio fingerprinting service.
+ * 
+ * Includes usage tracking and monthly limit enforcement for cost protection.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { identifySong } from '@/lib/acrcloud';
 import { prisma } from '@/lib/prisma';
+
+// Helper to check if we're in a new month
+function isNewMonth(lastResetDate: Date | null): boolean {
+    if (!lastResetDate) return true;
+    const now = new Date();
+    return (
+        now.getMonth() !== lastResetDate.getMonth() ||
+        now.getFullYear() !== lastResetDate.getFullYear()
+    );
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -29,6 +41,36 @@ export async function POST(request: NextRequest) {
         const settings = await prisma.stationSettings.findUnique({
             where: { id: 'station' }
         }) as any;
+
+        // Check usage limits
+        const monthlyLimit = settings?.acrcloudMonthlyLimit ?? 500;
+        let requestCount = settings?.acrcloudRequestCount ?? 0;
+        const resetDate = settings?.acrcloudResetDate;
+
+        // Reset counter if new month
+        if (isNewMonth(resetDate)) {
+            requestCount = 0;
+            await (prisma.stationSettings.update as any)({
+                where: { id: 'station' },
+                data: {
+                    acrcloudRequestCount: 0,
+                    acrcloudResetDate: new Date()
+                }
+            });
+        }
+
+        // Check if limit reached
+        if (requestCount >= monthlyLimit) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: `Monthly limit reached (${requestCount}/${monthlyLimit} requests). Increase limit in Settings or wait until next month.`,
+                    limitReached: true,
+                    usage: { count: requestCount, limit: monthlyLimit }
+                },
+                { status: 429 }
+            );
+        }
 
         // Priority: environment variables > database settings
         const credentials = {
@@ -51,7 +93,20 @@ export async function POST(request: NextRequest) {
         // Identify the song
         const result = await identifySong(streamUrl, credentials);
 
-        return NextResponse.json(result);
+        // Increment request counter (only if API call was made)
+        await (prisma.stationSettings.update as any)({
+            where: { id: 'station' },
+            data: {
+                acrcloudRequestCount: requestCount + 1,
+                acrcloudResetDate: settings?.acrcloudResetDate || new Date()
+            }
+        });
+
+        // Include usage info in response
+        return NextResponse.json({
+            ...result,
+            usage: { count: requestCount + 1, limit: monthlyLimit }
+        });
 
     } catch (error) {
         console.error('ACRCloud API error:', error);

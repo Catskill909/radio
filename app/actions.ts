@@ -1536,9 +1536,18 @@ export async function getMenuSettings() {
 // ACRCloud Song Recognition Actions
 // ============================================
 
+// Helper to check if we're in a new month
+function isNewMonth(lastResetDate: Date | null): boolean {
+    if (!lastResetDate) return true;
+    const now = new Date();
+    return (
+        now.getMonth() !== lastResetDate.getMonth() ||
+        now.getFullYear() !== lastResetDate.getFullYear()
+    );
+}
+
 export async function getAcrcloudSettings() {
     // Note: Using 'as any' to work around IDE TypeScript caching
-    // The Prisma schema has these fields, run 'npx prisma generate' if errors persist
     const settings = await prisma.stationSettings.findUnique({
         where: { id: 'station' }
     }) as any;
@@ -1550,12 +1559,32 @@ export async function getAcrcloudSettings() {
         process.env.ACRCLOUD_ACCESS_SECRET
     );
 
+    // Check if counter needs reset (new month)
+    let requestCount = settings?.acrcloudRequestCount ?? 0;
+    const resetDate = settings?.acrcloudResetDate;
+
+    if (isNewMonth(resetDate) && requestCount > 0) {
+        // Reset the counter
+        await (prisma.stationSettings.update as any)({
+            where: { id: 'station' },
+            data: {
+                acrcloudRequestCount: 0,
+                acrcloudResetDate: new Date()
+            }
+        });
+        requestCount = 0;
+    }
+
     return {
         enabled: settings?.acrcloudEnabled ?? false,
         host: settings?.acrcloudHost ?? '',
         accessKey: settings?.acrcloudAccessKey ?? '',
         accessSecret: settings?.acrcloudAccessSecret ?? '',
-        envConfigured // Let the UI know if env vars will override
+        envConfigured,
+        // Usage tracking
+        monthlyLimit: settings?.acrcloudMonthlyLimit ?? 500,
+        requestCount: requestCount,
+        resetDate: settings?.acrcloudResetDate?.toISOString() ?? null
     };
 }
 
@@ -1584,6 +1613,16 @@ export async function updateAcrcloudSettings(
         }
     });
 
+    revalidatePath("/settings");
+}
+
+export async function updateAcrcloudLimit(monthlyLimit: number) {
+    await (prisma.stationSettings.update as any)({
+        where: { id: 'station' },
+        data: {
+            acrcloudMonthlyLimit: Math.max(1, Math.min(10000, monthlyLimit)) // Clamp between 1 and 10000
+        }
+    });
     revalidatePath("/settings");
 }
 

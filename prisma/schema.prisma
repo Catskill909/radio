@@ -133,6 +133,9 @@ model StationSettings {
   acrcloudHost          String?                   // e.g., "identify-us-west-2.acrcloud.com"
   acrcloudAccessKey     String?                   // API access key (env var takes precedence in production)
   acrcloudAccessSecret  String?                   // API access secret (env var takes precedence in production)
+  acrcloudMonthlyLimit  Int     @default(500)     // Monthly request limit (default 500 = ~$2.70/month)
+  acrcloudRequestCount  Int     @default(0)       // Current month's request count
+  acrcloudResetDate     DateTime?                 // Date when counter was last reset (null = never)
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
