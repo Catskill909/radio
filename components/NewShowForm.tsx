@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
 import DateTimePicker from "@/components/DateTimePicker";
-import RecordingControls from "@/components/RecordingControls";
 import { useState } from "react";
 import "@/app/shows/datepicker-dark.css";
 import ItunesCategorySelect from "@/components/iTunesCategorySelect";
@@ -19,8 +18,6 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
     const [categoryValue, setCategoryValue] = useState("");
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [startTime, setStartTime] = useState<Date | null>(null);
-    const [recordingEnabled, setRecordingEnabled] = useState(false);
-    const [recordingSource, setRecordingSource] = useState("");
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -362,21 +359,9 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                             </label>
                         </div>
 
-                        {/* Recording Settings & Cover Image Row */}
-                        <div className="col-span-12 grid grid-cols-12 gap-4 pt-2 border-t border-gray-800">
-                            {/* Recording Controls - Span 8 */}
-                            <div className="col-span-12 md:col-span-8">
-                                <RecordingControls
-                                    recordingEnabled={recordingEnabled}
-                                    onRecordingEnabledChange={setRecordingEnabled}
-                                    recordingSource={recordingSource}
-                                    onRecordingSourceChange={setRecordingSource}
-                                    streams={streams}
-                                />
-                            </div>
-
-                            {/* Cover Image - Span 4 */}
-                            <div className="col-span-12 md:col-span-4 space-y-1.5">
+                        {/* Cover Image Row */}
+                        <div className="col-span-12 pt-2 border-t border-gray-800">
+                            <div className="space-y-1.5">
                                 <label className="block text-sm font-medium text-gray-300">
                                     Cover Image
                                 </label>

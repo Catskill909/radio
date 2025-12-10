@@ -820,18 +820,15 @@ export async function updateSlotRecording(
  * Update only the recording source for a show
  * @param showId - The show to update
  * @param recordingSource - The stream URL to record from
- * @param recordingEnabled - Whether recording is enabled
  */
 export async function updateShowRecordingSource(
     showId: string,
-    recordingSource: string,
-    recordingEnabled: boolean
+    recordingSource: string
 ) {
     await prisma.show.update({
         where: { id: showId },
         data: {
-            recordingSource: recordingSource || null,
-            recordingEnabled
+            recordingSource: recordingSource || null
         }
     });
 
