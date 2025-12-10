@@ -747,10 +747,16 @@
             const grid = document.getElementById('galleryGrid');
             if (!grid) return;
 
+            // Helper to get thumbnail path from original filename
+            const getThumbPath = (file) => {
+                const baseName = file.substring(0, file.lastIndexOf('.'));
+                return `/screenshots/thumbs/${baseName}_thumb.jpg`;
+            };
+
             grid.innerHTML = screenshots.map((item, index) => `
                 <div class="gallery-item" onclick="openLightbox(${index})" tabindex="0" 
                      onkeydown="if(event.key==='Enter')openLightbox(${index})">
-                    <img src="/screenshots/${item.file}" alt="${item.title}" loading="lazy">
+                    <img src="${getThumbPath(item.file)}" alt="${item.title}" loading="lazy">
                     <div class="gallery-item-overlay">
                         <div class="gallery-item-title">
                             <i class="fas ${item.icon}"></i>
@@ -760,6 +766,7 @@
                 </div>
             `).join('');
         }
+
 
         // Gallery modal functions
         function openGallery() {

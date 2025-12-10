@@ -271,6 +271,8 @@ npx prisma migrate dev --name describe_your_change
 npm run db:backup      # Create timestamped backup
 npm run db:studio      # Open database browser UI
 npm run db:migrate     # Run migrations
+npx tsx scripts/generate-images.ts              # Generate upload image variants
+npx tsx scripts/generate-screenshot-thumbnails.ts  # Generate gallery thumbnails
 ```
 
 ### 📖 Full Documentation

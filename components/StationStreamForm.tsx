@@ -13,12 +13,16 @@ interface StationStreamFormProps {
 export default function StationStreamForm({ initialStreamUrl, availableStreams }: StationStreamFormProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+    const [selectedStream, setSelectedStream] = useState<string>(initialStreamUrl || "");
 
-    const handleSubmit = async (formData: FormData) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault(); // Prevent form navigation
+
         setIsSaving(true);
         setStatus(null);
 
         try {
+            const formData = new FormData(e.currentTarget);
             await updateStationStreamAction(formData);
             setStatus({ type: 'success', message: 'Stream setting saved successfully!' });
 
@@ -41,7 +45,7 @@ export default function StationStreamForm({ initialStreamUrl, availableStreams }
     // Actually, let's just show all for now as the user didn't specify filtering.
 
     return (
-        <form action={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4 h-fit relative">
+        <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4 h-fit relative">
             <div>
                 <h2 className="text-lg font-semibold text-gray-100 flex items-center gap-2">
                     <Radio className="w-5 h-5 text-green-400" />
@@ -75,7 +79,8 @@ export default function StationStreamForm({ initialStreamUrl, availableStreams }
                 <select
                     id="streamUrl"
                     name="streamUrl"
-                    defaultValue={initialStreamUrl || ""}
+                    value={selectedStream}
+                    onChange={(e) => setSelectedStream(e.target.value)}
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                     <option value="">-- No Stream Selected --</option>
