@@ -199,13 +199,89 @@ StationDock is designed to be deployed as a single container (Monolith) using **
 
 👉 **[Read the Full Deployment Guide](./docs/DEPLOYMENT_GUIDE.md)**
 
-### Prerequisites
+---
+
+### ☁️ Coolify Quick Setup
+
+#### Environment Variables
+
+**Required:**
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `DATABASE_URL` | `file:/app/data/dev.db` | SQLite database path (persistent volume) |
+| `ADMIN_PASSWORD` | `your-secure-password` | Password for admin login |
+| `NODE_ENV` | `production` | Enables production optimizations |
+| `NIXPACKS_NODE_VERSION` | `20` | Node.js version for Nixpacks build |
+
+**Optional:**
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `NEXT_PUBLIC_BASE_URL` | `https://your-domain.com` | Your public URL for RSS feeds |
+| `ACRCLOUD_HOST` | `identify-us-west-2.acrcloud.com` | ACRCloud API host (for song recognition) |
+| `ACRCLOUD_ACCESS_KEY` | `your-access-key` | ACRCloud access key |
+| `ACRCLOUD_ACCESS_SECRET` | `your-access-secret` | ACRCloud access secret |
+
+#### Persistent Storage (Required)
+
+Add these 3 volumes in Coolify → **Storages**:
+
+| Name | Container Path | Purpose |
+|------|----------------|---------|
+| **Database** | `/app/data` | SQLite database file |
+| **Recordings** | `/app/recordings` | Audio recordings from shows |
+| **Uploads** | `/app/uploads` | Show artwork and images |
+
+> ⚠️ **Critical:** Do NOT use `/app/prisma` for database storage (conflicts with schema files).
+
+#### Post-Deploy Steps
+
+```bash
+# In Coolify terminal, initialize the database:
+npx prisma migrate deploy
+
+# If schema changes were made:
+npx prisma db push
+pm2 restart all
+```
+
+---
+
+### 🖥️ Server Sizing Guide
+
+**Recommended: Contabo Cloud VPS 30 NVMe or equivalent**
+
+| Specs | VPS 30 | Handles |
+|-------|--------|---------|
+| **RAM** | 24GB | Comfortable for 8+ projects |
+| **CPU** | 8 cores | Audio recording + streaming |
+| **Storage** | 400GB NVMe | Years of recordings |
+| **Bandwidth** | 600 Mbit/s | 1000+ concurrent listeners |
+
+**Capacity for StationDock:**
+- ✅ Hundreds of concurrent `/listen` page users
+- ✅ Multiple simultaneous MP3 streams (128kbps × 500 users = 64 Mbit/s)
+- ✅ Background recording + transcoding
+- ✅ All 8 Coolify projects running
+
+**Server Maintenance Tips:**
+- Add swap space (4GB recommended): `sudo fallocate -l 4G /swapfile`
+- Clean Docker regularly: `docker system prune -af`
+- Reboot monthly during low-traffic periods
+- Monitor memory: `docker stats --no-stream`
+
+---
+
+### 💻 Local Development
+
+#### Prerequisites
 
 - Node.js 18+ 
 - npm/yarn/pnpm
 - FFmpeg (for recording functionality)
 
-### Installation
+#### Installation
 
 1. Clone the repository:
 ```bash
