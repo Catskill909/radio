@@ -140,7 +140,7 @@ export default function StatsPage() {
         }
     }, [isConnected, subscribe, on])
 
-    // Fetch initial stream data
+    // Fetch initial stream data (all streams - disabled ones show as offline)
     useEffect(() => {
         setIsLoadingStreams(true)
         fetch('/api/streams')
@@ -150,7 +150,8 @@ export default function StatsPage() {
                     setStreams(data.map((s: any) => ({
                         id: s.id,
                         name: s.name,
-                        status: s.status || 'unknown',
+                        // Disabled streams always show as offline
+                        status: s.isEnabled ? (s.status || 'unknown') : 'offline',
                         listeners: s.listeners
                     })))
                 }

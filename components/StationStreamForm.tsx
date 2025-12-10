@@ -39,11 +39,6 @@ export default function StationStreamForm({ initialStreamUrl, availableStreams }
         }
     };
 
-    // Filter for enabled streams only, or show all? 
-    // The prompt said "choices to set the audio streaming url will come from the urls setup in the stream view"
-    // I'll show all, but maybe indicate if they are disabled. 
-    // Actually, let's just show all for now as the user didn't specify filtering.
-
     return (
         <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4 h-fit relative">
             <div>
@@ -84,11 +79,13 @@ export default function StationStreamForm({ initialStreamUrl, availableStreams }
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                     <option value="">-- No Stream Selected --</option>
-                    {availableStreams.map((stream) => (
-                        <option key={stream.id} value={stream.url}>
-                            {stream.name} ({stream.url})
-                        </option>
-                    ))}
+                    {availableStreams
+                        .filter((stream) => stream.isEnabled)
+                        .map((stream) => (
+                            <option key={stream.id} value={stream.url}>
+                                {stream.name} ({stream.url})
+                            </option>
+                        ))}
                 </select>
             </div>
 
