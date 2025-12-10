@@ -102,7 +102,7 @@
         }
 
         .card h3 i {
-            color: #4ade80;
+            color: #60a5fa;
             font-size: 1rem;
             width: 1.25rem;
         }
@@ -118,7 +118,7 @@
 
         .card p::before {
             content: '•';
-            color: #4ade80;
+            color: #22d3ee;
             font-weight: bold;
             flex-shrink: 0;
         }
@@ -137,13 +137,13 @@
         }
 
         .footer a {
-            color: #4ade80;
+            color: #22d3ee;
             text-decoration: none;
             transition: color 0.2s ease;
         }
 
         .footer a:hover {
-            color: #86efac;
+            color: #67e8f9;
             text-decoration: underline;
         }
 
@@ -175,46 +175,31 @@
             padding: 0.875rem 1.75rem;
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
-            font-weight: 600;
-            color: #fff;
-            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-            border: none;
-            border-radius: 12px;
+            font-weight: 500;
+            color: #60a5fa;
+            background: transparent;
+            border: 1px solid #3b82f6;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .gallery-button::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .gallery-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
-        }
-
-        .gallery-button:hover::before {
-            opacity: 1;
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #60a5fa;
+            color: #93c5fd;
         }
 
         .gallery-button:active {
-            transform: translateY(0);
+            transform: scale(0.98);
         }
 
         .gallery-arrow {
-            transition: transform 0.3s ease;
+            transition: transform 0.2s ease;
         }
 
         .gallery-button:hover .gallery-arrow {
-            transform: translateX(4px);
+            transform: translateX(3px);
         }
 
         /* Gallery Modal Styles */
@@ -282,7 +267,7 @@
         }
 
         .gallery-header h2 i {
-            color: #4ade80;
+            color: #22d3ee;
         }
 
         .gallery-close {
@@ -347,7 +332,7 @@
 
         .gallery-item:hover {
             transform: translateY(-4px);
-            border-color: rgba(74, 222, 128, 0.4);
+            border-color: rgba(34, 211, 238, 0.4);
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
         }
 
@@ -388,7 +373,7 @@
         }
 
         .gallery-item-title i {
-            color: #4ade80;
+            color: #22d3ee;
             font-size: 0.75rem;
         }
 
@@ -485,8 +470,8 @@
         }
 
         .lightbox-nav:hover {
-            background: rgba(74, 222, 128, 0.3);
-            border-color: rgba(74, 222, 128, 0.5);
+            background: rgba(34, 211, 238, 0.3);
+            border-color: rgba(34, 211, 238, 0.5);
         }
 
         .lightbox-prev {
@@ -545,7 +530,7 @@
 
 <body>
     <header class="header">
-        <img src="/images/stationdock2.png" alt="StationDock" class="header-logo">
+        <img src="./images/stationdock2.png" alt="StationDock" class="header-logo">
         <h1>StationDock Features</h1>
     </header>
 
@@ -728,6 +713,7 @@
     <script>
         // Screenshot data - titles derived from filenames
         const screenshots = [
+            { file: 'login-view.png', title: 'Login View', icon: 'fa-lock' },
             { file: 'shows-view.png', title: 'Shows View', icon: 'fa-microphone-alt' },
             { file: 'schedule1.png', title: 'Schedule 1', icon: 'fa-calendar-alt' },
             { file: 'shedule-show1.png', title: 'Schedule Show 1', icon: 'fa-calendar-plus' },
@@ -800,7 +786,7 @@
             const item = screenshots[index];
             image.src = `/screenshots/${item.file}`;
             image.alt = item.title;
-            caption.innerHTML = `<i class="fas ${item.icon}" style="color: #4ade80; margin-right: 0.5rem;"></i>${item.title}`;
+            caption.innerHTML = `<i class="fas ${item.icon}" style="color: #22d3ee; margin-right: 0.5rem;"></i>${item.title}`;
             counter.textContent = `${index + 1} / ${screenshots.length}`;
 
             lightbox.classList.add('active');
@@ -826,7 +812,7 @@
 
                 image.src = `/screenshots/${item.file}`;
                 image.alt = item.title;
-                caption.innerHTML = `<i class="fas ${item.icon}" style="color: #4ade80; margin-right: 0.5rem;"></i>${item.title}`;
+                caption.innerHTML = `<i class="fas ${item.icon}" style="color: #22d3ee; margin-right: 0.5rem;"></i>${item.title}`;
                 document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${screenshots.length}`;
 
                 // Fade back in after image loads
