@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { X, FileAudio, Calendar, Clock, Edit2, Play } from "lucide-react";
+import { X, FileAudio, Calendar, Clock, Edit2, Play, Download } from "lucide-react";
 import { format } from "date-fns";
 import { formatInTimezone } from "@/lib/client-date-utils";
 import { getEpisodesForShow } from "@/app/actions";
@@ -178,6 +178,14 @@ export default function EpisodeManagerDrawer({ showId, showTitle, isOpen, onClos
                                             >
                                                 <Play className="w-5 h-5" />
                                             </button>
+                                            <a
+                                                href={`/api/audio/${episode.recording.filePath}?download=true`}
+                                                className="p-2 hover:bg-gray-700 rounded-lg transition-colors text-gray-400 hover:text-white"
+                                                title="Download Audio"
+                                                download
+                                            >
+                                                <Download className="w-5 h-5" />
+                                            </a>
                                             <button
                                                 onClick={() => setEditingEpisode(episode)}
                                                 className="p-2 hover:bg-blue-900/50 text-blue-400 rounded-lg transition-colors"
