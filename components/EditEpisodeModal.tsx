@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from "react";
-import { X, FileAudio, Loader, Music, Scissors } from "lucide-react";
+import { X, FileAudio, Loader, Music, Scissors, Download } from "lucide-react";
 import { updateEpisode } from "@/app/actions";
 import ImageUpload from "./ImageUpload";
 import AudioUpload from "./AudioUpload";
@@ -160,14 +160,24 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                                         )}
 
                                         {/* Edit Audio Button */}
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowAudioEditor(true)}
-                                            className="mt-3 w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
-                                        >
-                                            <Scissors className="w-4 h-4" />
-                                            Edit Audio (Trim/Cut)
-                                        </button>
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAudioEditor(true)}
+                                                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg border border-green-500/50 hover:border-green-500 bg-transparent hover:bg-green-500/5 text-white text-sm font-medium transition-all"
+                                            >
+                                                <Scissors className="w-4 h-4" />
+                                                Edit Audio (Trim/Cut)
+                                            </button>
+                                            <a
+                                                href={`/api/audio/${newAudioFile ? newAudioFile.filename : episode.recording.filePath}?download=true`}
+                                                download
+                                                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg border border-green-500/50 hover:border-green-500 bg-transparent hover:bg-green-500/5 text-white text-sm font-medium transition-all"
+                                            >
+                                                <Download className="w-4 h-4" />
+                                                Download Audio
+                                            </a>
+                                        </div>
 
                                     </div>
                                 </div>
@@ -295,7 +305,7 @@ export default function EditEpisodeModal({ episode, isOpen, onClose, onSave }: E
                             <button
                                 type="submit"
                                 disabled={isPending}
-                                className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center justify-center gap-2"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 disabled:border-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-medium transition-all"
                             >
                                 {isPending && <Loader className="w-5 h-5 animate-spin" />}
                                 {isPending ? "Saving..." : "Save Changes"}

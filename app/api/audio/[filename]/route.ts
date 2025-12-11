@@ -66,12 +66,16 @@ export async function GET(
             },
         });
 
+        // Check for download query param
+        const isDownload = request.nextUrl.searchParams.get("download") === "true";
+        const disposition = isDownload ? "attachment" : "inline";
+
         return new NextResponse(stream, {
             headers: {
                 "Content-Type": "audio/mpeg",
                 "Content-Length": fileSize.toString(),
                 "Accept-Ranges": "bytes",
-                "Content-Disposition": `inline; filename="${filename}"`,
+                "Content-Disposition": `${disposition}; filename="${filename}"`,
             },
         });
     }

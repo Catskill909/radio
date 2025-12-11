@@ -89,7 +89,7 @@ export default function AudioUpload({ currentFile, currentDuration, onUpload, on
                     </div>
                     <button
                         onClick={() => setShowReplace(true)}
-                        className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors font-medium"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white text-sm font-medium transition-all"
                         type="button"
                     >
                         Replace Audio
