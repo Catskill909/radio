@@ -28,9 +28,9 @@ export default function AudioEditorModal({ isOpen, onClose, audioUrl, filename, 
                 onClick={onClose}
             />
 
-            {/* Modal */}
+            {/* Modal - Fullscreen with small margin */}
             <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
-                <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full max-w-6xl h-[85vh] flex flex-col">
+                <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-2xl w-full h-full flex flex-col">
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b border-gray-700 flex-shrink-0">
                         <div>

@@ -328,19 +328,43 @@ StationDock is built with intentional design choices that prioritize a premium, 
 **Status:** Shipped (admin-only editor)
 
 - **Waveform-based editor**
-  - `WaveSurfer`-powered waveform with timeline and zoom
-  - Play/pause, seek, and zoom controls
-  - Keyboard shortcuts (space for play/pause, arrows to seek, +/- to zoom, `?` for help)
-- **Trim & process audio**
-  - Create an editable region (middle 50% by default) and adjust handles
-  - Trim & Save via `/api/trim-audio` with non-destructive backups
-  - Apply fade-in / fade-out with configurable durations
-  - Normalize audio via `/api/process-audio`
+  - `WaveSurfer`-powered waveform with timeline
+  - Full waveform fits to container on initial load (calculated dynamically)
+  - Minimap overview bar for quick navigation through long recordings
+  - Visual zoom controls (+/- buttons and fit-to-view)
+- **Selection-based editing** 🆕
+  - Click and drag to select any region of audio
+  - Green highlight shows selected area with time range display
+  - **Crop**: Keep only the selected portion (removes everything outside)
+  - **Cut**: Delete selection and join remaining audio together
+- **Fade In / Fade Out** 🆕
+  - User-controlled duration (1-60 seconds via number input)
+  - Fade In: Applies at selection start position
+  - Fade Out: Applies at selection end position
+  - Follows standard audio editor pattern (Audacity, GarageBand)
+- **Normalize audio**
+  - Context-aware: normalizes selection if one exists, or entire file
+  - Standard podcast levels (-16 LUFS)
+- **Loop playback**
+  - Toggle loop mode to repeat selected region
+  - Visual indicator when loop is active
+- **Processing feedback** 🆕
+  - Clear status messages during operations
+  - Large file warning ("may take a minute or more")
+  - Automatic waveform reload after edits with loading state
+- **Non-destructive backups**
+  - Original file preserved before every edit
+  - Backup files auto-cleaned after 7 days
+- **Keyboard shortcuts**
+  - Space: play/pause
+  - Left/Right arrows: seek 5 seconds
+  - L: toggle loop
+  - Esc: clear selection
+  - ?: show shortcuts help
 - **Integration with episodes**
-  - Accessible from the Edit Episode modal via "Edit Audio (Trim/Cut)" button
-  - Updated duration is fed back into the episode metadata
-  - Backup paths and processing success surfaced in the UI
-  - Edited audio is what listeners hear in players and podcast feeds
+  - Accessible from Edit Episode modal via "Edit Audio" button
+  - Updated duration fed back into episode metadata
+  - Edited audio used in players and podcast feeds
 
 ---
 

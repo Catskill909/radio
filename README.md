@@ -98,11 +98,18 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - Responsive design with modern styling
 
 ### ✂️ Audio Editing
-- Waveform-based audio editor for recordings
-- Trim selected regions with non-destructive backups
-- Apply fade-in/fade-out and normalize audio levels
-- Zoomable timeline and keyboard shortcuts for efficient editing
-- Integrated into the episode editing workflow
+- **Waveform editor** with WaveSurfer.js - full waveform fits to view on load
+- **Minimap navigation** - overview bar for quick navigation through long recordings
+- **Visual zoom controls** - +/- buttons and fit-to-view for precise navigation
+- **Selection-based editing** - click and drag to select regions
+  - **Crop**: Keep only the selected portion
+  - **Cut**: Remove selection and join the remaining audio
+  - **Fade In/Out**: Apply gradual volume changes with user-controlled duration (1-60 seconds)
+  - **Normalize**: Level audio volume for the selection or entire file
+- **Non-destructive backups** - original audio is preserved before any edit
+- **Keyboard shortcuts** - space (play/pause), arrows (seek), `?` for help
+- **Processing feedback** - clear status messages for long operations
+- Integrated into the episode editing workflow via "Edit Audio" button
 
 ### 🎨 Modern UI/UX
 - **Full-screen create form** with grid layout (no scrolling needed)

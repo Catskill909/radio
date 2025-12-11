@@ -162,8 +162,17 @@ export const helpArticles: Record<string, HelpArticle> = {
         category: 'Podcasting',
         order: 3,
         filePath: '/content/help/podcasting/editing-episodes.md',
-        relatedTopics: ['publishing-episodes', 'rss-feed-management'],
+        relatedTopics: ['publishing-episodes', 'audio-editor'],
         keywords: ['edit', 'update', 'metadata', 'replace audio']
+    },
+    'audio-editor': {
+        id: 'audio-editor',
+        title: 'Audio Editor',
+        category: 'Podcasting',
+        order: 4,
+        filePath: '/content/help/podcasting/audio-editor.md',
+        relatedTopics: ['editing-episodes', 'publishing-episodes'],
+        keywords: ['audio', 'editor', 'waveform', 'trim', 'cut', 'crop', 'fade', 'normalize', 'edit audio', 'wavesurfer']
     },
     'managing-recordings': {
         id: 'managing-recordings',
