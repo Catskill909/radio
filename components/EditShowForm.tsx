@@ -9,6 +9,7 @@ import { Show } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "./Tooltip";
 import ItunesCategorySelect from "@/components/iTunesCategorySelect";
+import { Rss } from "lucide-react";
 import Switch from "@/components/Switch";
 
 interface EditShowFormProps {
@@ -315,11 +316,14 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                                     autoFocus
                                 />
                             )}
-                            <p className="text-xs text-gray-500">
-                                {feedEpisodeLimit === 2 ? "Recommended for music shows (licensing compliance)." :
-                                    feedEpisodeLimit === null ? "All episodes will appear in RSS feed." :
-                                        `Latest ${feedEpisodeLimit} episodes will appear in RSS feed.`}
-                            </p>
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-900/40 border border-blue-700/50 rounded-full mt-1">
+                                <Rss className="w-3 h-3 text-blue-400" />
+                                <span className="text-xs text-blue-300 font-medium">
+                                    {feedEpisodeLimit === 2 ? "2 episodes (music licensing)" :
+                                        feedEpisodeLimit === null ? "All episodes in feed" :
+                                            `Latest ${feedEpisodeLimit} in feed`}
+                                </span>
+                            </div>
                         </div>
 
                         {/* Archiving Toggle */}

@@ -58,18 +58,25 @@ export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastC
                         </div>
 
                         <div>
-                            <h2 className="text-2xl font-bold text-white mb-1">{show.title}</h2>
-                            <div className="text-gray-400 text-sm mb-3">
-                                {show.host && <span className="mr-3">Host: {show.host}</span>}
+                            <h2 className="text-2xl font-bold text-white mb-2">{show.title}</h2>
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                                {show.host && (
+                                    <span className="inline-flex items-center px-2.5 py-1 bg-gray-700/70 border border-gray-600/50 rounded-full text-xs text-gray-300">
+                                        Host: {show.host}
+                                    </span>
+                                )}
                                 {show.feedEpisodeLimit ? (
-                                    <span>
-                                        {Math.min(show.totalEpisodes, show.feedEpisodeLimit)} in feed
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-900/40 border border-blue-700/50 rounded-full text-xs">
+                                        <Rss className="w-3 h-3 text-blue-400" />
+                                        <span className="text-blue-300">{Math.min(show.totalEpisodes, show.feedEpisodeLimit)} in feed</span>
                                         {show.archivingEnabled && show.totalEpisodes > show.feedEpisodeLimit && (
-                                            <span className="text-gray-500"> · {show.totalEpisodes - show.feedEpisodeLimit} archived</span>
+                                            <span className="text-gray-400">· {show.totalEpisodes - show.feedEpisodeLimit} archived</span>
                                         )}
                                     </span>
                                 ) : (
-                                    <span>{show.totalEpisodes} Episodes</span>
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-700/50 border border-gray-600/50 rounded-full text-xs text-gray-300">
+                                        {show.totalEpisodes} Episodes
+                                    </span>
                                 )}
                             </div>
                             <p className="text-gray-400 text-sm line-clamp-2 max-w-xl">
