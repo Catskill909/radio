@@ -256,10 +256,11 @@ Add these 3 volumes in Coolify → **Storages**:
 # In Coolify terminal, initialize the database:
 npx prisma migrate deploy
 
-# If schema changes were made:
+# If schema changes were made (REQUIRED for new columns):
 npx prisma db push
-pm2 restart all
 ```
+
+> **Note:** You may see `pm2 restart all` in older docs. This is optional—the app works immediately after `prisma db push` since Prisma uses dynamic queries. If pm2 commands fail in Coolify's terminal, the database update still succeeds.
 
 ---
 
@@ -383,15 +384,13 @@ See [PRISMA_WORKFLOW.md](./PRISMA_WORKFLOW.md) for complete workflow guide, trou
 After deploying code with schema changes:
 
 ```bash
-# SSH into your production server (Coolify/Docker)
-cd /app
+# In Coolify terminal:
 npx prisma db push
-
-# Then restart the application
-pm2 restart all
 ```
 
-**⚠️ Failure to run this will cause production crashes** with errors like:
+> **Note:** `pm2 restart all` is not required—the app works immediately after the schema push.
+
+**⚠️ Failure to run `prisma db push` will cause production crashes** with errors like:
 ```
 The column `main.Show.fieldName` does not exist in the current database.
 ```
