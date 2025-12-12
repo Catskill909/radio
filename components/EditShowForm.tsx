@@ -332,6 +332,16 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                             </label>
                             <input type="hidden" name="feedEpisodeLimit" value={feedEpisodeLimit ?? ""} />
                             <div className="flex flex-wrap gap-1.5">
+                                <button
+                                    type="button"
+                                    onClick={() => { setFeedEpisodeLimit(0); setShowCustomLimit(false); }}
+                                    className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === 0 && !showCustomLimit
+                                        ? 'bg-blue-600 border-blue-500 text-white'
+                                        : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                        }`}
+                                >
+                                    None
+                                </button>
                                 {[2, 5, 10, 20, 30, 50, 100].map((num) => (
                                     <button
                                         key={num}
@@ -380,9 +390,10 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-900/40 border border-blue-700/50 rounded-full mt-1">
                                 <Rss className="w-3 h-3 text-blue-400" />
                                 <span className="text-xs text-blue-300 font-medium">
-                                    {feedEpisodeLimit === 2 ? "2 episodes (music licensing)" :
-                                        feedEpisodeLimit === null ? "All episodes in feed" :
-                                            `Latest ${feedEpisodeLimit} in feed`}
+                                    {feedEpisodeLimit === 0 ? "No episodes in feed" :
+                                        feedEpisodeLimit === 2 ? "2 episodes (music licensing)" :
+                                            feedEpisodeLimit === null ? "All episodes in feed" :
+                                                `Latest ${feedEpisodeLimit} in feed`}
                                 </span>
                             </div>
                         </div>
