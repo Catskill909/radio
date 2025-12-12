@@ -337,11 +337,20 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                                     {archivingEnabled ? "Keep old episodes" : "Delete old episodes"}
                                 </span>
                             </div>
-                            <p className="text-xs text-gray-500">
-                                {archivingEnabled
-                                    ? "Episodes beyond the feed limit are kept on disk."
-                                    : "Episodes beyond the feed limit are automatically deleted."}
-                            </p>
+                            {archivingEnabled ? (
+                                <p className="text-xs text-gray-500">
+                                    Episodes beyond the feed limit are kept on disk.
+                                </p>
+                            ) : (
+                                <div className="p-2 bg-red-900/30 border border-red-700/50 rounded-md mt-2">
+                                    <p className="text-xs text-red-300 font-medium">
+                                        ⚠️ Audio files will be permanently deleted
+                                    </p>
+                                    <p className="text-xs text-red-400/80 mt-0.5">
+                                        Oldest recordings beyond the feed limit are automatically removed. Download files from Settings → Audio if you need to keep them.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

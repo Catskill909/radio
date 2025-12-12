@@ -320,8 +320,8 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                                                 type="button"
                                                 onClick={() => { setFeedEpisodeLimit(num); setShowCustomLimit(false); }}
                                                 className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === num && !showCustomLimit
-                                                        ? 'bg-blue-600 border-blue-500 text-white'
-                                                        : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                    ? 'bg-blue-600 border-blue-500 text-white'
+                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
                                                     }`}
                                             >
                                                 {num}{num === 2 && <span className="text-[10px] ml-1 text-blue-300">♪</span>}
@@ -331,8 +331,8 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                                             type="button"
                                             onClick={() => { setFeedEpisodeLimit(null); setShowCustomLimit(false); }}
                                             className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === null && !showCustomLimit
-                                                    ? 'bg-blue-600 border-blue-500 text-white'
-                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                ? 'bg-blue-600 border-blue-500 text-white'
+                                                : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
                                                 }`}
                                         >
                                             ∞
@@ -341,8 +341,8 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                                             type="button"
                                             onClick={() => setShowCustomLimit(true)}
                                             className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${showCustomLimit
-                                                    ? 'bg-blue-600 border-blue-500 text-white'
-                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                ? 'bg-blue-600 border-blue-500 text-white'
+                                                : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
                                                 }`}
                                         >
                                             Custom
@@ -381,11 +381,20 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                                             {archivingEnabled ? "Keep old episodes" : "Delete old episodes"}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-gray-500">
-                                        {archivingEnabled
-                                            ? "Episodes beyond the feed limit are kept on disk."
-                                            : "Episodes beyond the feed limit are automatically deleted."}
-                                    </p>
+                                    {archivingEnabled ? (
+                                        <p className="text-xs text-gray-500">
+                                            Episodes beyond the feed limit are kept on disk.
+                                        </p>
+                                    ) : (
+                                        <div className="p-2 bg-red-900/30 border border-red-700/50 rounded-md mt-2">
+                                            <p className="text-xs text-red-300 font-medium">
+                                                ⚠️ Audio files will be permanently deleted
+                                            </p>
+                                            <p className="text-xs text-red-400/80 mt-0.5">
+                                                Oldest recordings beyond the feed limit are automatically removed. Download files from Settings → Audio if you need to keep them.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
