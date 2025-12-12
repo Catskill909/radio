@@ -34,6 +34,7 @@ interface Show {
     archivingEnabled?: boolean
     createdAt: Date
     updatedAt: Date
+    totalEpisodes: number
 }
 
 import { fromZonedTime } from 'date-fns-tz'

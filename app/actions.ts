@@ -149,8 +149,28 @@ export async function createShow(formData: FormData, shouldRedirect: boolean = t
 }
 
 export async function getShows() {
-    return await prisma.show.findMany({
+    const shows = await prisma.show.findMany({
         orderBy: { createdAt: "desc" },
+        include: {
+            slots: {
+                select: {
+                    recordings: {
+                        where: {
+                            episode: { isNot: null }
+                        },
+                        select: {
+                            id: true // minimal select
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    return shows.map(show => {
+        const totalEpisodes = show.slots.reduce((acc, slot) => acc + slot.recordings.length, 0);
+        const { slots, ...showWithoutSlots } = show;
+        return { ...showWithoutSlots, totalEpisodes };
     });
 }
 

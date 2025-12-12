@@ -34,6 +34,7 @@ interface Show {
     archivingEnabled: boolean
     createdAt: Date
     updatedAt: Date
+    totalEpisodes: number
 }
 
 interface ShowsClientProps {
@@ -160,11 +161,26 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
                                                 <h2 className="text-lg font-medium text-gray-100 leading-tight mb-1">{show.title}</h2>
-                                                {show.host && (
-                                                    <p className="text-xs text-gray-400">Host: {show.host}</p>
-                                                )}
+                                                <div className="flex flex-wrap items-center gap-2 mt-1">
+                                                    {show.host && (
+                                                        <span className="text-xs text-gray-400">Host: {show.host}</span>
+                                                    )}
+                                                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-900/40 border border-blue-700/50 rounded-full text-[10px]">
+                                                        <Rss className="w-3 h-3 text-blue-400" />
+                                                        {show.feedEpisodeLimit ? (
+                                                            <>
+                                                                <span className="text-blue-300">{Math.min(show.totalEpisodes, show.feedEpisodeLimit)} in feed</span>
+                                                                {show.archivingEnabled && show.totalEpisodes > show.feedEpisodeLimit && (
+                                                                    <span className="text-gray-400">· {show.totalEpisodes - show.feedEpisodeLimit} archived</span>
+                                                                )}
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-blue-300">{show.totalEpisodes} Episodes</span>
+                                                        )}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <span className="text-xs font-medium text-gray-400 bg-[#2a2a2a] px-2 py-0.5 rounded border border-[#333]">
+                                            <span className="text-xs font-medium text-gray-400 bg-[#2a2a2a] px-2 py-0.5 rounded border border-[#333] shrink-0 ml-2">
                                                 {show.type}
                                             </span>
                                         </div>
@@ -258,17 +274,19 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
             </EditShowModal>
 
             {/* RSS Feed Modal */}
-            {selectedShow && (
-                <RssFeedModal
-                    isOpen={rssModalOpen}
-                    onClose={() => {
-                        setRssModalOpen(false)
-                        setSelectedShow(null)
-                    }}
-                    feedUrl={`${origin}/api/feed/show/${selectedShow.id}`}
-                    title={`${selectedShow.title} Podcast Feed`}
-                />
-            )}
+            {
+                selectedShow && (
+                    <RssFeedModal
+                        isOpen={rssModalOpen}
+                        onClose={() => {
+                            setRssModalOpen(false)
+                            setSelectedShow(null)
+                        }}
+                        feedUrl={`${origin}/api/feed/show/${selectedShow.id}`}
+                        title={`${selectedShow.title} Podcast Feed`}
+                    />
+                )
+            }
         </>
     )
 }
