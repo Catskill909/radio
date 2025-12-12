@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Archive, Download, Trash2, ChevronDown, ChevronRight, HardDrive, AlertTriangle } from 'lucide-react'
 import { getArchivedEpisodes, deleteArchivedEpisode, deleteShowArchives } from '@/app/actions'
 import { formatInTimezone } from '@/lib/client-date-utils'
+import HelpIcon from '@/components/HelpIcon'
 
 interface ArchivedEpisode {
     id: string
@@ -126,6 +127,7 @@ export default function ArchiveManagement({ timezone }: ArchiveManagementProps) 
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Archive className="w-5 h-5" />
                 Archive Management
+                <HelpIcon articleId="rss-episode-controls" tooltip="Manage archived episodes beyond your feed limit." />
             </h2>
 
             {archives.length === 0 ? (

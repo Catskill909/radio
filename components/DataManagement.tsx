@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Download, Upload, AlertTriangle, Loader2 } from "lucide-react";
 import { importData } from "@/app/actions/import-data";
+import HelpIcon from '@/components/HelpIcon';
 
 export default function DataManagement() {
     const [isImporting, setIsImporting] = useState(false);
@@ -56,6 +57,7 @@ export default function DataManagement() {
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     Data Management
+                    <HelpIcon articleId="import-export-data" tooltip="Import and export your station data." />
                 </h2>
                 <p className="text-gray-400 mb-6">
                     Export your shows and schedule to back them up, or import data from another instance.
