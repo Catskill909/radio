@@ -40,25 +40,27 @@ export default function ShowPicker({ shows, selectedShowId, onSelect }: ShowPick
     // Get icon and color for show type
     const getTypeStyle = (type: string) => {
         const lowerType = type.toLowerCase()
+        const commonStyle = {
+            bgColor: 'bg-gray-700',
+            textColor: 'text-gray-300'
+        }
+
         if (lowerType.includes('music')) {
             return {
                 icon: Music,
-                bgColor: 'bg-purple-500/20',
-                textColor: 'text-purple-400',
-                label: lowerType.includes('syndicated') ? 'Synd Music' : 'Local Music'
+                ...commonStyle,
+                label: lowerType.includes('syndicated') ? 'Syndicated Music' : 'Local Music'
             }
         } else if (lowerType.includes('podcast')) {
             return {
                 icon: Mic2,
-                bgColor: 'bg-blue-500/20',
-                textColor: 'text-blue-400',
-                label: lowerType.includes('syndicated') ? 'Synd Podcast' : 'Local Podcast'
+                ...commonStyle,
+                label: lowerType.includes('syndicated') ? 'Syndicated Podcast' : 'Local Podcast'
             }
         } else {
             return {
                 icon: Radio,
-                bgColor: 'bg-gray-500/20',
-                textColor: 'text-gray-400',
+                ...commonStyle,
                 label: type
             }
         }
@@ -108,8 +110,8 @@ export default function ShowPicker({ shows, selectedShowId, onSelect }: ShowPick
                                     key={show.id}
                                     onClick={() => onSelect(show.id)}
                                     className={`group relative flex flex-col items-center p-2 rounded-lg border transition-all text-left ${isSelected
-                                            ? 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/30'
-                                            : 'border-gray-700 bg-gray-800/50 hover:border-gray-500 hover:bg-gray-800'
+                                        ? 'border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/30'
+                                        : 'border-gray-700 bg-gray-800/50 hover:border-gray-500 hover:bg-gray-800'
                                         }`}
                                 >
                                     {/* Image */}
