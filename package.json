@@ -3,17 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npx tsx server.ts\" \"npx tsx recorder-service.ts\"",
+    "dev": "concurrently \"tsx server.ts\" \"tsx recorder-service.ts\"",
     "dev:next": "next dev",
-    "recorder": "npx tsx recorder-service.ts",
+    "recorder": "tsx recorder-service.ts",
     "build": "prisma generate && next build",
-    "start": "NODE_ENV=production npx tsx server.ts",
+    "start": "NODE_ENV=production tsx server.ts",
     "lint": "eslint",
     "db:backup": "cp prisma/dev.db prisma/dev.db.backup_$(date +%Y%m%d_%H%M%S) && echo 'Backup created in prisma/'",
     "db:studio": "npx prisma studio",
     "db:migrate": "npx prisma migrate dev",
     "db:reset": "npx prisma migrate reset",
-    "extend-shows": "npx tsx extend-recurring-shows.ts"
+    "extend-shows": "tsx extend-recurring-shows.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
@@ -50,6 +50,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.4.0",
+    "tsx": "^4.21.0",
     "wavesurfer.js": "^7.11.1"
   },
   "devDependencies": {
