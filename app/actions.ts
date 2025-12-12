@@ -1633,3 +1633,39 @@ export async function updateAcrcloudLimit(monthlyLimit: number) {
     revalidatePath("/settings");
 }
 
+export async function getShowEpisodeStats(showId: string) {
+    // Get show settings
+    const show = await prisma.show.findUnique({
+        where: { id: showId },
+        select: {
+            feedEpisodeLimit: true,
+            archivingEnabled: true,
+        }
+    });
+
+    if (!show) {
+        return { totalEpisodes: 0, inFeed: 0, archived: 0 };
+    }
+
+    // Count total episodes for this show
+    const totalEpisodes = await prisma.episode.count({
+        where: {
+            recording: {
+                scheduleSlot: {
+                    showId: showId
+                }
+            }
+        }
+    });
+
+    // Calculate in-feed vs archived
+    const inFeed = show.feedEpisodeLimit
+        ? Math.min(totalEpisodes, show.feedEpisodeLimit)
+        : totalEpisodes;
+
+    const archived = show.archivingEnabled
+        ? Math.max(0, totalEpisodes - inFeed)
+        : 0; // If archiving is OFF, there are no archived episodes
+
+    return { totalEpisodes, inFeed, archived };
+}

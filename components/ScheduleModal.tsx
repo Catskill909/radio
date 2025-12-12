@@ -29,6 +29,8 @@ interface Show {
     language?: string
     copyright?: string | null
     link?: string | null
+    feedEpisodeLimit?: number | null
+    archivingEnabled?: boolean
     createdAt: Date
     updatedAt: Date
 }
@@ -84,6 +86,9 @@ export default function ScheduleModal({
     const [imageUrl, setImageUrl] = useState('')
     const [recordingEnabled, setRecordingEnabled] = useState(false)
     const [recordingSource, setRecordingSource] = useState('')
+    const [feedEpisodeLimit, setFeedEpisodeLimit] = useState<number | null>(null)
+    const [showCustomLimit, setShowCustomLimit] = useState(false)
+    const [archivingEnabled, setArchivingEnabled] = useState(true)
 
     // Ref for auto-scroll when show is selected
     const durationSectionRef = useRef<HTMLDivElement>(null)
@@ -243,6 +248,8 @@ export default function ScheduleModal({
         formData.set('isRecurring', isRecurring.toString())
         formData.set('recordingEnabled', recordingEnabled.toString())
         formData.set('recordingSource', recordingSource)
+        formData.set('feedEpisodeLimit', feedEpisodeLimit?.toString() ?? '')
+        formData.set('archivingEnabled', archivingEnabled.toString())
 
         try {
             const result = await createShow(formData, false)
@@ -656,6 +663,96 @@ export default function ScheduleModal({
                                             <span className="text-sm">{type}</span>
                                         </label>
                                     ))}
+                                </div>
+                            </div>
+
+                            {/* RSS Feed Settings */}
+                            <div className="pt-4 border-t border-gray-700">
+                                <h3 className="text-sm font-semibold text-gray-300 mb-3">RSS Feed Settings</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Episode Limit */}
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Episodes in Feed
+                                        </label>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {[2, 5, 10, 20, 30, 50, 100].map((num) => (
+                                                <button
+                                                    key={num}
+                                                    type="button"
+                                                    onClick={() => { setFeedEpisodeLimit(num); setShowCustomLimit(false); }}
+                                                    className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === num && !showCustomLimit
+                                                        ? 'bg-blue-600 border-blue-500 text-white'
+                                                        : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                        }`}
+                                                >
+                                                    {num}{num === 2 && <span className="text-[10px] ml-1 text-blue-300">♪</span>}
+                                                </button>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                onClick={() => { setFeedEpisodeLimit(null); setShowCustomLimit(false); }}
+                                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === null && !showCustomLimit
+                                                    ? 'bg-blue-600 border-blue-500 text-white'
+                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                    }`}
+                                            >
+                                                ∞
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowCustomLimit(true)}
+                                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${showCustomLimit
+                                                    ? 'bg-blue-600 border-blue-500 text-white'
+                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                    }`}
+                                            >
+                                                Custom
+                                            </button>
+                                        </div>
+                                        {showCustomLimit && (
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                placeholder="Enter number..."
+                                                value={feedEpisodeLimit ?? ""}
+                                                onChange={(e) => setFeedEpisodeLimit(e.target.value ? parseInt(e.target.value) : null)}
+                                                className="w-24 bg-gray-900 border border-gray-700 rounded-md px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                                autoFocus
+                                            />
+                                        )}
+                                        <p className="text-xs text-gray-500">
+                                            {feedEpisodeLimit === 2 ? "Recommended for music shows (licensing compliance)." :
+                                                feedEpisodeLimit === null ? "All episodes will appear in RSS feed." :
+                                                    `Latest ${feedEpisodeLimit} episodes will appear in RSS feed.`}
+                                        </p>
+                                    </div>
+
+                                    {/* Archiving Toggle */}
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Archiving
+                                        </label>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setArchivingEnabled(!archivingEnabled)}
+                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${archivingEnabled ? 'bg-[#626ac4]' : 'bg-gray-700'
+                                                    }`}
+                                            >
+                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${archivingEnabled ? 'translate-x-6' : 'translate-x-1'
+                                                    }`} />
+                                            </button>
+                                            <span className="text-sm text-gray-400">
+                                                {archivingEnabled ? "Keep old episodes" : "Delete old episodes"}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                            {archivingEnabled
+                                                ? "Episodes beyond the feed limit are kept on disk."
+                                                : "Episodes beyond the feed limit are automatically deleted."}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 

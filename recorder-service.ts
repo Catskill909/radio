@@ -422,6 +422,69 @@ async function handleRecordingCompletion(recording: any, slot: any, filePath: st
     })
     console.log(`Episode published successfully for ${show.title}`)
 
+    // AUTO-CLEANUP: If archiving is disabled and episode limit is set, delete oldest episodes
+    if (show.feedEpisodeLimit && !show.archivingEnabled) {
+        try {
+            // Count total episodes for this show
+            const totalEpisodes = await prisma.episode.count({
+                where: {
+                    recording: {
+                        scheduleSlot: {
+                            showId: show.id
+                        }
+                    }
+                }
+            })
+
+            if (totalEpisodes > show.feedEpisodeLimit) {
+                const episodesToDelete = totalEpisodes - show.feedEpisodeLimit
+                console.log(`[AUTO-CLEANUP] Show "${show.title}" has archiving OFF. Deleting ${episodesToDelete} oldest episode(s)...`)
+
+                // Get oldest episodes beyond the limit
+                const oldestEpisodes = await prisma.episode.findMany({
+                    where: {
+                        recording: {
+                            scheduleSlot: {
+                                showId: show.id
+                            }
+                        }
+                    },
+                    orderBy: { publishedAt: 'asc' },
+                    take: episodesToDelete,
+                    include: {
+                        recording: true
+                    }
+                })
+
+                for (const episode of oldestEpisodes) {
+                    // Delete audio file
+                    if (episode.recording?.filePath) {
+                        const audioPath = path.join(RECORDINGS_DIR, episode.recording.filePath)
+                        if (fs.existsSync(audioPath)) {
+                            fs.unlinkSync(audioPath)
+                            console.log(`[AUTO-CLEANUP] Deleted audio file: ${episode.recording.filePath}`)
+                        }
+                    }
+
+                    // Delete episode record (cascade deletes recording due to FK)
+                    await prisma.episode.delete({ where: { id: episode.id } })
+
+                    // Delete recording record
+                    if (episode.recording) {
+                        await prisma.recording.delete({ where: { id: episode.recording.id } })
+                    }
+
+                    console.log(`[AUTO-CLEANUP] Deleted episode: "${episode.title}"`)
+                }
+
+                console.log(`[AUTO-CLEANUP] Cleanup complete for "${show.title}": ${episodesToDelete} episode(s) removed`)
+            }
+        } catch (cleanupError) {
+            console.error(`[AUTO-CLEANUP] Error cleaning up old episodes for "${show.title}":`, cleanupError)
+            // Don't fail the recording completion if cleanup fails
+        }
+    }
+
     // Broadcast recording completed event
     broadcastRecordingEvent({
         type: 'completed',

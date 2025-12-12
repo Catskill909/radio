@@ -61,7 +61,16 @@ export default function PodcastCard({ show, timezone, stationLogoUrl }: PodcastC
                             <h2 className="text-2xl font-bold text-white mb-1">{show.title}</h2>
                             <div className="text-gray-400 text-sm mb-3">
                                 {show.host && <span className="mr-3">Host: {show.host}</span>}
-                                <span>{show.totalEpisodes} Episodes</span>
+                                {show.feedEpisodeLimit ? (
+                                    <span>
+                                        {Math.min(show.totalEpisodes, show.feedEpisodeLimit)} in feed
+                                        {show.archivingEnabled && show.totalEpisodes > show.feedEpisodeLimit && (
+                                            <span className="text-gray-500"> · {show.totalEpisodes - show.feedEpisodeLimit} archived</span>
+                                        )}
+                                    </span>
+                                ) : (
+                                    <span>{show.totalEpisodes} Episodes</span>
+                                )}
                             </div>
                             <p className="text-gray-400 text-sm line-clamp-2 max-w-xl">
                                 {show.description || "No description available."}

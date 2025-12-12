@@ -18,6 +18,8 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [archivingEnabled, setArchivingEnabled] = useState(true);
+    const [feedEpisodeLimit, setFeedEpisodeLimit] = useState<number | null>(null);
+    const [showCustomLimit, setShowCustomLimit] = useState(false);
 
     // Suppress unused variable warning - streams prop kept for future recording source features
     void streams;
@@ -306,20 +308,61 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                             <h3 className="text-sm font-semibold text-gray-300 mb-3">RSS Feed Settings</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Episode Limit */}
-                                <div className="space-y-1.5">
-                                    <label htmlFor="feedEpisodeLimit" className="block text-sm font-medium text-gray-300">
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">
                                         Episodes in Feed
                                     </label>
-                                    <input
-                                        type="number"
-                                        id="feedEpisodeLimit"
-                                        name="feedEpisodeLimit"
-                                        min="1"
-                                        placeholder="Unlimited"
-                                        className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-                                    />
+                                    <input type="hidden" name="feedEpisodeLimit" value={feedEpisodeLimit ?? ""} />
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {[2, 5, 10, 20, 30, 50, 100].map((num) => (
+                                            <button
+                                                key={num}
+                                                type="button"
+                                                onClick={() => { setFeedEpisodeLimit(num); setShowCustomLimit(false); }}
+                                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === num && !showCustomLimit
+                                                        ? 'bg-blue-600 border-blue-500 text-white'
+                                                        : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                    }`}
+                                            >
+                                                {num}{num === 2 && <span className="text-[10px] ml-1 text-blue-300">♪</span>}
+                                            </button>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={() => { setFeedEpisodeLimit(null); setShowCustomLimit(false); }}
+                                            className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === null && !showCustomLimit
+                                                    ? 'bg-blue-600 border-blue-500 text-white'
+                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                }`}
+                                        >
+                                            ∞
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCustomLimit(true)}
+                                            className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${showCustomLimit
+                                                    ? 'bg-blue-600 border-blue-500 text-white'
+                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                }`}
+                                        >
+                                            Custom
+                                        </button>
+                                    </div>
+                                    {showCustomLimit && (
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Enter number..."
+                                            value={feedEpisodeLimit ?? ""}
+                                            onChange={(e) => setFeedEpisodeLimit(e.target.value ? parseInt(e.target.value) : null)}
+                                            className="w-24 bg-gray-900 border border-gray-700 rounded-md px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                            autoFocus
+                                        />
+                                    )}
                                     <p className="text-xs text-gray-500">
-                                        Leave empty for unlimited episodes in RSS feed.
+                                        {feedEpisodeLimit === 2 ? "Recommended for music shows (licensing compliance)." :
+                                            feedEpisodeLimit === null ? "All episodes will appear in RSS feed." :
+                                                `Latest ${feedEpisodeLimit} episodes will appear in RSS feed.`}
                                     </p>
                                 </div>
 
