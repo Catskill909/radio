@@ -1,0 +1,14 @@
+{
+    "providers": [
+        "node"
+    ],
+    "nixPkgs": [
+        "nodejs_22",
+        "ffmpeg",
+        "openssl",
+        "curl",
+        "wget",
+        "python3",
+        "gcc"
+    ]
+}
