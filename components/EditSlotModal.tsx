@@ -203,6 +203,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                     <div className="sticky top-0 bg-gray-900 border-b border-gray-800 p-6 flex items-center justify-between z-10">
                         <h2 className="text-2xl font-bold" style={{ fontFamily: 'Oswald, sans-serif' }}>
                             Edit Schedule Slot
+                            <span className="text-gray-400 font-normal ml-2">— {slot.show.title}</span>
                         </h2>
                         <button
                             onClick={onClose}
