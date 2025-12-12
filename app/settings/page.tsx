@@ -9,6 +9,7 @@ import CustomMenuForm from "@/components/CustomMenuForm";
 import HelpIcon from '@/components/HelpIcon';
 import DataManagement from "@/components/DataManagement";
 import ACRCloudSettings from "@/components/ACRCloudSettings";
+import ArchiveManagement from "@/components/ArchiveManagement";
 
 export const dynamic = 'force-dynamic';
 
@@ -124,6 +125,9 @@ export default async function SettingsPage() {
                         audioVBR: (settings as any).audioVBR ?? true,
                     }}
                 />
+
+                {/* Full Width: Archive Management */}
+                <ArchiveManagement timezone={timezone} />
 
                 {/* Full Width: ACRCloud Song Recognition */}
                 <section>

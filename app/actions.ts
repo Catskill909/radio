@@ -1669,3 +1669,181 @@ export async function getShowEpisodeStats(showId: string) {
 
     return { totalEpisodes, inFeed, archived };
 }
+
+// =========== Archive Management ===========
+
+import fs from 'fs';
+import path from 'path';
+
+const RECORDINGS_DIR = path.join(process.cwd(), 'recordings');
+
+export async function getArchivedEpisodes() {
+    // Get all shows with archiving enabled and a feed limit
+    const shows = await prisma.show.findMany({
+        where: {
+            archivingEnabled: true,
+            feedEpisodeLimit: { not: null }
+        },
+        select: {
+            id: true,
+            title: true,
+            feedEpisodeLimit: true,
+        }
+    });
+
+    const result = [];
+
+    for (const show of shows) {
+        // Get all episodes for this show, ordered by date
+        const allEpisodes = await prisma.episode.findMany({
+            where: {
+                recording: {
+                    scheduleSlot: {
+                        showId: show.id
+                    }
+                }
+            },
+            orderBy: { publishedAt: 'desc' },
+            include: {
+                recording: true
+            }
+        });
+
+        // Episodes beyond the feed limit are "archived"
+        const feedLimit = show.feedEpisodeLimit || allEpisodes.length;
+        const archivedEpisodes = allEpisodes.slice(feedLimit);
+
+        if (archivedEpisodes.length === 0) continue;
+
+        // Calculate total size
+        let totalSize = 0;
+        const episodesWithSize = archivedEpisodes.map(ep => {
+            let fileSize = 0;
+            if (ep.recording?.filePath) {
+                const filePath = path.join(RECORDINGS_DIR, ep.recording.filePath);
+                try {
+                    if (fs.existsSync(filePath)) {
+                        fileSize = fs.statSync(filePath).size;
+                    }
+                } catch (e) {
+                    // File may not exist
+                }
+            }
+            totalSize += fileSize;
+            return {
+                id: ep.id,
+                title: ep.title,
+                publishedAt: ep.publishedAt,
+                duration: ep.duration,
+                fileSize,
+                filePath: ep.recording?.filePath,
+                recordingId: ep.recording?.id
+            };
+        });
+
+        result.push({
+            showId: show.id,
+            showTitle: show.title,
+            feedLimit: show.feedEpisodeLimit!,
+            archivedCount: archivedEpisodes.length,
+            totalSize,
+            episodes: episodesWithSize
+        });
+    }
+
+    return result;
+}
+
+export async function deleteArchivedEpisode(episodeId: string) {
+    // Get episode with recording
+    const episode = await prisma.episode.findUnique({
+        where: { id: episodeId },
+        include: { recording: true }
+    });
+
+    if (!episode) {
+        throw new Error('Episode not found');
+    }
+
+    // Delete audio file
+    if (episode.recording?.filePath) {
+        const filePath = path.join(RECORDINGS_DIR, episode.recording.filePath);
+        try {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        } catch (e) {
+            console.error('Error deleting file:', e);
+        }
+    }
+
+    // Delete episode record
+    await prisma.episode.delete({ where: { id: episodeId } });
+
+    // Delete recording record if exists
+    if (episode.recording) {
+        await prisma.recording.delete({ where: { id: episode.recording.id } });
+    }
+
+    revalidatePath('/settings');
+    revalidatePath('/episodes');
+}
+
+export async function deleteShowArchives(showId: string): Promise<number> {
+    // Get show settings
+    const show = await prisma.show.findUnique({
+        where: { id: showId },
+        select: { feedEpisodeLimit: true }
+    });
+
+    if (!show?.feedEpisodeLimit) {
+        return 0;
+    }
+
+    // Get all episodes for this show
+    const allEpisodes = await prisma.episode.findMany({
+        where: {
+            recording: {
+                scheduleSlot: {
+                    showId: showId
+                }
+            }
+        },
+        orderBy: { publishedAt: 'desc' },
+        include: { recording: true }
+    });
+
+    // Episodes beyond the feed limit are "archived"
+    const archivedEpisodes = allEpisodes.slice(show.feedEpisodeLimit);
+
+    let deletedCount = 0;
+
+    for (const episode of archivedEpisodes) {
+        // Delete audio file
+        if (episode.recording?.filePath) {
+            const filePath = path.join(RECORDINGS_DIR, episode.recording.filePath);
+            try {
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            } catch (e) {
+                console.error('Error deleting file:', e);
+            }
+        }
+
+        // Delete episode record
+        await prisma.episode.delete({ where: { id: episode.id } });
+
+        // Delete recording record
+        if (episode.recording) {
+            await prisma.recording.delete({ where: { id: episode.recording.id } });
+        }
+
+        deletedCount++;
+    }
+
+    revalidatePath('/settings');
+    revalidatePath('/episodes');
+
+    return deletedCount;
+}
