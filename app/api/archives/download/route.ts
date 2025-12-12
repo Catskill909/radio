@@ -81,12 +81,24 @@ export async function GET(request: NextRequest) {
 
         archive.append(JSON.stringify(metadata, null, 2), { name: 'metadata.json' })
 
-        // Add audio files
+        // Add audio files with descriptive names
         for (const episode of archivedEpisodes) {
             if (episode.recording?.filePath) {
                 const filePath = path.join(RECORDINGS_DIR, episode.recording.filePath)
                 if (fs.existsSync(filePath)) {
-                    archive.file(filePath, { name: path.basename(episode.recording.filePath) })
+                    // Create descriptive filename: "Episode Title - 2025-12-09.mp3"
+                    const ext = path.extname(episode.recording.filePath) || '.mp3'
+                    const dateStr = episode.publishedAt
+                        ? new Date(episode.publishedAt).toISOString().split('T')[0]
+                        : 'unknown-date'
+                    const safeTitle = episode.title
+                        .replace(/[<>:"/\\|?*\x00-\x1F]/g, '')
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .substring(0, 100)
+                    const descriptiveName = `${safeTitle} - ${dateStr}${ext}`
+
+                    archive.file(filePath, { name: descriptiveName })
                 }
             }
         }
