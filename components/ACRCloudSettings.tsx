@@ -197,10 +197,10 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
                     <div className="w-full bg-gray-700 rounded-full h-2.5 mb-3">
                         <div
                             className={`h-2.5 rounded-full transition-all ${requestCount >= monthlyLimit
-                                    ? 'bg-red-500'
-                                    : requestCount >= monthlyLimit * 0.8
-                                        ? 'bg-yellow-500'
-                                        : 'bg-green-500'
+                                ? 'bg-red-500'
+                                : requestCount >= monthlyLimit * 0.8
+                                    ? 'bg-yellow-500'
+                                    : 'bg-green-500'
                                 }`}
                             style={{ width: `${Math.min(100, (requestCount / monthlyLimit) * 100)}%` }}
                         />
@@ -353,7 +353,16 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
                         </label>
                         <select
                             value={testStreamUrl}
-                            onChange={(e) => setTestStreamUrl(e.target.value)}
+                            onChange={(e) => {
+                                const newUrl = e.target.value;
+                                setTestStreamUrl(newUrl);
+                                // Stop playback if playing
+                                if (isPlaying && audioRef.current) {
+                                    audioRef.current.pause();
+                                    audioRef.current.src = '';
+                                    setIsPlaying(false);
+                                }
+                            }}
                             className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         >
                             <option value="">-- Select a stream --</option>
