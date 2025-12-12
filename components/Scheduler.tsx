@@ -42,6 +42,8 @@ interface Show {
     language: string
     copyright: string | null
     link: string | null
+    feedEpisodeLimit: number | null
+    archivingEnabled: boolean
     createdAt: Date
     updatedAt: Date
 }

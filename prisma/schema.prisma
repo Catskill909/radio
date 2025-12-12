@@ -25,6 +25,8 @@ model Show {
   language         String         @default("en-us")
   copyright        String?
   link             String?
+  feedEpisodeLimit Int?                            // Max episodes in RSS feed (null = unlimited)
+  archivingEnabled Boolean        @default(true)   // Keep old episodes (true) or delete them (false)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   slots            ScheduleSlot[]

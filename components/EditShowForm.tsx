@@ -9,6 +9,7 @@ import { Show } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "./Tooltip";
 import ItunesCategorySelect from "@/components/iTunesCategorySelect";
+import Switch from "@/components/Switch";
 
 interface EditShowFormProps {
     show: Show;
@@ -25,6 +26,8 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [recordingEnabled, setRecordingEnabled] = useState(show.recordingEnabled || false);
     const [recordingSource, setRecordingSource] = useState(show.recordingSource || "");
+    const [feedEpisodeLimit, setFeedEpisodeLimit] = useState<number | "">(show.feedEpisodeLimit ?? "");
+    const [archivingEnabled, setArchivingEnabled] = useState(show.archivingEnabled ?? true);
     const router = useRouter();
 
     // Wrap the server action to pass the ID
@@ -252,6 +255,54 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                                 <span className="text-xs font-medium">{type}</span>
                             </label>
                         ))}
+                    </div>
+                </div>
+
+                {/* RSS Feed Settings */}
+                <div className="col-span-12 pt-4 border-t border-gray-800">
+                    <h3 className="text-sm font-semibold text-gray-300 mb-3">RSS Feed Settings</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Episode Limit */}
+                        <div className="space-y-1.5">
+                            <label htmlFor="feedEpisodeLimit" className="block text-sm font-medium text-gray-300">
+                                Episodes in Feed
+                            </label>
+                            <input
+                                type="number"
+                                id="feedEpisodeLimit"
+                                name="feedEpisodeLimit"
+                                min="1"
+                                placeholder="Unlimited"
+                                value={feedEpisodeLimit}
+                                onChange={(e) => setFeedEpisodeLimit(e.target.value ? parseInt(e.target.value) : "")}
+                                className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                            />
+                            <p className="text-xs text-gray-500">
+                                Leave empty for unlimited episodes in RSS feed.
+                            </p>
+                        </div>
+
+                        {/* Archiving Toggle */}
+                        <div className="space-y-1.5">
+                            <label className="block text-sm font-medium text-gray-300">
+                                Archiving
+                            </label>
+                            <div className="flex items-center gap-3 mt-2">
+                                <input type="hidden" name="archivingEnabled" value={archivingEnabled ? "true" : "false"} />
+                                <Switch
+                                    checked={archivingEnabled}
+                                    onChange={setArchivingEnabled}
+                                />
+                                <span className="text-sm text-gray-400">
+                                    {archivingEnabled ? "Keep old episodes" : "Delete old episodes"}
+                                </span>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                                {archivingEnabled
+                                    ? "Episodes beyond the feed limit are kept on disk."
+                                    : "Episodes beyond the feed limit are automatically deleted."}
+                            </p>
+                        </div>
                     </div>
                 </div>
 

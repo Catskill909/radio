@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Fetch all published episodes
-    const episodes = await prisma.episode.findMany({
+    const allEpisodes = await prisma.episode.findMany({
         where: {
             publishedAt: { not: null },
         },
@@ -47,6 +47,33 @@ export async function GET(request: NextRequest) {
         orderBy: {
             publishedAt: "desc",
         },
+    });
+
+    // Apply per-show episode limits
+    // Group episodes by show and limit based on feedEpisodeLimit
+    const showEpisodeCounts = new Map<string, number>();
+    const episodes = allEpisodes.filter((episode) => {
+        const show = episode.recording.scheduleSlot?.show;
+        if (!show) return true; // Include orphaned episodes
+
+        const showId = show.id;
+        const currentCount = showEpisodeCounts.get(showId) || 0;
+        const limit = show.feedEpisodeLimit;
+
+        // If no limit set, include all episodes
+        if (!limit) {
+            showEpisodeCounts.set(showId, currentCount + 1);
+            return true;
+        }
+
+        // If under limit, include and increment count
+        if (currentCount < limit) {
+            showEpisodeCounts.set(showId, currentCount + 1);
+            return true;
+        }
+
+        // Over limit, exclude
+        return false;
     });
 
     const baseUrl = getBaseUrl(request);

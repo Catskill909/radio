@@ -43,7 +43,7 @@ export async function GET(
         where: { id: "station" },
     });
 
-    // Fetch episodes for this show
+    // Fetch episodes for this show (limited by feedEpisodeLimit if set)
     const episodes = await prisma.episode.findMany({
         where: {
             publishedAt: { not: null },
@@ -67,6 +67,8 @@ export async function GET(
         orderBy: {
             publishedAt: "desc",
         },
+        // Apply episode limit from show settings (null = unlimited)
+        ...(show.feedEpisodeLimit ? { take: show.feedEpisodeLimit } : {}),
     });
 
     const baseUrl = getBaseUrl(request);

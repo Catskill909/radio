@@ -23,6 +23,9 @@ export async function createShow(formData: FormData, shouldRedirect: boolean = t
         const copyright = (formData.get("copyright") as string) || null;
         const link = (formData.get("link") as string) || null;
         const itunesType = (formData.get("itunesType") as string) || "episodic";
+        const feedEpisodeLimitStr = formData.get("feedEpisodeLimit") as string;
+        const feedEpisodeLimit = feedEpisodeLimitStr ? parseInt(feedEpisodeLimitStr) : null;
+        const archivingEnabled = formData.get("archivingEnabled") !== "false"; // Default to true
 
         const startDateStr = formData.get("startDate") as string;
         const startTimeStr = formData.get("startTime") as string;
@@ -47,6 +50,8 @@ export async function createShow(formData: FormData, shouldRedirect: boolean = t
                 language,
                 copyright,
                 link,
+                feedEpisodeLimit,
+                archivingEnabled,
             },
         });
 
@@ -172,6 +177,9 @@ export async function updateShow(id: string, formData: FormData) {
     const copyright = (formData.get("copyright") as string) || null;
     const link = (formData.get("link") as string) || null;
     const itunesType = (formData.get("itunesType") as string) || "episodic";
+    const feedEpisodeLimitStr = formData.get("feedEpisodeLimit") as string;
+    const feedEpisodeLimit = feedEpisodeLimitStr ? parseInt(feedEpisodeLimitStr) : null;
+    const archivingEnabled = formData.get("archivingEnabled") !== "false"; // Default to true
 
     await prisma.show.update({
         where: { id },
@@ -192,6 +200,8 @@ export async function updateShow(id: string, formData: FormData) {
             language,
             copyright,
             link,
+            feedEpisodeLimit,
+            archivingEnabled,
         },
     });
 
