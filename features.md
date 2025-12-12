@@ -383,6 +383,19 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - `PodcastFeed` component for reusable RSS UI
  - **Sync with edits**
    - Changes to show and episode metadata (title, description, artwork, explicit flag) are reflected in the feeds
+- **RSS Episode Controls** 🆕
+  - **Per-show episode limit**: Preset buttons (2♪, 5, 10, 20, 30, 50, 100, ∞) or custom number
+  - **2-episode preset**: Includes music note icon for licensing compliance
+  - **Archiving toggle**: Choose to keep or auto-delete old episodes
+  - **Auto-delete logic**: When archiving=OFF, oldest episodes beyond feed limit are automatically removed (audio file + database record) when new recordings complete
+  - **Visual badge**: Shows "X in feed · Y archived" on podcast cards
+  - **Warning on delete mode**: Red warning box explains files will be permanently deleted, directs to Settings → Audio for downloads
+- **Archive Management** 🆕 (Settings Page)
+  - **Per-show archive cards**: Displays archived count and total file size per show
+  - **Expandable episode lists**: Click to see individual archived episodes with dates and sizes
+  - **Download options**: Single episode download or bulk ZIP with metadata.json
+  - **Delete controls**: Single episode delete with confirm, bulk delete with type "DELETE" confirmation
+  - **Self-service cleanup**: Users can manage storage by downloading and removing old archives
 
 ---
 

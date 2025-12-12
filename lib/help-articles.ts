@@ -254,6 +254,15 @@ export const helpArticles: Record<string, HelpArticle> = {
         filePath: '/content/help/settings/song-recognition.md',
         relatedTopics: ['station-stream', 'adding-icecast-streams'],
         keywords: ['acrcloud', 'song', 'recognition', 'identify', 'music', 'fingerprint', 'cover art', 'now playing']
+    },
+    'rss-episode-controls': {
+        id: 'rss-episode-controls',
+        title: 'RSS Episode Controls & Archiving',
+        category: 'Podcasting',
+        order: 5,
+        filePath: '/content/help/podcasting/rss-episode-controls.md',
+        relatedTopics: ['rss-feed-management', 'publishing-episodes', 'managing-recordings'],
+        keywords: ['rss', 'episode limit', 'archiving', 'feed limit', 'auto-delete', 'archive management', 'download', 'storage']
     }
 }
 

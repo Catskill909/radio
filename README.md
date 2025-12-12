@@ -128,6 +128,14 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - Automatic episode metadata from show info
 - Publishing controls and metadata editing
 
+### 📰 RSS Episode Controls & Archiving
+- **Per-show feed limits** – Preset buttons (2♪, 5, 10, 20...∞) or custom number
+- **Archiving toggle** – Keep old episodes on disk or auto-delete beyond limit
+- **Auto-cleanup** – When archiving is OFF, oldest episodes are removed automatically
+- **Visual stats** – Podcast cards show "X in feed · Y archived" badges
+- **Archive Management** in Settings – Download or delete archived episodes by show
+
+
 ### 📶 Stream Monitoring & Health
 - Icecast streams dashboard with add/edit/delete flows
 - Enable/disable streams with a single toggle
