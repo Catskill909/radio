@@ -8,6 +8,7 @@ import { updateScheduleSlot, deleteScheduleSlot, updateShowRecordingSource, upda
 import DateTimePicker from '@/components/DateTimePicker'
 import DeleteSlotOptions from '@/components/DeleteSlotOptions'
 import EditShowForm from '@/components/EditShowForm'
+import UnsavedChangesModal from '@/components/UnsavedChangesModal'
 import { Tooltip } from './Tooltip'
 
 interface Show {
@@ -73,23 +74,83 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
     const scopeSelectorRef = useRef<HTMLDivElement>(null)
     const modalRef = useRef<HTMLDivElement>(null)
 
+    // Unsaved changes tracking
+    const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
+    const [editFormDirty, setEditFormDirty] = useState(false)
+
+    // Initial values for dirty checking
+    const initialValuesRef = useRef<{
+        startTime: Date
+        duration: number
+        isRecurring: boolean
+        recordingEnabled: boolean
+        recordingSource: string
+    } | null>(null)
+
     const getEffectiveRecording = (s: ScheduleSlot) => {
         return s.recordingOverride !== null ? s.recordingOverride : s.show.recordingEnabled
     }
 
     useEffect(() => {
         if (slot) {
-            setStartTime(new Date(slot.startTime))
+            const slotStartTime = new Date(slot.startTime)
             const durationMins = Math.round((new Date(slot.endTime).getTime() - new Date(slot.startTime).getTime()) / 60000)
+            const effectiveRecording = getEffectiveRecording(slot)
+            const source = slot.show.recordingSource || ''
+
+            setStartTime(slotStartTime)
             setDuration(durationMins)
             setIsRecurring(slot.isRecurring)
-            setRecordingEnabled(getEffectiveRecording(slot))
-            setRecordingSource(slot.show.recordingSource || '')
+            setRecordingEnabled(effectiveRecording)
+            setRecordingSource(source)
             setRecordingChanged(false)
             setRecordingScope('single')
             setError(null)
+            setEditFormDirty(false)
+            setShowUnsavedWarning(false)
+
+            // Store initial values for dirty checking
+            initialValuesRef.current = {
+                startTime: slotStartTime,
+                duration: durationMins,
+                isRecurring: slot.isRecurring,
+                recordingEnabled: effectiveRecording,
+                recordingSource: source,
+            }
         }
     }, [slot])
+
+    // Check if form has unsaved changes
+    const isDirty = (): boolean => {
+        const initial = initialValuesRef.current
+        if (!initial) return false
+
+        // Check slot settings
+        const slotDirty =
+            startTime.getTime() !== initial.startTime.getTime() ||
+            duration !== initial.duration ||
+            isRecurring !== initial.isRecurring
+
+        // Check recording settings
+        const recordingDirty =
+            recordingEnabled !== initial.recordingEnabled ||
+            recordingSource !== initial.recordingSource
+
+        return slotDirty || recordingDirty || editFormDirty
+    }
+
+    const handleCloseAttempt = () => {
+        if (isDirty()) {
+            setShowUnsavedWarning(true)
+        } else {
+            onClose()
+        }
+    }
+
+    const handleConfirmDiscard = () => {
+        setShowUnsavedWarning(false)
+        onClose()
+    }
 
     if (!isOpen || !slot) return null
 
@@ -208,7 +269,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                             <span className="text-gray-400 font-normal ml-2">— {slot.show.title}</span>
                         </h2>
                         <button
-                            onClick={onClose}
+                            onClick={handleCloseAttempt}
                             className="text-gray-400 hover:text-white transition-colors"
                         >
                             <X className="w-6 h-6" />
@@ -506,12 +567,24 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                 Show Settings
                             </h3>
                             <div className="bg-gray-800/30 rounded-xl p-6 border border-gray-700/50">
-                                <EditShowForm show={slot.show} streams={streams} hideRecordingControls={true} />
+                                <EditShowForm
+                                    show={slot.show}
+                                    streams={streams}
+                                    hideRecordingControls={true}
+                                    onDirtyChange={setEditFormDirty}
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Unsaved Changes Warning */}
+            <UnsavedChangesModal
+                isOpen={showUnsavedWarning}
+                onStay={() => setShowUnsavedWarning(false)}
+                onDiscard={handleConfirmDiscard}
+            />
         </>
     )
 }

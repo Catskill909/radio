@@ -50,6 +50,7 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
     const [selectedShow, setSelectedShow] = useState<Show | null>(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [origin, setOrigin] = useState('')
+    const [editFormDirty, setEditFormDirty] = useState(false)
 
     // Set origin client-side to avoid hydration mismatch
     useEffect(() => {
@@ -241,10 +242,19 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                 onClose={() => {
                     setEditModalOpen(false)
                     setSelectedShow(null)
+                    setEditFormDirty(false)
                 }}
                 title="Edit Show"
+                isDirty={editFormDirty}
             >
-                {selectedShow && <EditShowForm show={selectedShow} streams={streams} hideRecordingControls={true} />}
+                {selectedShow && (
+                    <EditShowForm
+                        show={selectedShow}
+                        streams={streams}
+                        hideRecordingControls={true}
+                        onDirtyChange={setEditFormDirty}
+                    />
+                )}
             </EditShowModal>
 
             {/* RSS Feed Modal */}

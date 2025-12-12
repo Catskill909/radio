@@ -9,6 +9,7 @@ import ScheduleErrorModal from '@/components/ScheduleErrorModal'
 import ItunesCategorySelect from '@/components/iTunesCategorySelect'
 import EditShowForm from '@/components/EditShowForm'
 import ShowPicker from '@/components/ShowPicker'
+import UnsavedChangesModal from '@/components/UnsavedChangesModal'
 import { Show as PrismaShow } from '@prisma/client'
 
 interface Show {
@@ -90,6 +91,10 @@ export default function ScheduleModal({
     const [showCustomLimit, setShowCustomLimit] = useState(false)
     const [archivingEnabled, setArchivingEnabled] = useState(true)
 
+    // Unsaved changes tracking
+    const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
+    const [editFormDirty, setEditFormDirty] = useState(false)
+
     // Ref for auto-scroll when show is selected
     const durationSectionRef = useRef<HTMLDivElement>(null)
     const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -125,9 +130,54 @@ export default function ScheduleModal({
         }
     }
 
+    // Check if form has unsaved changes
+    const isDirty = (): boolean => {
+        if (activeTab === 'select') {
+            // Select tab is dirty if a show is selected or duration/recurring changed from defaults
+            return selectedShowId !== '' || duration !== 60 || isRecurring !== false || editFormDirty
+        } else {
+            // Create tab is dirty if any field has been filled in
+            return (
+                newShowTitle !== '' ||
+                newShowHost !== '' ||
+                newShowEmail !== '' ||
+                newShowAuthor !== '' ||
+                newShowCategory !== '' ||
+                newShowCopyright !== '' ||
+                newShowLink !== '' ||
+                newShowTags !== '' ||
+                newShowDescription !== '' ||
+                newShowExplicit !== false ||
+                newShowType !== 'Local Podcast' ||
+                newShowItunesType !== 'episodic' ||
+                newShowLanguage !== 'en-us' ||
+                imageUrl !== '' ||
+                recordingEnabled !== false ||
+                recordingSource !== '' ||
+                feedEpisodeLimit !== null ||
+                archivingEnabled !== true ||
+                duration !== 60 ||
+                isRecurring !== false
+            )
+        }
+    }
+
+    const handleCloseAttempt = () => {
+        if (isDirty()) {
+            setShowUnsavedWarning(true)
+        } else {
+            onClose()
+        }
+    }
+
+    const handleConfirmDiscard = () => {
+        setShowUnsavedWarning(false)
+        onClose()
+    }
+
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose()
+            if (e.key === 'Escape') handleCloseAttempt()
         }
         if (isOpen) {
             document.addEventListener('keydown', handleEscape)
@@ -137,6 +187,29 @@ export default function ScheduleModal({
             setSelectedShowId('')
             setIsLoadingShow(false)
             setActiveTab('select') // Always open on Select Existing tab
+            setShowUnsavedWarning(false)
+            setEditFormDirty(false)
+            // Reset create tab fields
+            setNewShowTitle('')
+            setNewShowHost('')
+            setNewShowEmail('')
+            setNewShowAuthor('')
+            setNewShowCategory('')
+            setNewShowCopyright('')
+            setNewShowLink('')
+            setNewShowTags('')
+            setNewShowDescription('')
+            setNewShowExplicit(false)
+            setNewShowType('Local Podcast')
+            setNewShowItunesType('episodic')
+            setNewShowLanguage('en-us')
+            setImageUrl('')
+            setRecordingEnabled(false)
+            setRecordingSource('')
+            setFeedEpisodeLimit(null)
+            setArchivingEnabled(true)
+            setDuration(60)
+            setIsRecurring(false)
             // Scroll back to top when modal reopens
             if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollTop = 0
@@ -146,7 +219,7 @@ export default function ScheduleModal({
             document.removeEventListener('keydown', handleEscape)
             document.body.style.overflow = 'unset'
         }
-    }, [isOpen, onClose])
+    }, [isOpen])
 
     // Helper to convert local selection to Station Time UTC
     const getStationTimeUTC = (localDate: Date) => {
@@ -283,92 +356,495 @@ export default function ScheduleModal({
     }
 
     return (
-        <div className="fixed inset-0 z-[1050] flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
-                onClick={onClose}
-            />
+        <>
+            <div className="fixed inset-0 z-[1050] flex items-center justify-center p-4">
+                {/* Backdrop */}
+                <div
+                    className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+                    onClick={handleCloseAttempt}
+                />
 
-            {/* Modal */}
-            <div className="relative bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-800">
-                    <h2 className="text-2xl font-bold text-white">Schedule Show</h2>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                    >
-                        <X className="w-6 h-6 text-gray-400" />
-                    </button>
-                </div>
-
-                {/* Tabs */}
-                <div className="flex border-b border-gray-800">
-                    <button
-                        onClick={() => {
-                            setActiveTab('select')
-                            // Reset scroll to top when switching tabs
-                            if (scrollContainerRef.current) {
-                                scrollContainerRef.current.scrollTop = 0
-                            }
-                        }}
-                        className={`flex-1 px-6 py-4 font-medium transition-colors ${activeTab === 'select'
-                            ? 'text-blue-500 border-b-2 border-blue-500'
-                            : 'text-gray-400 hover:text-gray-300'
-                            }`}
-                    >
-                        Select Existing Show
-                    </button>
-                    <button
-                        onClick={() => {
-                            setActiveTab('create')
-                            // Reset scroll to top when switching tabs
-                            if (scrollContainerRef.current) {
-                                scrollContainerRef.current.scrollTop = 0
-                            }
-                        }}
-                        className={`flex-1 px-6 py-4 font-medium transition-colors ${activeTab === 'create'
-                            ? 'text-blue-500 border-b-2 border-blue-500'
-                            : 'text-gray-400 hover:text-gray-300'
-                            }`}
-                    >
-                        Create New Show
-                    </button>
-                </div>
-
-                {/* Content - Scrollable */}
-                <div ref={scrollContainerRef} className="p-6 space-y-6 overflow-y-auto flex-1 scroll-smooth">
-                    {/* Time Slot Info */}
-                    <div className="p-4 bg-gray-800 rounded-lg">
-                        <p className="text-sm text-gray-400">Time Slot</p>
-                        <p className="text-lg font-medium text-white">{formatSlotTime(selectedSlot.start)}</p>
+                {/* Modal */}
+                <div className="relative bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6 border-b border-gray-800">
+                        <h2 className="text-2xl font-bold text-white">Schedule Show</h2>
+                        <button
+                            onClick={handleCloseAttempt}
+                            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                        >
+                            <X className="w-6 h-6 text-gray-400" />
+                        </button>
                     </div>
 
-                    {/* Select Existing Tab */}
-                    {activeTab === 'select' && (
-                        <div className="space-y-4">
-                            {/* Show Picker - stays full height */}
-                            <div>
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Select Show
-                                    </label>
-                                    <ShowPicker
-                                        shows={shows}
-                                        selectedShowId={selectedShowId}
-                                        onSelect={handleShowSelect}
+                    {/* Tabs */}
+                    <div className="flex border-b border-gray-800">
+                        <button
+                            onClick={() => {
+                                setActiveTab('select')
+                                // Reset scroll to top when switching tabs
+                                if (scrollContainerRef.current) {
+                                    scrollContainerRef.current.scrollTop = 0
+                                }
+                            }}
+                            className={`flex-1 px-6 py-4 font-medium transition-colors ${activeTab === 'select'
+                                ? 'text-blue-500 border-b-2 border-blue-500'
+                                : 'text-gray-400 hover:text-gray-300'
+                                }`}
+                        >
+                            Select Existing Show
+                        </button>
+                        <button
+                            onClick={() => {
+                                setActiveTab('create')
+                                // Reset scroll to top when switching tabs
+                                if (scrollContainerRef.current) {
+                                    scrollContainerRef.current.scrollTop = 0
+                                }
+                            }}
+                            className={`flex-1 px-6 py-4 font-medium transition-colors ${activeTab === 'create'
+                                ? 'text-blue-500 border-b-2 border-blue-500'
+                                : 'text-gray-400 hover:text-gray-300'
+                                }`}
+                        >
+                            Create New Show
+                        </button>
+                    </div>
+
+                    {/* Content - Scrollable */}
+                    <div ref={scrollContainerRef} className="p-6 space-y-6 overflow-y-auto flex-1 scroll-smooth">
+                        {/* Time Slot Info */}
+                        <div className="p-4 bg-gray-800 rounded-lg">
+                            <p className="text-sm text-gray-400">Time Slot</p>
+                            <p className="text-lg font-medium text-white">{formatSlotTime(selectedSlot.start)}</p>
+                        </div>
+
+                        {/* Select Existing Tab */}
+                        {activeTab === 'select' && (
+                            <div className="space-y-4">
+                                {/* Show Picker - stays full height */}
+                                <div>
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Select Show
+                                        </label>
+                                        <ShowPicker
+                                            shows={shows}
+                                            selectedShowId={selectedShowId}
+                                            onSelect={handleShowSelect}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Guided Flow - slides in when show is selected */}
+                                <div className={`transition-all duration-300 ease-out overflow-hidden ${selectedShowId
+                                    ? 'max-h-[2000px] opacity-100'
+                                    : 'max-h-0 opacity-0'
+                                    }`}>
+                                    {/* Duration and Recurring */}
+                                    <div ref={durationSectionRef} className="grid grid-cols-2 gap-4 mb-4 scroll-mt-56">
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-medium text-gray-300">
+                                                Duration (minutes)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={duration}
+                                                onChange={(e) => {
+                                                    const val = e.target.value === '' ? '' : parseInt(e.target.value);
+                                                    setDuration(val as any);
+                                                }}
+                                                onBlur={(e) => {
+                                                    if (!e.target.value || isNaN(parseInt(e.target.value))) {
+                                                        setDuration(60);
+                                                    }
+                                                }}
+                                                min="15"
+                                                step="15"
+                                                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2 flex items-end">
+                                            <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-500 transition-colors w-full">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isRecurring}
+                                                    onChange={(e) => setIsRecurring(e.target.checked)}
+                                                    className="w-5 h-5 text-blue-600 rounded border-gray-700 bg-gray-900 focus:ring-blue-500"
+                                                />
+                                                <span className="text-gray-300 font-medium">Repeat Weekly</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Schedule Button - compact, centered, outlined style with pulse */}
+                                    <div className="flex justify-center mb-6">
+                                        <button
+                                            onClick={handleScheduleExisting}
+                                            disabled={!selectedShowId}
+                                            className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/10 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:animate-none text-white font-medium transition-all animate-[pulse-border_2s_ease-in-out_infinite]"
+                                            style={{
+                                                animation: selectedShowId ? 'pulse-border 2s ease-in-out infinite' : 'none'
+                                            }}
+                                        >
+                                            Schedule Show
+                                        </button>
+                                    </div>
+
+                                    {/* Show Settings - for optional editing */}
+                                    {selectedShowId && shows.find(s => s.id === selectedShowId) && (
+                                        <div className="border-t border-gray-700 pt-4">
+                                            {isLoadingShow ? (
+                                                <div className="flex items-center justify-center py-8">
+                                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                                                    <span className="ml-3 text-gray-400">Loading show details...</span>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <EditShowForm
+                                                        key={selectedShowId}
+                                                        show={shows.find(s => s.id === selectedShowId) as unknown as PrismaShow}
+                                                        streams={streams}
+                                                        hideRecordingControls={false}
+                                                        hideActionButtons={true}
+                                                        formId="schedule-edit-show-form"
+                                                        onAfterSubmit={handleScheduleExisting}
+                                                        onDirtyChange={setEditFormDirty}
+                                                    />
+                                                    {/* Schedule Show button at the bottom - submits the form which updates + schedules */}
+                                                    <div className="flex justify-center pt-6 mt-4 border-t border-gray-700">
+                                                        <button
+                                                            type="submit"
+                                                            form="schedule-edit-show-form"
+                                                            disabled={!selectedShowId}
+                                                            className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/10 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:animate-none text-white font-medium transition-all animate-[pulse-border_2s_ease-in-out_infinite]"
+                                                            style={{
+                                                                animation: selectedShowId ? 'pulse-border 2s ease-in-out infinite' : 'none'
+                                                            }}
+                                                        >
+                                                            Schedule Show
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Placeholder when no show selected */}
+                                {!selectedShowId && (
+                                    <div className="text-center py-6 text-gray-400 border-t border-gray-800">
+                                        <p>Select a show above to schedule it</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Create New Tab */}
+                        {activeTab === 'create' && (
+                            <div className="space-y-4">
+                                {/* Title and Host */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Show Title
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newShowTitle}
+                                            onChange={(e) => setNewShowTitle(e.target.value)}
+                                            placeholder="e.g. Morning Jazz"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Host
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newShowHost}
+                                            onChange={(e) => setNewShowHost(e.target.value)}
+                                            placeholder="e.g. John Smith"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Email, Author */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Contact Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={newShowEmail}
+                                            onChange={(e) => setNewShowEmail(e.target.value)}
+                                            placeholder="podcasts@example.com"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            iTunes Author
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newShowAuthor}
+                                            onChange={(e) => setNewShowAuthor(e.target.value)}
+                                            placeholder="e.g. Radio Station Name"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Language, Copyright, Website */}
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Language
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newShowLanguage}
+                                            onChange={(e) => setNewShowLanguage(e.target.value)}
+                                            placeholder="e.g. en-us"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Copyright
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newShowCopyright}
+                                            onChange={(e) => setNewShowCopyright(e.target.value)}
+                                            placeholder="e.g. © 2025 Station Name"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">
+                                            Website URL
+                                        </label>
+                                        <input
+                                            type="url"
+                                            value={newShowLink}
+                                            onChange={(e) => setNewShowLink(e.target.value)}
+                                            placeholder="https://example.com"
+                                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* iTunes Category - Required */}
+                                <div className="space-y-2 max-w-xs">
+                                    <ItunesCategorySelect
+                                        value={newShowCategory}
+                                        onChange={setNewShowCategory}
+                                        required={true}
+                                        error={categoryError}
                                     />
                                 </div>
-                            </div>
 
-                            {/* Guided Flow - slides in when show is selected */}
-                            <div className={`transition-all duration-300 ease-out overflow-hidden ${selectedShowId
-                                ? 'max-h-[2000px] opacity-100'
-                                : 'max-h-0 opacity-0'
-                                }`}>
+                                {/* Tags */}
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        Tags (comma separated)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newShowTags}
+                                        onChange={(e) => setNewShowTags(e.target.value)}
+                                        placeholder="jazz, local, morning show"
+                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    />
+                                </div>
+
+                                {/* Explicit Content */}
+                                <div>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={newShowExplicit}
+                                            onChange={(e) => setNewShowExplicit(e.target.checked)}
+                                            className="w-4 h-4 text-blue-600 rounded border-gray-700 bg-gray-900 focus:ring-blue-500"
+                                        />
+                                        <span className="text-sm text-gray-300">Explicit Content?</span>
+                                    </label>
+                                </div>
+
+                                {/* Description */}
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        Description
+                                    </label>
+                                    <textarea
+                                        value={newShowDescription}
+                                        onChange={(e) => setNewShowDescription(e.target.value)}
+                                        rows={3}
+                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                                        placeholder="Describe the show..."
+                                    />
+                                </div>
+
+                                {/* iTunes Type */}
+                                <div className="space-y-2 max-w-xs">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        iTunes Type
+                                    </label>
+                                    <select
+                                        value={newShowItunesType}
+                                        onChange={(e) => setNewShowItunesType(e.target.value)}
+                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    >
+                                        <option value="episodic">Episodic (Default)</option>
+                                        <option value="serial">Serial</option>
+                                    </select>
+                                    <p className="text-xs text-gray-500">
+                                        Episodic: Newest episodes first. Serial: Oldest episodes first (good for storytelling).
+                                    </p>
+                                </div>
+
+                                {/* Show Type */}
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        Show Type
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {['Local Podcast', 'Syndicated Podcast', 'Local Music', 'Syndicated Music'].map((type) => (
+                                            <label
+                                                key={type}
+                                                className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${newShowType === type
+                                                    ? 'border-blue-500 bg-blue-500/10'
+                                                    : 'border-gray-700 bg-gray-800 hover:border-gray-500'
+                                                    }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="newShowType"
+                                                    value={type}
+                                                    checked={newShowType === type}
+                                                    onChange={(e) => setNewShowType(e.target.value)}
+                                                    className="text-blue-600 focus:ring-blue-500 bg-gray-800 border-gray-600 w-4 h-4"
+                                                />
+                                                <span className="text-sm">{type}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* RSS Feed Settings */}
+                                <div className="pt-4 border-t border-gray-700">
+                                    <h3 className="text-sm font-semibold text-gray-300 mb-3">RSS Feed Settings</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* Episode Limit */}
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-medium text-gray-300">
+                                                Episodes in Feed
+                                            </label>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {[2, 5, 10, 20, 30, 50, 100].map((num) => (
+                                                    <button
+                                                        key={num}
+                                                        type="button"
+                                                        onClick={() => { setFeedEpisodeLimit(num); setShowCustomLimit(false); }}
+                                                        className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === num && !showCustomLimit
+                                                            ? 'bg-blue-600 border-blue-500 text-white'
+                                                            : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                            }`}
+                                                    >
+                                                        {num}{num === 2 && <span className="text-[10px] ml-1 text-blue-300">♪</span>}
+                                                    </button>
+                                                ))}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setFeedEpisodeLimit(null); setShowCustomLimit(false); }}
+                                                    className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === null && !showCustomLimit
+                                                        ? 'bg-blue-600 border-blue-500 text-white'
+                                                        : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                        }`}
+                                                >
+                                                    ∞
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowCustomLimit(true)}
+                                                    className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${showCustomLimit
+                                                        ? 'bg-blue-600 border-blue-500 text-white'
+                                                        : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
+                                                        }`}
+                                                >
+                                                    Custom
+                                                </button>
+                                            </div>
+                                            {showCustomLimit && (
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    placeholder="Enter number..."
+                                                    value={feedEpisodeLimit ?? ""}
+                                                    onChange={(e) => setFeedEpisodeLimit(e.target.value ? parseInt(e.target.value) : null)}
+                                                    className="w-24 bg-gray-900 border border-gray-700 rounded-md px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                                    autoFocus
+                                                />
+                                            )}
+                                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-900/40 border border-blue-700/50 rounded-full mt-1">
+                                                <Rss className="w-3 h-3 text-blue-400" />
+                                                <span className="text-xs text-blue-300 font-medium">
+                                                    {feedEpisodeLimit === 2 ? "2 episodes (music licensing)" :
+                                                        feedEpisodeLimit === null ? "All episodes in feed" :
+                                                            `Latest ${feedEpisodeLimit} in feed`}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Archiving Toggle */}
+                                        <div className="space-y-2">
+                                            <label className="block text-sm font-medium text-gray-300">
+                                                Archiving
+                                            </label>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setArchivingEnabled(!archivingEnabled)}
+                                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${archivingEnabled ? 'bg-[#626ac4]' : 'bg-gray-700'
+                                                        }`}
+                                                >
+                                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${archivingEnabled ? 'translate-x-6' : 'translate-x-1'
+                                                        }`} />
+                                                </button>
+                                                <span className="text-sm text-gray-400">
+                                                    {archivingEnabled ? "Keep old episodes" : "Delete old episodes"}
+                                                </span>
+                                            </div>
+                                            {archivingEnabled ? (
+                                                <p className="text-xs text-gray-500">
+                                                    Episodes beyond the feed limit are kept on disk.
+                                                </p>
+                                            ) : (
+                                                <div className="p-2 bg-red-900/30 border border-red-700/50 rounded-md mt-1">
+                                                    <p className="text-xs text-red-300 font-medium">
+                                                        ⚠️ Audio files will be permanently deleted
+                                                    </p>
+                                                    <p className="text-xs text-red-400/80 mt-0.5">
+                                                        Oldest recordings beyond the feed limit are automatically removed. Download from Settings → Audio if needed.
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {/* Duration and Recurring */}
-                                <div ref={durationSectionRef} className="grid grid-cols-2 gap-4 mb-4 scroll-mt-56">
+                                <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label className="block text-sm font-medium text-gray-300">
                                             Duration (minutes)
@@ -404,489 +880,96 @@ export default function ScheduleModal({
                                     </div>
                                 </div>
 
-                                {/* Schedule Button - compact, centered, outlined style with pulse */}
-                                <div className="flex justify-center mb-6">
-                                    <button
-                                        onClick={handleScheduleExisting}
-                                        disabled={!selectedShowId}
-                                        className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/10 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:animate-none text-white font-medium transition-all animate-[pulse-border_2s_ease-in-out_infinite]"
-                                        style={{
-                                            animation: selectedShowId ? 'pulse-border 2s ease-in-out infinite' : 'none'
-                                        }}
-                                    >
-                                        Schedule Show
-                                    </button>
-                                </div>
-
-                                {/* Show Settings - for optional editing */}
-                                {selectedShowId && shows.find(s => s.id === selectedShowId) && (
-                                    <div className="border-t border-gray-700 pt-4">
-                                        {isLoadingShow ? (
-                                            <div className="flex items-center justify-center py-8">
-                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                                <span className="ml-3 text-gray-400">Loading show details...</span>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <EditShowForm
-                                                    key={selectedShowId}
-                                                    show={shows.find(s => s.id === selectedShowId) as unknown as PrismaShow}
-                                                    streams={streams}
-                                                    hideRecordingControls={false}
-                                                    hideActionButtons={true}
-                                                    formId="schedule-edit-show-form"
-                                                    onAfterSubmit={handleScheduleExisting}
-                                                />
-                                                {/* Schedule Show button at the bottom - submits the form which updates + schedules */}
-                                                <div className="flex justify-center pt-6 mt-4 border-t border-gray-700">
-                                                    <button
-                                                        type="submit"
-                                                        form="schedule-edit-show-form"
-                                                        disabled={!selectedShowId}
-                                                        className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/10 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:animate-none text-white font-medium transition-all animate-[pulse-border_2s_ease-in-out_infinite]"
-                                                        style={{
-                                                            animation: selectedShowId ? 'pulse-border 2s ease-in-out infinite' : 'none'
-                                                        }}
-                                                    >
-                                                        Schedule Show
-                                                    </button>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Placeholder when no show selected */}
-                            {!selectedShowId && (
-                                <div className="text-center py-6 text-gray-400 border-t border-gray-800">
-                                    <p>Select a show above to schedule it</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Create New Tab */}
-                    {activeTab === 'create' && (
-                        <div className="space-y-4">
-                            {/* Title and Host */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Show Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newShowTitle}
-                                        onChange={(e) => setNewShowTitle(e.target.value)}
-                                        placeholder="e.g. Morning Jazz"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Host
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newShowHost}
-                                        onChange={(e) => setNewShowHost(e.target.value)}
-                                        placeholder="e.g. John Smith"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Email, Author */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Contact Email
-                                    </label>
-                                    <input
-                                        type="email"
-                                        value={newShowEmail}
-                                        onChange={(e) => setNewShowEmail(e.target.value)}
-                                        placeholder="podcasts@example.com"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        iTunes Author
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newShowAuthor}
-                                        onChange={(e) => setNewShowAuthor(e.target.value)}
-                                        placeholder="e.g. Radio Station Name"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Language, Copyright, Website */}
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Language
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newShowLanguage}
-                                        onChange={(e) => setNewShowLanguage(e.target.value)}
-                                        placeholder="e.g. en-us"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Copyright
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newShowCopyright}
-                                        onChange={(e) => setNewShowCopyright(e.target.value)}
-                                        placeholder="e.g. © 2025 Station Name"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Website URL
-                                    </label>
-                                    <input
-                                        type="url"
-                                        value={newShowLink}
-                                        onChange={(e) => setNewShowLink(e.target.value)}
-                                        placeholder="https://example.com"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* iTunes Category - Required */}
-                            <div className="space-y-2 max-w-xs">
-                                <ItunesCategorySelect
-                                    value={newShowCategory}
-                                    onChange={setNewShowCategory}
-                                    required={true}
-                                    error={categoryError}
-                                />
-                            </div>
-
-                            {/* Tags */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-300">
-                                    Tags (comma separated)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={newShowTags}
-                                    onChange={(e) => setNewShowTags(e.target.value)}
-                                    placeholder="jazz, local, morning show"
-                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                />
-                            </div>
-
-                            {/* Explicit Content */}
-                            <div>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={newShowExplicit}
-                                        onChange={(e) => setNewShowExplicit(e.target.checked)}
-                                        className="w-4 h-4 text-blue-600 rounded border-gray-700 bg-gray-900 focus:ring-blue-500"
-                                    />
-                                    <span className="text-sm text-gray-300">Explicit Content?</span>
-                                </label>
-                            </div>
-
-                            {/* Description */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-300">
-                                    Description
-                                </label>
-                                <textarea
-                                    value={newShowDescription}
-                                    onChange={(e) => setNewShowDescription(e.target.value)}
-                                    rows={3}
-                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
-                                    placeholder="Describe the show..."
-                                />
-                            </div>
-
-                            {/* iTunes Type */}
-                            <div className="space-y-2 max-w-xs">
-                                <label className="block text-sm font-medium text-gray-300">
-                                    iTunes Type
-                                </label>
-                                <select
-                                    value={newShowItunesType}
-                                    onChange={(e) => setNewShowItunesType(e.target.value)}
-                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                >
-                                    <option value="episodic">Episodic (Default)</option>
-                                    <option value="serial">Serial</option>
-                                </select>
-                                <p className="text-xs text-gray-500">
-                                    Episodic: Newest episodes first. Serial: Oldest episodes first (good for storytelling).
-                                </p>
-                            </div>
-
-                            {/* Show Type */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-300">
-                                    Show Type
-                                </label>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {['Local Podcast', 'Syndicated Podcast', 'Local Music', 'Syndicated Music'].map((type) => (
-                                        <label
-                                            key={type}
-                                            className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${newShowType === type
-                                                ? 'border-blue-500 bg-blue-500/10'
-                                                : 'border-gray-700 bg-gray-800 hover:border-gray-500'
-                                                }`}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name="newShowType"
-                                                value={type}
-                                                checked={newShowType === type}
-                                                onChange={(e) => setNewShowType(e.target.value)}
-                                                className="text-blue-600 focus:ring-blue-500 bg-gray-800 border-gray-600 w-4 h-4"
+                                {/* Recording Settings & Cover Image - Side by side layout matching Select Existing Show tab */}
+                                <div className="pt-4 border-t border-gray-700">
+                                    <div className="grid grid-cols-12 gap-4">
+                                        {/* Recording Settings - Span 8 */}
+                                        <div className="col-span-12 md:col-span-8">
+                                            <RecordingControls
+                                                recordingEnabled={recordingEnabled}
+                                                onRecordingEnabledChange={setRecordingEnabled}
+                                                recordingSource={recordingSource}
+                                                onRecordingSourceChange={setRecordingSource}
+                                                streams={streams}
                                             />
-                                            <span className="text-sm">{type}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
+                                        </div>
 
-                            {/* RSS Feed Settings */}
-                            <div className="pt-4 border-t border-gray-700">
-                                <h3 className="text-sm font-semibold text-gray-300 mb-3">RSS Feed Settings</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Episode Limit */}
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-300">
-                                            Episodes in Feed
-                                        </label>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {[2, 5, 10, 20, 30, 50, 100].map((num) => (
-                                                <button
-                                                    key={num}
-                                                    type="button"
-                                                    onClick={() => { setFeedEpisodeLimit(num); setShowCustomLimit(false); }}
-                                                    className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === num && !showCustomLimit
-                                                        ? 'bg-blue-600 border-blue-500 text-white'
-                                                        : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
-                                                        }`}
-                                                >
-                                                    {num}{num === 2 && <span className="text-[10px] ml-1 text-blue-300">♪</span>}
-                                                </button>
-                                            ))}
-                                            <button
-                                                type="button"
-                                                onClick={() => { setFeedEpisodeLimit(null); setShowCustomLimit(false); }}
-                                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${feedEpisodeLimit === null && !showCustomLimit
-                                                    ? 'bg-blue-600 border-blue-500 text-white'
-                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
-                                                    }`}
-                                            >
-                                                ∞
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowCustomLimit(true)}
-                                                className={`px-2.5 py-1.5 text-xs font-medium rounded-md border transition-all ${showCustomLimit
-                                                    ? 'bg-blue-600 border-blue-500 text-white'
-                                                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-600'
-                                                    }`}
-                                            >
-                                                Custom
-                                            </button>
-                                        </div>
-                                        {showCustomLimit && (
-                                            <input
-                                                type="number"
-                                                min="1"
-                                                placeholder="Enter number..."
-                                                value={feedEpisodeLimit ?? ""}
-                                                onChange={(e) => setFeedEpisodeLimit(e.target.value ? parseInt(e.target.value) : null)}
-                                                className="w-24 bg-gray-900 border border-gray-700 rounded-md px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-                                                autoFocus
-                                            />
-                                        )}
-                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-900/40 border border-blue-700/50 rounded-full mt-1">
-                                            <Rss className="w-3 h-3 text-blue-400" />
-                                            <span className="text-xs text-blue-300 font-medium">
-                                                {feedEpisodeLimit === 2 ? "2 episodes (music licensing)" :
-                                                    feedEpisodeLimit === null ? "All episodes in feed" :
-                                                        `Latest ${feedEpisodeLimit} in feed`}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Archiving Toggle */}
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-medium text-gray-300">
-                                            Archiving
-                                        </label>
-                                        <div className="flex items-center gap-3">
-                                            <button
-                                                type="button"
-                                                onClick={() => setArchivingEnabled(!archivingEnabled)}
-                                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${archivingEnabled ? 'bg-[#626ac4]' : 'bg-gray-700'
-                                                    }`}
-                                            >
-                                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${archivingEnabled ? 'translate-x-6' : 'translate-x-1'
-                                                    }`} />
-                                            </button>
-                                            <span className="text-sm text-gray-400">
-                                                {archivingEnabled ? "Keep old episodes" : "Delete old episodes"}
-                                            </span>
-                                        </div>
-                                        {archivingEnabled ? (
+                                        {/* Cover Image - Span 4 */}
+                                        <div className="col-span-12 md:col-span-4 space-y-2">
+                                            <label className="block text-sm font-medium text-gray-300">
+                                                Cover Image
+                                            </label>
+                                            <ImageUpload value={imageUrl} onChange={setImageUrl} />
                                             <p className="text-xs text-gray-500">
-                                                Episodes beyond the feed limit are kept on disk.
+                                                If no image is uploaded, the Station Identity image will be used.
                                             </p>
-                                        ) : (
-                                            <div className="p-2 bg-red-900/30 border border-red-700/50 rounded-md mt-1">
-                                                <p className="text-xs text-red-300 font-medium">
-                                                    ⚠️ Audio files will be permanently deleted
-                                                </p>
-                                                <p className="text-xs text-red-400/80 mt-0.5">
-                                                    Oldest recordings beyond the feed limit are automatically removed. Download from Settings → Audio if needed.
-                                                </p>
-                                            </div>
-                                        )}
+                                        </div>
                                     </div>
                                 </div>
+
+                                <button
+                                    onClick={() => {
+                                        if (!newShowTitle || !newShowCategory) {
+                                            setValidationModalOpen(true)
+                                            return
+                                        }
+                                        handleCreateAndSchedule()
+                                    }}
+                                    className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all ${(!newShowTitle || !newShowCategory) ? 'opacity-50' : ''}`}
+                                >
+                                    Create & Schedule Show
+                                </button>
                             </div>
-
-                            {/* Duration and Recurring */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-300">
-                                        Duration (minutes)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={duration}
-                                        onChange={(e) => {
-                                            const val = e.target.value === '' ? '' : parseInt(e.target.value);
-                                            setDuration(val as any);
-                                        }}
-                                        onBlur={(e) => {
-                                            if (!e.target.value || isNaN(parseInt(e.target.value))) {
-                                                setDuration(60);
-                                            }
-                                        }}
-                                        min="15"
-                                        step="15"
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                                    />
-                                </div>
-
-                                <div className="space-y-2 flex items-end">
-                                    <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-500 transition-colors w-full">
-                                        <input
-                                            type="checkbox"
-                                            checked={isRecurring}
-                                            onChange={(e) => setIsRecurring(e.target.checked)}
-                                            className="w-5 h-5 text-blue-600 rounded border-gray-700 bg-gray-900 focus:ring-blue-500"
-                                        />
-                                        <span className="text-gray-300 font-medium">Repeat Weekly</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            {/* Recording Settings & Cover Image - Side by side layout matching Select Existing Show tab */}
-                            <div className="pt-4 border-t border-gray-700">
-                                <div className="grid grid-cols-12 gap-4">
-                                    {/* Recording Settings - Span 8 */}
-                                    <div className="col-span-12 md:col-span-8">
-                                        <RecordingControls
-                                            recordingEnabled={recordingEnabled}
-                                            onRecordingEnabledChange={setRecordingEnabled}
-                                            recordingSource={recordingSource}
-                                            onRecordingSourceChange={setRecordingSource}
-                                            streams={streams}
-                                        />
-                                    </div>
-
-                                    {/* Cover Image - Span 4 */}
-                                    <div className="col-span-12 md:col-span-4 space-y-2">
-                                        <label className="block text-sm font-medium text-gray-300">
-                                            Cover Image
-                                        </label>
-                                        <ImageUpload value={imageUrl} onChange={setImageUrl} />
-                                        <p className="text-xs text-gray-500">
-                                            If no image is uploaded, the Station Identity image will be used.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => {
-                                    if (!newShowTitle || !newShowCategory) {
-                                        setValidationModalOpen(true)
-                                        return
-                                    }
-                                    handleCreateAndSchedule()
-                                }}
-                                className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all ${(!newShowTitle || !newShowCategory) ? 'opacity-50' : ''}`}
-                            >
-                                Create & Schedule Show
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Error Modal */}
-            <ScheduleErrorModal
-                isOpen={errorModalOpen}
-                onClose={() => setErrorModalOpen(false)}
-                errorMessage={errorMessage}
-            />
-
-            {/* Validation Modal - Friendly reminder to fill required fields */}
-            {validationModalOpen && (
-                <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
-                    <div
-                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-                        onClick={() => setValidationModalOpen(false)}
-                    />
-                    <div className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
-                        <div className="text-center">
-                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center">
-                                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <h3 className="text-xl font-semibold text-white mb-2">Almost There!</h3>
-                            <p className="text-gray-400 mb-6">
-                                Please fill in the required fields before creating your show:
-                                <br /><br />
-                                <span className="text-white font-medium">• Show Title</span><br />
-                                <span className="text-white font-medium">• iTunes Category</span>
-                            </p>
-                            <button
-                                onClick={() => setValidationModalOpen(false)}
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"
-                            >
-                                Got It
-                            </button>
-                        </div>
+                        )}
                     </div>
                 </div>
-            )}
-        </div >
+
+                {/* Error Modal */}
+                <ScheduleErrorModal
+                    isOpen={errorModalOpen}
+                    onClose={() => setErrorModalOpen(false)}
+                    errorMessage={errorMessage}
+                />
+
+                {/* Validation Modal - Friendly reminder to fill required fields */}
+                {validationModalOpen && (
+                    <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
+                        <div
+                            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                            onClick={() => setValidationModalOpen(false)}
+                        />
+                        <div className="relative bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+                            <div className="text-center">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-semibold text-white mb-2">Almost There!</h3>
+                                <p className="text-gray-400 mb-6">
+                                    Please fill in the required fields before creating your show:
+                                    <br /><br />
+                                    <span className="text-white font-medium">• Show Title</span><br />
+                                    <span className="text-white font-medium">• iTunes Category</span>
+                                </p>
+                                <button
+                                    onClick={() => setValidationModalOpen(false)}
+                                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all"
+                                >
+                                    Got It
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Unsaved Changes Warning */}
+            <UnsavedChangesModal
+                isOpen={showUnsavedWarning}
+                onStay={() => setShowUnsavedWarning(false)}
+                onDiscard={handleConfirmDiscard}
+            />
+        </>
     )
 }

@@ -1,22 +1,40 @@
 'use client'
 
 import { X } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import UnsavedChangesModal from '@/components/UnsavedChangesModal'
 
 interface CreateShowModalProps {
     isOpen: boolean
     onClose: () => void
     children: React.ReactNode
+    isDirty?: boolean
 }
 
 export default function CreateShowModal({
     isOpen,
     onClose,
     children,
+    isDirty = false,
 }: CreateShowModalProps) {
+    const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
+
+    const handleCloseAttempt = () => {
+        if (isDirty) {
+            setShowUnsavedWarning(true)
+        } else {
+            onClose()
+        }
+    }
+
+    const handleConfirmDiscard = () => {
+        setShowUnsavedWarning(false)
+        onClose()
+    }
+
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose()
+            if (e.key === 'Escape') handleCloseAttempt()
         }
         if (isOpen) {
             document.addEventListener('keydown', handleEscape)
@@ -26,36 +44,52 @@ export default function CreateShowModal({
             document.removeEventListener('keydown', handleEscape)
             document.body.style.overflow = 'unset'
         }
-    }, [isOpen, onClose])
+    }, [isOpen, isDirty])
+
+    // Reset warning state when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            setShowUnsavedWarning(false)
+        }
+    }, [isOpen])
 
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
-                onClick={onClose}
-            />
+        <>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                {/* Backdrop */}
+                <div
+                    className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+                    onClick={handleCloseAttempt}
+                />
 
-            {/* Modal - Full Screen */}
-            <div className="relative bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full h-full max-w-6xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
-                {/* Fixed Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-800 flex-shrink-0">
-                    <h2 className="text-3xl font-bold text-white">Create New Show</h2>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                    >
-                        <X className="w-6 h-6 text-gray-400" />
-                    </button>
-                </div>
+                {/* Modal - Full Screen */}
+                <div className="relative bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl w-full h-full max-w-6xl max-h-[95vh] flex flex-col animate-in zoom-in-95 duration-200">
+                    {/* Fixed Header */}
+                    <div className="flex items-center justify-between p-6 border-b border-gray-800 flex-shrink-0">
+                        <h2 className="text-3xl font-bold text-white">Create New Show</h2>
+                        <button
+                            onClick={handleCloseAttempt}
+                            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                        >
+                            <X className="w-6 h-6 text-gray-400" />
+                        </button>
+                    </div>
 
-                {/* Content - No scrolling needed with proper layout */}
-                <div className="flex-1 overflow-y-auto p-6">
-                    {children}
+                    {/* Content - No scrolling needed with proper layout */}
+                    <div className="flex-1 overflow-y-auto p-6">
+                        {children}
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* Unsaved Changes Warning */}
+            <UnsavedChangesModal
+                isOpen={showUnsavedWarning}
+                onStay={() => setShowUnsavedWarning(false)}
+                onDiscard={handleConfirmDiscard}
+            />
+        </>
     )
 }

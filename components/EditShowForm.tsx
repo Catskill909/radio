@@ -4,7 +4,7 @@ import { updateShow, deleteShow, getScheduleSlots } from "@/app/actions";
 import ImageUpload from "@/components/ImageUpload";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import RecordingControls from "@/components/RecordingControls";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Show } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "./Tooltip";
@@ -19,9 +19,10 @@ interface EditShowFormProps {
     hideActionButtons?: boolean;  // Hide Update/Delete buttons when used in scheduling context
     formId?: string;  // Optional form ID for external button submission
     onAfterSubmit?: () => void;  // Callback after successful form submission
+    onDirtyChange?: (isDirty: boolean) => void;  // Callback when form dirty state changes
 }
 
-export default function EditShowForm({ show, streams, hideRecordingControls = false, hideActionButtons = false, formId, onAfterSubmit }: EditShowFormProps) {
+export default function EditShowForm({ show, streams, hideRecordingControls = false, hideActionButtons = false, formId, onAfterSubmit, onDirtyChange }: EditShowFormProps) {
     const [imageUrl, setImageUrl] = useState(show.image || "");
     const [categoryValue, setCategoryValue] = useState(show.category || "");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -31,6 +32,66 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
     const [archivingEnabled, setArchivingEnabled] = useState(show.archivingEnabled ?? true);
     const [showCustomLimit, setShowCustomLimit] = useState(false);
     const router = useRouter();
+    const formRef = useRef<HTMLFormElement>(null);
+
+    // Store initial values for dirty checking
+    const initialValues = useRef({
+        image: show.image || "",
+        category: show.category || "",
+        recordingEnabled: show.recordingEnabled || false,
+        recordingSource: show.recordingSource || "",
+        feedEpisodeLimit: show.feedEpisodeLimit ?? null,
+        archivingEnabled: show.archivingEnabled ?? true,
+    });
+
+    // Check if form is dirty (any controlled state changed)
+    useEffect(() => {
+        if (!onDirtyChange) return;
+
+        const initial = initialValues.current;
+        const isDirty =
+            imageUrl !== initial.image ||
+            categoryValue !== initial.category ||
+            recordingEnabled !== initial.recordingEnabled ||
+            recordingSource !== initial.recordingSource ||
+            feedEpisodeLimit !== initial.feedEpisodeLimit ||
+            archivingEnabled !== initial.archivingEnabled;
+
+        // Also check uncontrolled form inputs
+        if (formRef.current) {
+            const formData = new FormData(formRef.current);
+            const title = formData.get('title') as string || '';
+            const host = formData.get('host') as string || '';
+            const email = formData.get('email') as string || '';
+            const author = formData.get('author') as string || '';
+            const language = formData.get('language') as string || '';
+            const copyright = formData.get('copyright') as string || '';
+            const link = formData.get('link') as string || '';
+            const tags = formData.get('tags') as string || '';
+            const description = formData.get('description') as string || '';
+            const itunesType = formData.get('itunesType') as string || '';
+            const type = formData.get('type') as string || '';
+            const explicit = formData.get('explicit') === 'true';
+
+            const uncontrolledDirty =
+                title !== (show.title || '') ||
+                host !== (show.host || '') ||
+                email !== (show.email || '') ||
+                author !== (show.author || '') ||
+                language !== (show.language || 'en-us') ||
+                copyright !== (show.copyright || '') ||
+                link !== (show.link || '') ||
+                tags !== (show.tags || '') ||
+                description !== (show.description || '') ||
+                itunesType !== (show.itunesType || 'episodic') ||
+                type !== (show.type || '') ||
+                explicit !== (show.explicit || false);
+
+            onDirtyChange(isDirty || uncontrolledDirty);
+        } else {
+            onDirtyChange(isDirty);
+        }
+    }, [imageUrl, categoryValue, recordingEnabled, recordingSource, feedEpisodeLimit, archivingEnabled, onDirtyChange, show]);
 
     // Wrap the server action to pass the ID
     const handleSubmit = async (formData: FormData) => {
@@ -49,7 +110,7 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
 
     return (
         <>
-            <form id={formId} action={handleSubmit} className="grid grid-cols-12 gap-4">
+            <form ref={formRef} id={formId} action={handleSubmit} className="grid grid-cols-12 gap-4" onChange={() => onDirtyChange?.(true)}>
                 {/* Title - Span 12 */}
                 <div className="col-span-12 space-y-1.5">
                     <label htmlFor="title" className="block text-sm font-medium text-gray-300">
