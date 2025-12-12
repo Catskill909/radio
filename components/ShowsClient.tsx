@@ -242,7 +242,7 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                 }}
                 title="Edit Show"
             >
-                {selectedShow && <EditShowForm show={selectedShow} streams={streams} />}
+                {selectedShow && <EditShowForm show={selectedShow} streams={streams} hideRecordingControls={true} />}
             </EditShowModal>
 
             {/* RSS Feed Modal */}

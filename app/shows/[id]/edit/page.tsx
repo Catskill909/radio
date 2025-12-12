@@ -29,7 +29,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
             </div>
 
             <div className="flex-1 overflow-y-auto bg-gray-800 p-8 rounded-xl border border-gray-700 shadow-lg">
-                <EditShowForm show={show} streams={streams} />
+                <EditShowForm show={show} streams={streams} hideRecordingControls={true} />
             </div>
         </div>
     );

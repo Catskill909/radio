@@ -4,9 +4,7 @@ import { createShow } from "@/app/actions";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
-import DateTimePicker from "@/components/DateTimePicker";
 import { useState } from "react";
-import "@/app/shows/datepicker-dark.css";
 import ItunesCategorySelect from "@/components/iTunesCategorySelect";
 
 interface NewShowFormProps {
@@ -16,10 +14,11 @@ interface NewShowFormProps {
 export default function NewShowForm({ streams }: NewShowFormProps) {
     const [imageUrl, setImageUrl] = useState("");
     const [categoryValue, setCategoryValue] = useState("");
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [startTime, setStartTime] = useState<Date | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [submitError, setSubmitError] = useState<string | null>(null);
+
+    // Suppress unused variable warning - streams prop kept for future recording source features
+    void streams;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -55,15 +54,6 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
         // Clear any previous errors
         setErrors({});
         setSubmitError(null);
-
-        // Convert date/time to the format expected by server action (if provided)
-        if (startDate && startTime) {
-            const dateStr = startDate.toISOString().split('T')[0];
-            const timeStr = startTime.toTimeString().split(' ')[0].substring(0, 5);
-
-            formData.set('startDate', dateStr);
-            formData.set('startTime', timeStr);
-        }
 
         try {
             await createShow(formData);
@@ -309,55 +299,7 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                             )}
                         </div>
 
-                        {/* Start Date - Span 4 */}
-                        <div className="col-span-12 md:col-span-4 space-y-1.5">
-                            <DateTimePicker
-                                selected={startDate}
-                                onChange={setStartDate}
-                                label="Start Date (Optional)"
-                                minDate={new Date()}
-                            />
-                        </div>
 
-                        {/* Start Time - Span 4 */}
-                        <div className="col-span-12 md:col-span-4 space-y-1.5">
-                            <DateTimePicker
-                                selected={startTime}
-                                onChange={setStartTime}
-                                label="Start Time (Optional)"
-                                timeOnly
-                                showTimeSelect
-                            />
-                        </div>
-
-                        {/* Duration - Span 4 */}
-                        <div className="col-span-12 md:col-span-4 space-y-1.5">
-                            <label htmlFor="duration" className="block text-sm font-medium text-gray-300">
-                                Duration (min) - Optional
-                            </label>
-                            <input
-                                type="number"
-                                id="duration"
-                                name="duration"
-                                defaultValue="60"
-                                min="15"
-                                step="15"
-                                className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
-                            />
-                        </div>
-
-                        {/* Recurring Checkbox - Span 12 */}
-                        <div className="col-span-12">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    name="isRecurring"
-                                    value="true"
-                                    className="w-4 h-4 text-blue-600 rounded border-gray-700 bg-gray-900 focus:ring-blue-500"
-                                />
-                                <span className="text-sm text-gray-300">Repeats Weekly?</span>
-                            </label>
-                        </div>
 
                         {/* Cover Image Row */}
                         <div className="col-span-12 pt-2 border-t border-gray-800">
