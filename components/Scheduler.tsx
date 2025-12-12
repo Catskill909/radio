@@ -46,7 +46,7 @@ interface Show {
     archivingEnabled: boolean
     createdAt: Date
     updatedAt: Date
-    totalEpisodes: number
+    totalEpisodes?: number
 }
 
 interface Slot {

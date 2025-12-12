@@ -31,10 +31,11 @@ interface Show {
     copyright?: string | null
     link?: string | null
     feedEpisodeLimit?: number | null
+
     archivingEnabled?: boolean
     createdAt: Date
     updatedAt: Date
-    totalEpisodes: number
+    totalEpisodes?: number
 }
 
 import { fromZonedTime } from 'date-fns-tz'
