@@ -129,10 +129,12 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - Add/Edit stream modal (name, URL, etc.)
   - Enable/disable toggle per stream
   - Per-stream manual refresh and delete with confirmation
+  - **Automatic bitrate detection** 🆕: On add/refresh, system captures 5 seconds of audio to measure actual bitrate if Icecast headers don't provide it
 - **Integration with shows**
   - Streams populate the recording source dropdown for shows
   - Recording source stored with shows and used by the recorder service
   - Active stream URL configurable in Settings for public playback
+  - **ACRCloud integration** 🆕: Stream bitrates automatically inform ACRCloud capture duration for optimal song recognition
 - **Real-time monitoring** 🆕
   - WebSocket-powered "Live" indicator confirms active connection
   - Stream status changes push instantly to clients (no page refresh needed)
@@ -447,13 +449,25 @@ StationDock is built with intentional design choices that prioritize a premium, 
     - Real-time file size estimates
     - Unsaved changes detection with visual feedback
   - **Song Recognition (ACRCloud)** 🆕
-    - Automatic song identification via ACRCloud audio fingerprinting
-    - Enable/disable toggle with credentials form
-    - Host region selector (US West, EU West, Asia Pacific)
-    - Test mode with stream selector and play/pause preview
-    - Live identification with cover art, title, artist, and album display
-    - Environment variable support for production (ACRCLOUD_HOST, ACRCLOUD_ACCESS_KEY, ACRCLOUD_ACCESS_SECRET)
-    - Help documentation with setup instructions
+    - **Automatic song identification** via ACRCloud audio fingerprinting
+    - **Intelligent bitrate detection**: System automatically analyzes streams to detect actual bitrate
+      - First checks Icecast `icy-br` header
+      - Falls back to analyzing 5 seconds of audio data and calculating bitrate from bytes transferred
+      - Works even when server doesn't provide metadata
+    - **Stream-optimized capture**: Dynamically adjusts audio capture based on bitrate
+      - High bitrate streams (≥256kbps): 12 seconds capture
+      - Standard bitrate streams: 15 seconds capture
+      - Maximum cap: 500KB to stay within ACRCloud recommendations
+    - **Monthly usage tracking** with visual progress bar and warnings
+      - Yellow warning at 80% usage
+      - Red alert at 100% with request blocking
+      - Adjustable monthly limits
+    - **Enable/disable toggle** with credentials form
+    - **Host region selector** (US West, EU West, Asia Pacific Singapore/Tokyo)
+    - **Test mode** with stream selector and play/pause preview
+    - **Live identification** with cover art, title, artist, and album display
+    - **Environment variable support** for production (ACRCLOUD_HOST, ACRCLOUD_ACCESS_KEY, ACRCLOUD_ACCESS_SECRET)
+    - **Help documentation** with setup instructions
   - Two-column grid layout for optimal space utilization
 
 ---

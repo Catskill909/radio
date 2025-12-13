@@ -153,7 +153,10 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 
 ### 🎵 Song Recognition (ACRCloud)
 - **Automatic Song Identification** – Identify songs playing on your stream via ACRCloud audio fingerprinting
+- **Intelligent Bitrate Detection** – Automatically analyzes streams to detect actual bitrate (works even if Icecast doesn't provide metadata)
+- **Stream-Optimized Capture** – Dynamically adjusts audio capture duration based on stream bitrate for optimal recognition
 - **Settings Integration** – Configure API credentials directly in the Settings page
+- **Usage Monitoring** – Monthly request limit tracking with visual indicators and warnings
 - **Test Mode** – Preview stream audio and test identification before enabling
 - **Rich Metadata Display** – Shows cover art, song title, artist, and album
 - **Production Ready** – Supports environment variables for secure credential management in production
@@ -507,6 +510,7 @@ radio-suite/
 - [x] Automatic image variant generation (card/icon sizes for faster page loads)
 - [x] Per-slot recording control with scope selector (single/all future broadcasts)
 - [x] Song Recognition via ACRCloud integration (audio fingerprinting, cover art, metadata display)
+- [x] Automatic bitrate detection for ACRCloud (stream-specific optimization)
 
 ### Next Up
 - [ ] Enhanced public-facing pages (show details, host bios)
