@@ -115,6 +115,8 @@ export async function POST(request: NextRequest) {
 
                 case 'normalize':
                     const targetLUFS = parameters?.targetLUFS || -16;
+                    const truePeak = parameters?.truePeak || -1.5;
+                    const lra = parameters?.lra || 11;
 
                     // Check if normalizing a selection
                     if (typeof startTime === 'number' && typeof endTime === 'number' && endTime > startTime) {
@@ -139,7 +141,7 @@ export async function POST(request: NextRequest) {
                             await trimAudio(filepath, tempSelection, startTime, endTime);
 
                             // Normalize the selection
-                            await normalizeAudio(tempSelection, tempNormalized, targetLUFS);
+                            await normalizeAudio(tempSelection, tempNormalized, targetLUFS, truePeak, lra);
 
                             // Build concat list
                             let concatContent = '';
@@ -179,7 +181,7 @@ export async function POST(request: NextRequest) {
                         }
                     } else {
                         console.log(`Normalizing ${filename} to ${targetLUFS} LUFS`);
-                        await normalizeAudio(filepath, tempPath, targetLUFS);
+                        await normalizeAudio(filepath, tempPath, targetLUFS, truePeak, lra);
                     }
                     break;
 

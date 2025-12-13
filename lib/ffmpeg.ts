@@ -255,12 +255,14 @@ export async function applyFade(
 export async function normalizeAudio(
     inputPath: string,
     outputPath: string,
-    targetLUFS: number = -16
+    targetLUFS: number = -16,
+    truePeak: number = -1.5,
+    lra: number = 11
 ): Promise<void> {
     return new Promise((resolve, reject) => {
         ffmpeg(inputPath)
             .output(outputPath)
-            .audioFilters(`loudnorm=I=${targetLUFS}:TP=-1.5:LRA=11`)
+            .audioFilters(`loudnorm=I=${targetLUFS}:TP=${truePeak}:LRA=${lra}`)
             .on('end', () => {
                 console.log(`Audio normalized successfully: ${outputPath}`);
                 resolve();

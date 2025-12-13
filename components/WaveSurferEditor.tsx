@@ -7,6 +7,7 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
 import Minimap from 'wavesurfer.js/dist/plugins/minimap.js';
 import { Play, Pause, Loader, AlertCircle, CheckCircle, Volume2, Keyboard, Repeat, Trash2, Crop, X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import NormalizeModal from './NormalizeModal';
 
 interface WaveSurferEditorProps {
     audioUrl: string;
@@ -41,6 +42,7 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
     const [isLooping, setIsLooping] = useState(false);
     const [fadeDuration, setFadeDuration] = useState(3); // User-controlled fade duration in seconds
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+    const [showNormalizeModal, setShowNormalizeModal] = useState(false);
 
     // Format time as mm:ss
     const formatTime = useCallback((seconds: number) => {
@@ -674,10 +676,15 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                     }
                 `}</style>
 
-                {/* Compact Tip - only show when no selection */}
+                {/* Enhanced Selection Instruction - only show when no selection */}
                 {!isLoading && !selection && (
-                    <div className="mt-3 text-xs text-gray-500">
-                        💡 Click and drag on the waveform to select a region for cropping or cutting
+                    <div className="mt-3 p-3 bg-gray-800/30 rounded-lg border border-gray-700/50">
+                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                            </svg>
+                            <span><strong className="text-gray-300">Click and drag</strong> on the waveform to select audio for cropping, cutting, or fading</span>
+                        </div>
                     </div>
                 )}
 
@@ -705,6 +712,15 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                                 >
                                     {processingOperation === 'delete' ? <Loader className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
                                     Cut
+                                </button>
+                                <button
+                                    onClick={clearSelection}
+                                    disabled={isSaving}
+                                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded text-sm transition-colors flex items-center gap-1.5"
+                                    title="Cancel selection (Esc)"
+                                >
+                                    <X className="w-3 h-3" />
+                                    Cancel
                                 </button>
                                 {/* Fade controls - user sets duration, applies to selection */}
                                 <div className="flex items-center gap-1.5 ml-2 pl-2 border-l border-gray-700">
@@ -744,12 +760,12 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                         <div className="w-px h-6 bg-gray-700" />
 
                         <button
-                            onClick={() => handleProcessAudio('normalize')}
+                            onClick={() => setShowNormalizeModal(true)}
                             disabled={isLoading || isSaving}
                             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 disabled:opacity-50 text-white text-xs rounded transition-colors flex items-center gap-1.5"
                             title={selection ? 'Normalize selection volume' : 'Normalize entire file volume'}
                         >
-                            {processingOperation === 'normalize' ? <Loader className="w-3 h-3 animate-spin" /> : <Volume2 className="w-3 h-3" />}
+                            <Volume2 className="w-3 h-3" />
                             {selection ? 'Normalize Selection' : 'Normalize'}
                         </button>
 
@@ -778,6 +794,16 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                     </button>
                 )}
             </div>
+
+            {/* Normalize Modal */}
+            <NormalizeModal
+                isOpen={showNormalizeModal}
+                onClose={() => setShowNormalizeModal(false)}
+                onNormalize={(params) => {
+                    handleProcessAudio('normalize', params);
+                }}
+                hasSelection={!!selection}
+            />
 
             {/* Keyboard Shortcuts Modal */}
             {showKeyboardHelp && (
