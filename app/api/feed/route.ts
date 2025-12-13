@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
 
     // Add episodes to feed
     episodes.forEach((episode) => {
-        const audioUrl = `${baseUrl}/api/audio/${episode.recording.filePath}`;
+        const audioUrl = `${baseUrl}/api/audio/${encodeURIComponent(episode.recording.filePath)}`;
         const show = episode.recording.scheduleSlot?.show;
 
         // Episode image with fallback to show image, then station logo

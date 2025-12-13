@@ -142,7 +142,7 @@ export async function GET(
 
     // Add episodes to feed
     episodes.forEach((episode) => {
-        const audioUrl = `${baseUrl}/api/audio/${episode.recording.filePath}`;
+        const audioUrl = `${baseUrl}/api/audio/${encodeURIComponent(episode.recording.filePath)}`;
         const episodeImage = getAbsoluteUrl((episode as any).imageUrl) || showImage;
 
         feed.item({
