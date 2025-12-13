@@ -90,8 +90,26 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Identify the song
-        const result = await identifySong(streamUrl, credentials);
+        // Look up stream bitrate from database for optimal capture
+        let streamBitrate: number | undefined;
+        try {
+            const stream = await prisma.icecastStream.findFirst({
+                where: { url: streamUrl },
+                select: { bitrate: true, name: true }
+            });
+
+            if (stream?.bitrate) {
+                streamBitrate = stream.bitrate;
+                console.log(`🔍 Found stream "${stream.name}" with bitrate: ${streamBitrate}kbps`);
+            } else {
+                console.log(`⚠️  Stream bitrate unknown, using default (128kbps)`);
+            }
+        } catch (error) {
+            console.log(`⚠️  Could not query stream bitrate, using default (128kbps)`);
+        }
+
+        // Identify the song (with optional bitrate for optimal capture)
+        const result = await identifySong(streamUrl, credentials, streamBitrate);
 
         // Increment request counter (only if API call was made)
         await (prisma.stationSettings.update as any)({

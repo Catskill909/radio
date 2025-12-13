@@ -16,6 +16,68 @@ export interface StreamTestResult {
     responseTime?: number
 }
 
+/**
+ * Detect bitrate by analyzing actual stream data
+ * Works even when server doesn't provide icy-br header
+ */
+async function detectBitrateFromStream(url: string): Promise<number | undefined> {
+    try {
+        console.log('🔍 Analyzing stream to detect bitrate...');
+
+        // Capture 5 seconds of audio to measure bitrate
+        const captureDurationMs = 5000;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const response = await fetch(url, {
+            headers: { 'User-Agent': 'RadioSuite/1.0' },
+            signal: controller.signal,
+        });
+
+        if (!response.ok) {
+            clearTimeout(timeoutId);
+            return undefined;
+        }
+
+        const reader = response.body?.getReader();
+        if (!reader) {
+            clearTimeout(timeoutId);
+            return undefined;
+        }
+
+        let totalBytes = 0;
+        const captureStart = Date.now();
+
+        // Capture data for specified duration
+        while (Date.now() - captureStart < captureDurationMs) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            totalBytes += value.length;
+        }
+
+        reader.cancel();
+        clearTimeout(timeoutId);
+
+        const actualDuration = (Date.now() - captureStart) / 1000; // seconds
+
+        // Calculate bitrate: (bytes * 8 bits) / seconds / 1000 = kbps
+        const bitrate = Math.round((totalBytes * 8) / actualDuration / 1000);
+
+        console.log(`📊 Detected bitrate: ${bitrate}kbps (captured ${totalBytes} bytes in ${actualDuration.toFixed(1)}s)`);
+
+        // Sanity check: bitrate should be between 32 and 512 kbps for most streams
+        if (bitrate >= 32 && bitrate <= 512) {
+            return bitrate;
+        }
+
+        console.log(`⚠️ Detected bitrate ${bitrate}kbps outside expected range, ignoring`);
+        return undefined;
+    } catch (error) {
+        console.log('⚠️ Could not detect bitrate from stream:', error);
+        return undefined;
+    }
+}
+
 export async function testStream(url: string): Promise<StreamTestResult> {
     const startTime = Date.now()
 
@@ -58,6 +120,12 @@ export async function testStream(url: string): Promise<StreamTestResult> {
 
         // Extract Icecast/Shoutcast metadata from headers
         const metadata = extractMetadata(response.headers)
+
+        // If bitrate wasn't in headers, detect it by analyzing the stream
+        if (!metadata.bitrate) {
+            console.log('⚠️ Bitrate not in headers, analyzing stream data...');
+            metadata.bitrate = await detectBitrateFromStream(url);
+        }
 
         return {
             isValid: true,

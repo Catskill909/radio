@@ -115,10 +115,14 @@ export async function fetchCoverArt(
 
 /**
  * Capture audio from stream and identify song via ACRCloud
+ * @param streamUrl - URL of the audio stream to identify
+ * @param credentials - ACRCloud API credentials
+ * @param streamBitrate - Optional bitrate of the stream in kbps (e.g., 128, 320)
  */
 export async function identifySong(
     streamUrl: string,
-    credentials: ACRCloudCredentials
+    credentials: ACRCloudCredentials,
+    streamBitrate?: number
 ): Promise<ACRCloudResult> {
     const { host, accessKey, accessSecret } = credentials;
 
@@ -132,13 +136,18 @@ export async function identifySong(
     }
 
     try {
-        console.log('🎧 Capturing live audio from stream...');
+        // Use provided bitrate or default to 128kbps
+        const bitrateKbps = streamBitrate || 128;
+        console.log(`🎧 Capturing live audio from stream (${bitrateKbps}kbps)...`);
 
-        // Capture ~15 seconds of audio for better identification
-        // 128kbps MP3 = 16KB/s, so 15 seconds ≈ 240KB
-        const captureDurationSeconds = 15;
-        const bytesPerSecond = 128000 / 8; // 128kbps = 16KB/s
-        const captureBytes = captureDurationSeconds * bytesPerSecond;
+        // Smart capture settings based on bitrate
+        // Higher bitrates: capture 12 seconds or 500KB max (whichever comes first)
+        // Lower bitrates: capture 15 seconds
+        const captureDurationSeconds = bitrateKbps >= 256 ? 12 : 15;
+        const maxCaptureSizeKB = 500; // ACRCloud recommends under 1MB
+        const bytesPerSecond = (bitrateKbps * 1000) / 8;
+        const targetBytes = captureDurationSeconds * bytesPerSecond;
+        const captureBytes = Math.min(targetBytes, maxCaptureSizeKB * 1024);
         const chunks: Uint8Array[] = [];
         let totalBytes = 0;
 
@@ -171,7 +180,13 @@ export async function identifySong(
 
         // Combine chunks into a single buffer
         const audioBuffer = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)));
+
+        // Calculate actual duration captured
+        const actualDuration = audioBuffer.length / bytesPerSecond;
+
+        // Enhanced diagnostic logging
         console.log(`📤 Captured ${audioBuffer.length} bytes in ${captureTime.toFixed(1)}s`);
+        console.log(`📊 Stream bitrate: ${bitrateKbps}kbps | Target duration: ${captureDurationSeconds}s | Actual duration: ~${actualDuration.toFixed(1)}s`);
 
         // Generate signature
         const timestamp = Math.floor(Date.now() / 1000).toString();
