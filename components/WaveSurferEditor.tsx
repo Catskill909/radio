@@ -6,14 +6,16 @@ import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
 import Minimap from 'wavesurfer.js/dist/plugins/minimap.js';
-import { Play, Pause, Loader, AlertCircle, CheckCircle, Volume2, Keyboard, Repeat, Trash2, Crop, X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
-import NormalizeModal from './NormalizeModal';
 import PeakMeter from './PeakMeter';
+import AnalogVUMeter from './AnalogVUMeter';
+import MeterToggle from './MeterToggle';
+import NormalizeModal from './NormalizeModal';
+import { Play, Pause, ZoomIn, ZoomOut, Maximize2, X, Volume2, Keyboard, Repeat, Crop, Trash2, Loader, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface WaveSurferEditorProps {
     audioUrl: string;
     filename: string;
-    onSave?: (newDuration: number) => void;
+    onSave?: (audioBlob: Blob) => void;
     onClose?: () => void;
 }
 
@@ -22,6 +24,9 @@ interface SelectionInfo {
     end: number;
     duration: number;
 }
+
+// Processing operation type for UI feedback
+type ProcessingOperation = 'keep' | 'delete' | 'fade' | 'normalize' | null;
 
 export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }: WaveSurferEditorProps) {
     const waveformRef = useRef<HTMLDivElement>(null);
@@ -33,7 +38,7 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
     const [isLoading, setIsLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [processingOperation, setProcessingOperation] = useState<'keep' | 'delete' | 'fade' | 'normalize' | null>(null);
+    const [processingOperation, setProcessingOperation] = useState<ProcessingOperation>(null);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [zoom, setZoom] = useState<number | null>(null); // null = fit to container, number = pixels per second
@@ -48,6 +53,9 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
     // Peak meter audio nodes
     const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
     const [sourceNode, setSourceNode] = useState<AudioNode | null>(null);
+
+    // Meter view state
+    const [meterView, setMeterView] = useState<'peak' | 'vu' | 'none'>('peak');
 
     // Format time as mm:ss
     const formatTime = useCallback((seconds: number) => {
@@ -736,14 +744,28 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                     </div>
                 )}
 
-                {/* Peak Meter - Show when audio is loaded */}
-                {!isLoading && audioContext && sourceNode && (
+                {/* Audio Meters - Show when audio is loaded */}
+                {!isLoading && audioContext && sourceNode && meterView !== 'none' && (
                     <div className="mt-4">
-                        <div className="text-xs text-gray-400 mb-2 flex items-center gap-2">
-                            <Volume2 className="w-3 h-3" />
-                            <span>Peak Levels</span>
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                                <Volume2 className="w-3 h-3 text-gray-400" />
+                                <span className="text-xs text-gray-400">
+                                    {meterView === 'peak' ? 'Peak Levels' : 'VU Meters'}
+                                </span>
+                            </div>
+                            <MeterToggle value={meterView} onChange={setMeterView} />
                         </div>
-                        <PeakMeter audioContext={audioContext} sourceNode={sourceNode} />
+
+                        {/* Peak Meter */}
+                        {meterView === 'peak' && (
+                            <PeakMeter audioContext={audioContext} sourceNode={sourceNode} />
+                        )}
+
+                        {/* VU Meter */}
+                        {meterView === 'vu' && (
+                            <AnalogVUMeter audioContext={audioContext} sourceNode={sourceNode} />
+                        )}
                     </div>
                 )}
 

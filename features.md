@@ -347,6 +347,11 @@ StationDock is built with intentional design choices that prioritize a premium, 
 - **Normalize audio**
   - Context-aware: normalizes selection if one exists, or entire file
   - Standard podcast levels (-16 LUFS)
+- **Audio Metering** 🆕
+  - **Peak Meters**: Fast-response digital meters with broadcast-standard color zones (green/yellow/red) for preventing clipping
+  - **Analog VU Meters**: Classic needle-style meters with realistic ballistics (~300ms attack/decay) and RMS calculation for monitoring program loudness
+  - **Meter Toggle**: Switch between Peak, VU, or None with segmented button control
+  - Real-time level monitoring during playback and editing
 - **Loop playback**
   - Toggle loop mode to repeat selected region
   - Visual indicator when loop is active

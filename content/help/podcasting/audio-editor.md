@@ -78,6 +78,34 @@ Adjusts the audio volume to standard podcast levels (-16 LUFS):
 
 **Use case**: Ensuring consistent volume throughout an episode.
 
+## Audio Metering
+
+The editor includes professional-quality audio level meters to monitor your audio while editing and playing back:
+
+### Peak Meters
+
+Fast-response digital meters that show instantaneous audio levels:
+- **Color zones**: Green (safe), Yellow (caution), Red (danger/clipping)
+- **Best for**: Preventing digital clipping and ensuring technical quality
+
+### VU Meters
+
+Classic analog-style needle meters with realistic ballistics:
+- **RMS measurement**: Shows average level like traditional broadcast VU meters
+- **Realistic needle physics**: ~300ms attack/decay time
+- **Stereo display**: Separate L/R channel meters
+- **Best for**: Monitoring overall program loudness and achieving that classic radio sound
+
+### Switching Meters
+
+Use the **Meters** toggle (top right of meter section) to switch between:
+- **Peak**: Modern digital peak meters
+- **VU**: Analog VU meters
+- **None**: Hide meters entirely
+
+> [!TIP]
+> Use **Peak meters** during editing to prevent clipping, and **VU meters** for final playback to check overall loudness balance.
+
 ## Processing Large Files
 
 > [!NOTE]

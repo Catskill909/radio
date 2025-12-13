@@ -106,6 +106,10 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
   - **Cut**: Remove selection and join the remaining audio
   - **Fade In/Out**: Apply gradual volume changes with user-controlled duration (1-60 seconds)
   - **Normalize**: Level audio volume for the selection or entire file
+- **Audio Metering** - Professional-quality meters for monitoring levels:
+  - **Peak Meter**: Modern fast-response peak meters with broadcast-standard color zones (green/yellow/red)
+  - **Analog VU Meters**: Classic needle-style VU meters with realistic ballistics (~300ms attack/decay) and RMS calculation
+  - **Meter Toggle**: Switch between Peak, VU, or None with a single click
 - **Non-destructive backups** - original audio is preserved before any edit
 - **Keyboard shortcuts** - space (play/pause), arrows (seek), `?` for help
 - **Processing feedback** - clear status messages for long operations
