@@ -22,6 +22,7 @@ export async function GET(
                 tags: true,
                 category: true,
                 explicit: true,
+                feedEpisodeLimit: true,
             },
         });
 
@@ -32,7 +33,7 @@ export async function GET(
             );
         }
 
-        // Fetch published episodes
+        // Fetch published episodes (limited by feedEpisodeLimit if set)
         const recordings = await prisma.recording.findMany({
             where: {
                 scheduleSlot: {
@@ -46,7 +47,8 @@ export async function GET(
             orderBy: {
                 startTime: 'desc',
             },
-            take: 10,
+            // Apply episode limit from show settings (null = unlimited, 0 = none)
+            ...(show.feedEpisodeLimit !== null ? { take: show.feedEpisodeLimit } : {}),
         });
 
         const episodes = recordings
