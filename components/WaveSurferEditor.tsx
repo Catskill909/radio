@@ -8,6 +8,7 @@ import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
 import Minimap from 'wavesurfer.js/dist/plugins/minimap.js';
 import { Play, Pause, Loader, AlertCircle, CheckCircle, Volume2, Keyboard, Repeat, Trash2, Crop, X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import NormalizeModal from './NormalizeModal';
+import PeakMeter from './PeakMeter';
 
 interface WaveSurferEditorProps {
     audioUrl: string;
@@ -43,6 +44,10 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
     const [fadeDuration, setFadeDuration] = useState(3); // User-controlled fade duration in seconds
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
     const [showNormalizeModal, setShowNormalizeModal] = useState(false);
+
+    // Peak meter audio nodes
+    const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+    const [sourceNode, setSourceNode] = useState<AudioNode | null>(null);
 
     // Format time as mm:ss
     const formatTime = useCallback((seconds: number) => {
@@ -126,6 +131,27 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
             const audioDuration = wavesurfer.getDuration();
             setDuration(audioDuration);
             setError(null);
+
+            // Get audio context and media element for peak meter
+            try {
+                const mediaElement = wavesurfer.getMediaElement();
+                if (mediaElement && !audioContext) {
+                    // Create our own AudioContext for the peak meter
+                    const ctx = new AudioContext();
+                    setAudioContext(ctx);
+
+                    // Create source from media element
+                    const source = ctx.createMediaElementSource(mediaElement);
+
+                    // Connect to destination so audio plays
+                    source.connect(ctx.destination);
+
+                    setSourceNode(source);
+                    console.log('Peak meter initialized successfully');
+                }
+            } catch (err) {
+                console.warn('Could not initialize peak meter:', err);
+            }
 
             // FORCE fit waveform to container by calculating exact pixels per second
             if (waveformRef.current && audioDuration > 0) {
@@ -688,6 +714,23 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                     </div>
                 )}
 
+                {/* Peak Meter - Show when audio is loaded */}
+                {!isLoading && audioContext && sourceNode && (
+                    <div className="mt-4">
+                        <div className="text-xs text-gray-400 mb-2 flex items-center gap-2">
+                            <Volume2 className="w-3 h-3" />
+                            <span>Peak Levels</span>
+                        </div>
+                        <PeakMeter audioContext={audioContext} sourceNode={sourceNode} />
+                    </div>
+                )}
+                {/* Debug info - remove after testing */}
+                {!isLoading && (
+                    <div className="mt-2 text-xs text-gray-600">
+                        Debug: audioContext={audioContext ? 'yes' : 'no'}, sourceNode={sourceNode ? 'yes' : 'no'}, loading={isLoading ? 'yes' : 'no'}
+                    </div>
+                )}
+
                 {/* Unified Actions Toolbar */}
                 <div className={`mt-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700 ${isLoading ? 'hidden' : ''}`}>
                     <div className="flex flex-wrap items-center gap-3">
@@ -780,19 +823,6 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-gray-700 flex gap-3 justify-end">
-                {onClose && (
-                    <button
-                        onClick={onClose}
-                        disabled={isSaving}
-                        className="px-6 py-3 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
-                    >
-                        Close
-                    </button>
-                )}
             </div>
 
             {/* Normalize Modal */}
