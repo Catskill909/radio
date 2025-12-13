@@ -15,7 +15,7 @@ import { Play, Pause, ZoomIn, ZoomOut, Maximize2, X, Volume2, Keyboard, Repeat, 
 interface WaveSurferEditorProps {
     audioUrl: string;
     filename: string;
-    onSave?: (audioBlob: Blob) => void;
+    onSave?: (newDuration: number) => void;
     onClose?: () => void;
 }
 
