@@ -744,25 +744,26 @@ export default function WaveSurferEditor({ audioUrl, filename, onSave, onClose }
                     </div>
                 )}
 
-                {/* Audio Meters - Show when audio is loaded */}
-                {!isLoading && audioContext && sourceNode && meterView !== 'none' && (
+
+                {/* Audio Meters - Show toggle when audio is loaded */}
+                {!isLoading && audioContext && sourceNode && (
                     <div className="mt-4">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <Volume2 className="w-3 h-3 text-gray-400" />
                                 <span className="text-xs text-gray-400">
-                                    {meterView === 'peak' ? 'Peak Levels' : 'VU Meters'}
+                                    {meterView === 'peak' ? 'Peak Levels' : meterView === 'vu' ? 'VU Meters' : 'Audio Meters'}
                                 </span>
                             </div>
                             <MeterToggle value={meterView} onChange={setMeterView} />
                         </div>
 
-                        {/* Peak Meter */}
+                        {/* Peak Meter - only show when selected */}
                         {meterView === 'peak' && (
                             <PeakMeter audioContext={audioContext} sourceNode={sourceNode} />
                         )}
 
-                        {/* VU Meter */}
+                        {/* VU Meter - only show when selected */}
                         {meterView === 'vu' && (
                             <AnalogVUMeter audioContext={audioContext} sourceNode={sourceNode} />
                         )}
