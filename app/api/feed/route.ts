@@ -101,6 +101,7 @@ export async function GET(request: NextRequest) {
         image_url: feedImage,
         custom_namespaces: {
             itunes: "http://www.itunes.com/dtds/podcast-1.0.dtd",
+            podcast: "https://podcastindex.org/namespace/1.0",
         },
         custom_elements: [
             { "itunes:author": stationSettings?.name || "StationDock" },
