@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Radio, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { createStream, testStreamUrl, updateStream } from '@/app/actions'
 
@@ -15,11 +15,24 @@ interface AddStreamModalProps {
 }
 
 export default function AddStreamModal({ isOpen, onClose, editStream }: AddStreamModalProps) {
-    const [name, setName] = useState(editStream?.name || '')
-    const [url, setUrl] = useState(editStream?.url || '')
+    const [name, setName] = useState('')
+    const [url, setUrl] = useState('')
     const [isTesting, setIsTesting] = useState(false)
     const [testResult, setTestResult] = useState<any>(null)
     const [isSaving, setIsSaving] = useState(false)
+
+    // Update form fields when editStream changes or modal opens
+    useEffect(() => {
+        if (isOpen && editStream) {
+            setName(editStream.name)
+            setUrl(editStream.url)
+        } else if (isOpen && !editStream) {
+            // Reset for "Add" mode
+            setName('')
+            setUrl('')
+            setTestResult(null)
+        }
+    }, [isOpen, editStream])
 
     if (!isOpen) return null
 

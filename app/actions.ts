@@ -1254,27 +1254,16 @@ export async function deleteStream(id: string) {
 }
 
 export async function updateStream(id: string, name: string, url: string) {
-    const { testStream } = await import(`@/lib/stream-tester`);
-
     // Trim URL to remove any whitespace
     const cleanUrl = url.trim();
 
-    const testResult = await testStream(cleanUrl);
-
+    // Just update the name and URL - don't test the stream
+    // User can click "Refresh" button on the stream card to update metadata/bitrate
     await prisma.icecastStream.update({
         where: { id },
         data: {
             name,
             url: cleanUrl,
-            status: testResult.status,
-            bitrate: testResult.bitrate,
-            format: testResult.format,
-            listeners: testResult.listeners,
-            maxListeners: testResult.maxListeners,
-            genre: testResult.genre,
-            description: testResult.description,
-            lastChecked: new Date(),
-            errorMessage: testResult.errorMessage,
         },
     });
 
