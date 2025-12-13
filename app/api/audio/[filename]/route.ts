@@ -52,6 +52,7 @@ export async function GET(
                 "Accept-Ranges": "bytes",
                 "Content-Length": chunkSize.toString(),
                 "Content-Type": "audio/mpeg",
+                "Cache-Control": "public, max-age=3600",
             },
         });
     } else {
@@ -76,6 +77,7 @@ export async function GET(
                 "Content-Length": fileSize.toString(),
                 "Accept-Ranges": "bytes",
                 "Content-Disposition": `${disposition}; filename="${filename}"`,
+                "Cache-Control": "public, max-age=3600",
             },
         });
     }
