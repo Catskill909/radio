@@ -407,21 +407,37 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                     )}
                                 </div>
                                 <p className="text-xs text-gray-400">
-                                    {slot.isRecurring && recordingChanged
-                                        ? (recordingScope === 'single'
-                                            ? (recordingEnabled
-                                                ? `Only ${format(new Date(slot.startTime), 'MMM d, yyyy')} will record`
-                                                : `Only ${format(new Date(slot.startTime), 'MMM d, yyyy')} will NOT record`)
-                                            : (recordingEnabled
-                                                ? `This and all future ${format(new Date(slot.startTime), 'EEEE')} broadcasts will record`
-                                                : `This and all future ${format(new Date(slot.startTime), 'EEEE')} broadcasts will NOT record`))
-                                        : slot.isRecurring
-                                            ? (recordingEnabled
-                                                ? `This and all future ${format(new Date(slot.startTime), 'EEEE')} broadcasts will record`
-                                                : `This and all future ${format(new Date(slot.startTime), 'EEEE')} broadcasts will NOT record`)
+                                    {recordingChanged
+                                        ? // User has made changes in this session - show based on selected scope
+                                        (slot.isRecurring
+                                            ? (recordingScope === 'single'
+                                                ? (recordingEnabled
+                                                    ? `Only ${format(new Date(slot.startTime), 'MMM d, yyyy')} will record`
+                                                    : `Only ${format(new Date(slot.startTime), 'MMM d, yyyy')} will NOT record`)
+                                                : (recordingEnabled
+                                                    ? `This and all future ${format(new Date(slot.startTime), 'EEEE')} broadcasts will record`
+                                                    : `This and all future ${format(new Date(slot.startTime), 'EEEE')} broadcasts will NOT record`))
                                             : (recordingEnabled
                                                 ? `This broadcast will be recorded`
-                                                : `This broadcast will not be recorded`)
+                                                : `This broadcast will not be recorded`))
+                                        : // No changes yet - check if there's an override or using show default
+                                        (slot.recordingOverride !== null
+                                            ? // Override exists - it only affects this specific slot
+                                            (slot.isRecurring
+                                                ? (recordingEnabled
+                                                    ? `Only ${format(new Date(slot.startTime), 'MMM d, yyyy')} will record`
+                                                    : `Only ${format(new Date(slot.startTime), 'MMM d, yyyy')} will NOT record`)
+                                                : (recordingEnabled
+                                                    ? `This broadcast will be recorded`
+                                                    : `This broadcast will not be recorded`))
+                                            : // No override - using show's default setting
+                                            (slot.isRecurring
+                                                ? (recordingEnabled
+                                                    ? `All ${format(new Date(slot.startTime), 'EEEE')} broadcasts use the show default (record)`
+                                                    : `All ${format(new Date(slot.startTime), 'EEEE')} broadcasts use the show default (do not record)`)
+                                                : (recordingEnabled
+                                                    ? `This broadcast will be recorded`
+                                                    : `This broadcast will not be recorded`)))
                                     }
                                 </p>
                             </div>
