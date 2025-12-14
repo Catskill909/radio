@@ -1,4 +1,4 @@
-import { getScheduleSlots, getShows, getStreams, getStationSettings } from '@/app/actions';
+import { getScheduleSlots, getShows, getActiveStreams, getStationSettings } from '@/app/actions';
 import Scheduler from '@/components/Scheduler';
 import HelpIcon from '@/components/HelpIcon';
 import StationClock from '@/components/StationClock';
@@ -15,7 +15,7 @@ export const metadata = {
 export default async function SchedulePage() {
     const slots = await getScheduleSlots();
     const shows = await getShows();
-    const streams = await getStreams();
+    const streams = await getActiveStreams();
     const settings = await getStationSettings();
     const timezone = settings.timezone || "UTC";
     const streamUrl = (settings as any).streamUrl || null;

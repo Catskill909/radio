@@ -1155,6 +1155,13 @@ export async function getStreams() {
     });
 }
 
+export async function getActiveStreams() {
+    return await prisma.icecastStream.findMany({
+        where: { isEnabled: true },
+        orderBy: { createdAt: "desc" },
+    });
+}
+
 export async function getStream(id: string) {
     return await prisma.icecastStream.findUnique({
         where: { id },
