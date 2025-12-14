@@ -588,6 +588,12 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                     streams={streams}
                                     hideRecordingControls={true}
                                     onDirtyChange={setEditFormDirty}
+                                    externalRecordingEnabled={recordingEnabled}
+                                    externalRecordingSource={recordingSource}
+                                    onAfterSubmit={() => {
+                                        // Reload page to show changes and close modal
+                                        window.location.reload();
+                                    }}
                                 />
                             </div>
                         </div>

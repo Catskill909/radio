@@ -17,8 +17,8 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
     const [categoryValue, setCategoryValue] = useState("");
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const [archivingEnabled, setArchivingEnabled] = useState(true);
-    const [feedEpisodeLimit, setFeedEpisodeLimit] = useState<number | null>(null);
+    const [archivingEnabled, setArchivingEnabled] = useState(false);
+    const [feedEpisodeLimit, setFeedEpisodeLimit] = useState<number | null>(0);
     const [showCustomLimit, setShowCustomLimit] = useState(false);
 
     // Suppress unused variable warning - streams prop kept for future recording source features
@@ -400,11 +400,11 @@ export default function NewShowForm({ streams }: NewShowFormProps) {
                                             Episodes beyond the feed limit are kept on disk.
                                         </p>
                                     ) : (
-                                        <div className="p-2 bg-red-900/30 border border-red-700/50 rounded-md mt-2">
-                                            <p className="text-xs text-red-300 font-medium">
+                                        <div className="p-2 bg-amber-900/20 border border-amber-600/40 rounded-md mt-2">
+                                            <p className="text-xs text-amber-200 font-medium">
                                                 ⚠️ Audio files will be permanently deleted
                                             </p>
-                                            <p className="text-xs text-red-400/80 mt-0.5">
+                                            <p className="text-xs text-amber-300/80 mt-0.5">
                                                 Oldest recordings beyond the feed limit are automatically removed. Download files from Settings → Audio if you need to keep them.
                                             </p>
                                         </div>

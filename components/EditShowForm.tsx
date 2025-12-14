@@ -20,12 +20,16 @@ interface EditShowFormProps {
     formId?: string;  // Optional form ID for external button submission
     onAfterSubmit?: () => void;  // Callback after successful form submission
     onDirtyChange?: (isDirty: boolean) => void;  // Callback when form dirty state changes
+    // External recording state (when recording is managed elsewhere, like in slot context)
+    externalRecordingEnabled?: boolean;  // Override recording enabled state for validation
+    externalRecordingSource?: string;  // Override recording source for validation
 }
 
-export default function EditShowForm({ show, streams, hideRecordingControls = false, hideActionButtons = false, formId, onAfterSubmit, onDirtyChange }: EditShowFormProps) {
+export default function EditShowForm({ show, streams, hideRecordingControls = false, hideActionButtons = false, formId, onAfterSubmit, onDirtyChange, externalRecordingEnabled, externalRecordingSource }: EditShowFormProps) {
     const [imageUrl, setImageUrl] = useState(show.image || "");
     const [categoryValue, setCategoryValue] = useState(show.category || "");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showSourceRequiredModal, setShowSourceRequiredModal] = useState(false);
     const [recordingEnabled, setRecordingEnabled] = useState(show.recordingEnabled || false);
     const [recordingSource, setRecordingSource] = useState(show.recordingSource || "");
     const [feedEpisodeLimit, setFeedEpisodeLimit] = useState<number | null>(show.feedEpisodeLimit ?? null);
@@ -93,12 +97,29 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
         }
     }, [imageUrl, categoryValue, recordingEnabled, recordingSource, feedEpisodeLimit, archivingEnabled, onDirtyChange, show]);
 
-    // Wrap the server action to pass the ID
-    const handleSubmit = async (formData: FormData) => {
+    // Wrap the server action to pass the ID and validate
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        // Determine which recording state to validate against
+        // If external recording state is provided (slot context), use that; otherwise use form state
+        const recordingToValidate = externalRecordingEnabled !== undefined ? externalRecordingEnabled : recordingEnabled;
+        const sourceToValidate = externalRecordingSource !== undefined ? externalRecordingSource : recordingSource;
+
+        // Validate: if recording is enabled, a source must be selected
+        if (recordingToValidate && !sourceToValidate) {
+            setShowSourceRequiredModal(true);
+            return;
+        }
+
+        const formData = new FormData(e.currentTarget);
         await updateShow(show.id, formData);
         // Call onAfterSubmit callback if provided (e.g., to schedule the show after updating)
+        // Otherwise, navigate to shows list (standalone form usage)
         if (onAfterSubmit) {
             onAfterSubmit();
+        } else {
+            router.push("/shows");
         }
     };
 
@@ -110,7 +131,7 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
 
     return (
         <>
-            <form ref={formRef} id={formId} action={handleSubmit} className="grid grid-cols-12 gap-4" onChange={() => onDirtyChange?.(true)}>
+            <form ref={formRef} id={formId} onSubmit={handleSubmit} className="grid grid-cols-12 gap-4" onChange={() => onDirtyChange?.(true)}>
                 {/* Title - Span 12 */}
                 <div className="col-span-12 space-y-1.5">
                     <label htmlFor="title" className="block text-sm font-medium text-gray-300">
@@ -418,11 +439,11 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                                     Episodes beyond the feed limit are kept on disk.
                                 </p>
                             ) : (
-                                <div className="p-2 bg-red-900/30 border border-red-700/50 rounded-md mt-2">
-                                    <p className="text-xs text-red-300 font-medium">
+                                <div className="p-2 bg-yellow-900/30 border border-yellow-700/50 rounded-md mt-2">
+                                    <p className="text-xs text-yellow-300 font-medium">
                                         ⚠️ Audio files will be permanently deleted
                                     </p>
-                                    <p className="text-xs text-red-400/80 mt-0.5">
+                                    <p className="text-xs text-yellow-400/80 mt-0.5">
                                         Oldest recordings beyond the feed limit are automatically removed. Download files from Settings → Audio if you need to keep them.
                                     </p>
                                 </div>
@@ -482,6 +503,50 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                     </div>
                 )}
             </form>
+
+            {/* Source Required Modal */}
+            {showSourceRequiredModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[1100] flex items-center justify-center p-4">
+                    <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-red-900/50 to-orange-900/30 px-6 py-5 border-b border-gray-700/50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white">Recording Source Required</h3>
+                                    <p className="text-sm text-gray-400 mt-0.5">Please configure your recording settings</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="px-6 py-5">
+                            <p className="text-gray-300 text-sm leading-relaxed">
+                                You have recording enabled for this show, but no stream source is selected. Without a source, recordings won't work.
+                            </p>
+                            <div className="mt-4 p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                                <p className="text-xs text-gray-400">
+                                    <span className="text-gray-300 font-medium">Fix this by:</span> Select an Icecast stream from the "Recording Source" dropdown, or turn off recording if it's not needed.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 bg-gray-800/30 border-t border-gray-700/50 flex justify-end">
+                            <button
+                                onClick={() => setShowSourceRequiredModal(false)}
+                                className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-lg text-sm font-medium transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/30"
+                            >
+                                Got it, I'll select a source
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <DeleteConfirmModal
                 isOpen={showDeleteModal}

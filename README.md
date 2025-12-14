@@ -49,10 +49,15 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Visual Show Picker** – Browse shows in a compact card grid with images, titles, and type badges; search/filter by title, host, or type
 - **Guided UX flow** – Auto-scrolling modal guides users from show selection → duration settings → scheduling with visual anchors
 - **Recurring shows** – Automatically generate weekly slots ~1 year ahead (52 weeks) with background auto-extension so successful shows can run for years.
+- **Visual indicators** – Yellow left border for recurring shows
 - Week and day views
-- Visual indicators for recurring shows
 - Click events to create and edit shows directly from the calendar
 - **Inline show editing** – View and edit full show settings when scheduling existing shows
+- **Enhanced tooltips** – Hover over any show to see detailed information:
+  - Show name, type, and time range
+  - Duration and split-show indicators
+  - **Recurring status** – "Recurring Weekly" or "One-Time Broadcast"
+  - **Recording status** – "Recording On" (with pulsing indicator) or "Recording Off"
 - **User-friendly error handling** – Schedule conflicts and validation errors display in helpful modal dialogs with:
   - Clear conflict details (conflicting show name and time)
   - Actionable suggestions for resolution
@@ -98,14 +103,19 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - Responsive design with modern styling
 
 ### ✂️ Audio Editing
-- **Waveform editor** with WaveSurfer.js - full waveform fits to view on load
-- **Minimap navigation** - overview bar for quick navigation through long recordings
-- **Visual zoom controls** - +/- buttons and fit-to-view for precise navigation
-- **Selection-based editing** - click and drag to select regions
-  - **Crop**: Keep only the selected portion
-  - **Cut**: Remove selection and join the remaining audio
-  - **Fade In/Out**: Apply gradual volume changes with user-controlled duration (1-60 seconds)
-  - **Normalize**: Level audio volume for the selection or entire file
+- **Modern waveform editor** with WaveSurfer.js
+- **Trim tool** - Click and drag to select portions, delete unwanted sections
+- **Fade controls** - Apply fade-in/fade-out (0.5-5 seconds) to smooth transitions
+- **Normalization** - Auto-detect peaks, normalize to target levels (-3dB to -1dB)
+- **VU meter display** - Real-time audio level monitoring with three modes:
+  - **Peak meters** - Accurate digital peak levels with L/R channels
+  - **Analog VU meters** - Vintage-style ballistic meters with calibration
+  - **None** - Hide meters for distraction-free editing
+- **VU calibration** - Adjust reference level (0 VU = -20dB to 0dB) for proper headroom
+- **Visual waveform** - Zoomable with click-to-navigate overview
+- **Loop playback** - Test edits by looping selected regions
+- **Undo support** - Revert changes before saving
+- **Downloadable results** - Save edited audio directly from browser
 - **Audio Metering** - Professional-quality meters for monitoring levels:
   - **Peak Meter**: Modern fast-response peak meters with broadcast-standard color zones (green/yellow/red)
   - **Analog VU Meters**: Classic needle-style VU meters with realistic ballistics (~300ms attack/decay) and RMS calculation

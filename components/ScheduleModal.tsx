@@ -89,9 +89,9 @@ export default function ScheduleModal({
     const [imageUrl, setImageUrl] = useState('')
     const [recordingEnabled, setRecordingEnabled] = useState(false)
     const [recordingSource, setRecordingSource] = useState('')
-    const [feedEpisodeLimit, setFeedEpisodeLimit] = useState<number | null>(null)
-    const [showCustomLimit, setShowCustomLimit] = useState(false)
-    const [archivingEnabled, setArchivingEnabled] = useState(true)
+    const [feedEpisodeLimit, setFeedEpisodeLimit] = useState<number | null>(0);
+    const [showCustomLimit, setShowCustomLimit] = useState(false);
+    const [archivingEnabled, setArchivingEnabled] = useState(false);
 
     // Unsaved changes tracking
     const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
@@ -156,8 +156,8 @@ export default function ScheduleModal({
                 imageUrl !== '' ||
                 recordingEnabled !== false ||
                 recordingSource !== '' ||
-                feedEpisodeLimit !== null ||
-                archivingEnabled !== true ||
+                feedEpisodeLimit !== 0 ||
+                archivingEnabled !== false ||
                 duration !== 60 ||
                 isRecurring !== false
             )
@@ -208,8 +208,8 @@ export default function ScheduleModal({
             setImageUrl('')
             setRecordingEnabled(false)
             setRecordingSource('')
-            setFeedEpisodeLimit(null)
-            setArchivingEnabled(true)
+            setFeedEpisodeLimit(0)
+            setArchivingEnabled(false)
             setDuration(60)
             setIsRecurring(false)
             // Scroll back to top when modal reopens
@@ -289,6 +289,13 @@ export default function ScheduleModal({
             return
         }
         setCategoryError('')
+
+        // Validate recording source
+        if (recordingEnabled && !recordingSource) {
+            setErrorMessage('Please select a recording source or disable recording')
+            setErrorModalOpen(true)
+            return
+        }
 
         if (!newShowTitle || !selectedSlot) return
 
@@ -843,11 +850,11 @@ export default function ScheduleModal({
                                                     Episodes beyond the feed limit are kept on disk.
                                                 </p>
                                             ) : (
-                                                <div className="p-2 bg-red-900/30 border border-red-700/50 rounded-md mt-1">
-                                                    <p className="text-xs text-red-300 font-medium">
+                                                <div className="p-2 bg-amber-900/20 border border-amber-600/40 rounded-md mt-1">
+                                                    <p className="text-xs text-amber-200 font-medium">
                                                         ⚠️ Audio files will be permanently deleted
                                                     </p>
-                                                    <p className="text-xs text-red-400/80 mt-0.5">
+                                                    <p className="text-xs text-amber-300/80 mt-0.5">
                                                         Oldest recordings beyond the feed limit are automatically removed. Download from Settings → Audio if needed.
                                                     </p>
                                                 </div>

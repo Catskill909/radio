@@ -227,7 +227,7 @@ export async function updateShow(id: string, formData: FormData) {
 
     revalidatePath("/shows");
     revalidatePath("/schedule");
-    redirect("/shows");
+    // No redirect - let the calling component handle navigation
 }
 
 export async function getScheduleSlots() {

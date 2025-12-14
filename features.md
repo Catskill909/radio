@@ -77,7 +77,13 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - Delete slot with confirmation
 - **Recurring shows**
   - Automatic generation of weekly slots ~1 year ahead (52 weeks) with background auto-extension so long-running shows stay scheduled
-  - Visual recurring indicator and styling on calendar events
+  - Visual recurring indicator and styling on calendar events (yellow left border)
+- **Enhanced Tooltips** 🆕
+  - Hover over any scheduled show to see detailed information:
+    - Show name, type, time range, and duration
+    - **Broadcast Type**: "Recurring Weekly" (yellow) or "One-Time Broadcast" (gray)
+    - **Recording Status**: "Recording On" (red with pulsing dot) or "Recording Off" (gray)
+    - Split-show indicators for midnight-crossing shows
 - **Overlap prevention**
   - Backend validation to block overlapping schedule slots
   - Clear error messages when conflicts occur
@@ -349,8 +355,9 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - Standard podcast levels (-16 LUFS)
 - **Audio Metering** 🆕
   - **Peak Meters**: Fast-response digital meters with broadcast-standard color zones (green/yellow/red) for preventing clipping
-  - **Analog VU Meters**: Classic needle-style meters with realistic ballistics (~300ms attack/decay) and RMS calculation for monitoring program loudness
-  - **Meter Toggle**: Switch between Peak, VU, or None with segmented button control
+  - **Analog VU Meters**: Classic needle-style VU meters with realistic ballistics (~300ms attack/decay) and RMS calculation for monitoring program loudness
+  - **Meter Toggle**: Switch between Peak, VU, or None with segmented button control (toggle always visible, meters conditionally displayed)
+  - **VU Calibration**: Adjust reference level (0 VU = -20dB to 0dB) for proper headroom monitoring
   - Real-time level monitoring during playback and editing
 - **Loop playback**
   - Toggle loop mode to repeat selected region
@@ -431,6 +438,10 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - Success confirmations with green highlighting
   - **Pulsing CTA buttons** 🆕 - Schedule Show button pulses with glowing border to draw attention
   - **Modal state reset** 🆕 - Modals reset to initial state (scroll position, selected items, active tab) when reopened
+  - **Warning message styling** 🆕 - Archiving warnings use amber/yellow for cautionary messages instead of red error styling
+- **Navigation improvements** 🆕
+  - Modal save actions in schedule view stay in /schedule instead of navigating to /shows
+  - Edit modals close and refresh data appropriately based on context (modal vs standalone page)
 
 ---
 

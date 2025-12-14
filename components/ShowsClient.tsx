@@ -269,6 +269,11 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
                         streams={streams}
                         hideRecordingControls={true}
                         onDirtyChange={setEditFormDirty}
+                        onAfterSubmit={() => {
+                            setEditModalOpen(false);
+                            setSelectedShow(null);
+                            window.location.reload(); // Refresh to show updated data
+                        }}
                     />
                 )}
             </EditShowModal>

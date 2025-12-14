@@ -96,6 +96,11 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
             end = new Date(end.getTime() - 1000);
         }
 
+        // Determine effective recording status (override takes precedence over show default)
+        const isRecording = slot.recordingOverride !== null
+            ? slot.recordingOverride
+            : slot.show.recordingEnabled;
+
         return {
             id: slot.id,
             title: slot.show.title,
@@ -107,6 +112,7 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
             splitGroupId: slot.splitGroupId,
             splitPosition: slot.splitPosition,
             isSplit,
+            isRecording,
         };
     }, [stationTimezone]);
 
@@ -241,10 +247,26 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
                                             {event.splitPosition === 'first' ? '⚡ Continues after midnight' : '⚡ Started before midnight'}
                                         </div>
                                     )}
-                                    {event.isRecurring && (
+                                    {event.isRecurring ? (
                                         <div className="flex items-center gap-1 text-xs text-yellow-400">
                                             <Repeat className="w-3 h-3" />
                                             <span>Recurring Weekly</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-1 text-xs text-gray-400">
+                                            <Clock className="w-3 h-3" />
+                                            <span>One-Time Broadcast</span>
+                                        </div>
+                                    )}
+                                    {event.isRecording ? (
+                                        <div className="flex items-center gap-1 text-xs text-red-400">
+                                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                                            <span>Recording On</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                                            <div className="w-2 h-2 rounded-full bg-gray-600" />
+                                            <span>Recording Off</span>
                                         </div>
                                     )}
                                 </div>
