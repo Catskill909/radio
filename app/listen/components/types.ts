@@ -47,6 +47,7 @@ export interface ScheduleSlot {
 export interface Episode {
     id: string;
     title: string;
+    description: string | null;
     publishedAt: string;
     duration: number;
     audioPath: string;

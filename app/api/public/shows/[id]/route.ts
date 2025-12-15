@@ -56,6 +56,7 @@ export async function GET(
             .map(rec => ({
                 id: rec.episode!.id,
                 title: rec.episode!.title,
+                description: rec.episode!.description,
                 publishedAt: rec.episode!.publishedAt!.toISOString(),
                 duration: rec.episode!.duration || 0,
                 audioPath: rec.filePath,

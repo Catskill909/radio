@@ -2,7 +2,7 @@
 
 import { format } from 'date-fns';
 import { ScheduleSlot } from './types';
-import { Clock, User } from 'lucide-react';
+import { Clock, User, ChevronRight } from 'lucide-react';
 import { useOnAirScroll } from '../hooks/useOnAirScroll';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { getImageUrl } from '@/lib/image-utils';
@@ -79,6 +79,20 @@ export default function ScheduleCard({ slot, isLive, onShowClick }: ScheduleCard
                                 <span className="truncate">{slot.show.host}</span>
                             </div>
                         )}
+                    </div>
+
+                    {/* More Indicator */}
+                    <div className="flex items-center justify-center shrink-0 pl-2">
+                        <div className={`
+                            rounded-full p-2 transition-all duration-300
+                            ${isLive
+                                ? 'bg-gray-700/30 text-gray-400 group-hover:bg-gray-700/50 group-hover:text-gray-300'
+                                : 'bg-gray-800/50 text-gray-500 group-hover:bg-gray-700/70 group-hover:text-gray-300'
+                            }
+                            group-hover:scale-110
+                        `}>
+                            <ChevronRight className="w-5 h-5" />
+                        </div>
                     </div>
                 </div>
             </button>

@@ -1,9 +1,10 @@
 'use client';
 
 import { format } from 'date-fns';
-import { Play, Pause, Clock } from 'lucide-react';
+import { Play, Pause, Clock, ChevronDown } from 'lucide-react';
 import { Episode } from './types';
 import { useState, useRef, useEffect } from 'react';
+import EpisodeInfoModal from './EpisodeInfoModal';
 
 interface EpisodeCardProps {
     episode: Episode;
@@ -17,6 +18,7 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
     const [progress, setProgress] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [showInfoModal, setShowInfoModal] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
 
     // Extract filename for API URL
@@ -114,6 +116,20 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
                         <p className="text-xs text-gray-400 mb-2">
                             {format(new Date(episode.publishedAt), 'MMMM d, yyyy')}
                         </p>
+
+                        {/* More Info Button */}
+                        {episode.description && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowInfoModal(true);
+                                }}
+                                className="text-xs text-gray-500 hover:text-blue-400 transition-colors flex items-center gap-1 mb-2"
+                            >
+                                <span>More info</span>
+                                <ChevronDown className="w-3 h-3" />
+                            </button>
+                        )}
                     </div>
 
                     {isActive ? (
@@ -175,6 +191,13 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
                     )}
                 </div>
             </div>
+
+            {/* Episode Info Modal */}
+            <EpisodeInfoModal
+                episode={episode}
+                isOpen={showInfoModal}
+                onClose={() => setShowInfoModal(false)}
+            />
         </div>
     );
 }
