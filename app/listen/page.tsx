@@ -240,6 +240,7 @@ export default function ListenPage() {
 
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
+        setCurrentEpisodeId(null); // Reset episode player when modal closes
         setTimeout(() => setSelectedShowId(null), 300);
     }, []);
 

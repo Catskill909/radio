@@ -49,7 +49,14 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
                 clearTimeout(timer);
             };
         } else {
+            // Clean up when becoming inactive (modal closing)
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
             setIsPaused(false);
+            setProgress(0);
+            setCurrentTime(0);
         }
     }, [isActive]);
 
