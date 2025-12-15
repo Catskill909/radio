@@ -58,18 +58,23 @@ export default function ShowsClient({ initialShows, streams, stationLogoUrl }: S
         setOrigin(window.location.origin)
     }, [])
 
-    // Filter shows based on search query
+    // Filter shows based on search query and sort alphabetically
     const filteredShows = useMemo(() => {
-        if (!searchQuery.trim()) return shows
+        let result = shows
 
-        const query = searchQuery.toLowerCase()
-        return shows.filter(show =>
-            show.title.toLowerCase().includes(query) ||
-            show.host?.toLowerCase().includes(query) ||
-            show.description?.toLowerCase().includes(query) ||
-            show.type.toLowerCase().includes(query) ||
-            show.tags?.toLowerCase().includes(query)
-        )
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase()
+            result = shows.filter(show =>
+                show.title.toLowerCase().includes(query) ||
+                show.host?.toLowerCase().includes(query) ||
+                show.description?.toLowerCase().includes(query) ||
+                show.type.toLowerCase().includes(query) ||
+                show.tags?.toLowerCase().includes(query)
+            )
+        }
+
+        // Sort alphabetically by title
+        return result.sort((a, b) => a.title.localeCompare(b.title))
     }, [shows, searchQuery])
 
     const handleDelete = async () => {
