@@ -140,10 +140,9 @@ export async function identifySong(
         const bitrateKbps = streamBitrate || 128;
         console.log(`🎧 Capturing live audio from stream (${bitrateKbps}kbps)...`);
 
-        // Smart capture settings based on bitrate
-        // Higher bitrates: capture 12 seconds or 500KB max (whichever comes first)
-        // Lower bitrates: capture 15 seconds
-        const captureDurationSeconds = bitrateKbps >= 256 ? 12 : 15;
+        // ACRCloud optimal settings: 10 seconds is the recommended duration
+        // This provides the best balance of accuracy, speed, and bandwidth
+        const captureDurationSeconds = 10; // ACRCloud optimal recommendation
         const maxCaptureSizeKB = 500; // ACRCloud recommends under 1MB
         const bytesPerSecond = (bitrateKbps * 1000) / 8;
         const targetBytes = captureDurationSeconds * bytesPerSecond;
@@ -186,7 +185,8 @@ export async function identifySong(
 
         // Enhanced diagnostic logging
         console.log(`📤 Captured ${audioBuffer.length} bytes in ${captureTime.toFixed(1)}s`);
-        console.log(`📊 Stream bitrate: ${bitrateKbps}kbps | Target duration: ${captureDurationSeconds}s | Actual duration: ~${actualDuration.toFixed(1)}s`);
+        console.log(`📊 Stream bitrate: ${bitrateKbps}kbps | Duration: 10s (optimized) | Actual: ~${actualDuration.toFixed(1)}s`);
+        console.log(`🎯 Recognition mode: recorded audio (live stream optimization)`);
 
         // Generate signature
         const timestamp = Math.floor(Date.now() / 1000).toString();
@@ -200,6 +200,8 @@ export async function identifySong(
         formData.append('timestamp', timestamp);
         formData.append('signature', signature);
         formData.append('data_type', 'audio');
+        formData.append('audio_data_type', 'recorded'); // CRITICAL: Use 'recorded' mode for live streams with noise
+        formData.append('audio_format', 'mp3'); // Explicit format hint for decoder
         formData.append('signature_version', '1');
 
         // Send to ACRCloud

@@ -25,9 +25,9 @@ export default async function SettingsPage() {
     const timezone = settings.timezone || "UTC";
 
     return (
-        <div className="h-full flex flex-col">
-            {/* Sticky Header */}
-            <div className="sticky top-0 z-20 bg-gray-950 pb-6 relative">
+        <div className="overflow-y-auto pb-8 pr-4 space-y-8">
+            {/* Header - now scrolls with content */}
+            <div className="bg-gray-950 pb-6">
                 <div className="flex items-center justify-between gap-4 pt-6 px-6">
                     <div>
                         <h1 className="text-4xl font-bold flex items-center gap-3" style={{ fontFamily: 'Oswald, sans-serif' }}>
@@ -40,16 +40,9 @@ export default async function SettingsPage() {
                         <StationClock timezone={timezone} />
                     </div>
                 </div>
-                {/* Gradient fade extending below header */}
-                <div
-                    className="absolute left-0 right-0 h-6 pointer-events-none"
-                    style={{
-                        bottom: '-24px',
-                        background: 'linear-gradient(to bottom, rgb(3, 7, 18) 0%, transparent 100%)'
-                    }}
-                />
             </div>
-            <div className="flex-1 overflow-y-auto pb-8 pr-4 pt-6 space-y-8 px-6">
+
+            <div className="px-6 space-y-8">
                 {/* Full Width: Site Branding (Public Front-End) */}
                 <section>
                     <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
