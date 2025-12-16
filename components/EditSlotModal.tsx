@@ -590,7 +590,20 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                     onDirtyChange={setEditFormDirty}
                                     externalRecordingEnabled={recordingEnabled}
                                     externalRecordingSource={recordingSource}
-                                    onAfterSubmit={() => {
+                                    onAfterSubmit={async () => {
+                                        // If recording settings changed, save them to the slot too
+                                        if (recordingChanged) {
+                                            try {
+                                                // Save recording changes to the slot
+                                                if (recordingSource !== (slot.show.recordingSource || '')) {
+                                                    await updateShowRecordingSource(slot.show.id, recordingSource);
+                                                }
+                                                await updateSlotRecording(slot.id, recordingEnabled, recordingScope);
+                                            } catch (err: any) {
+                                                console.error('Failed to save recording settings:', err);
+                                                // Continue with reload anyway - show settings were saved
+                                            }
+                                        }
                                         // Reload page to show changes and close modal
                                         window.location.reload();
                                     }}

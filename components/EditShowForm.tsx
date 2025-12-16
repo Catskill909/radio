@@ -467,6 +467,14 @@ export default function EditShowForm({ show, streams, hideRecordingControls = fa
                         </div>
                     )}
 
+                    {/* Hidden inputs for external recording state (when controls are hidden) */}
+                    {hideRecordingControls && externalRecordingEnabled !== undefined && (
+                        <>
+                            <input type="hidden" name="recordingEnabled" value={externalRecordingEnabled ? "true" : "false"} />
+                            <input type="hidden" name="recordingSource" value={externalRecordingSource || ""} />
+                        </>
+                    )}
+
                     {/* Cover Image - Span 4 */}
                     <div className="col-span-12 md:col-span-4 space-y-1.5">
                         <label className="block text-sm font-medium text-gray-300">
