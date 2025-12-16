@@ -545,147 +545,156 @@ export async function updateScheduleSlot(
     endTime: Date,
     isRecurring: boolean
 ) {
-    // Get the existing slot to check if recurring status changed
-    const existingSlot = await prisma.scheduleSlot.findUnique({
-        where: { id },
-        include: { show: true }
-    });
-
-    if (!existingSlot) {
-        throw new Error("Schedule slot not found");
-    }
-
-    // NEW: Determine which slots to update
-    let slotsToUpdate: Array<{ id: string; originalStart: Date; originalEnd: Date }> = [];
-
-    if (existingSlot.recurringGroupId && isRecurring) {
-        // This is an existing recurring show - update current and future instances
-        const relatedSlots = await prisma.scheduleSlot.findMany({
-            where: {
-                recurringGroupId: existingSlot.recurringGroupId,
-                startTime: { gte: existingSlot.startTime } // Current and future only
-            },
-            orderBy: { startTime: 'asc' }
-        });
-
-        slotsToUpdate = relatedSlots.map(slot => ({
-            id: slot.id,
-            originalStart: slot.startTime,
-            originalEnd: slot.endTime
-        }));
-    } else {
-        // Single slot update (non-recurring or first instance)
-        slotsToUpdate = [{
-            id,
-            originalStart: existingSlot.startTime,
-            originalEnd: existingSlot.endTime
-        }];
-    }
-
-    // Calculate time delta and duration delta
-    const timeDelta = startTime.getTime() - existingSlot.startTime.getTime();
-    const newDuration = endTime.getTime() - startTime.getTime();
-    const oldDuration = existingSlot.endTime.getTime() - existingSlot.startTime.getTime();
-    const durationDelta = newDuration - oldDuration;
-
-    // Check for overlaps for each slot that will be updated
-    for (const slot of slotsToUpdate) {
-        const newStartTime = new Date(slot.originalStart.getTime() + timeDelta);
-        const newEndTime = new Date(slot.originalEnd.getTime() + timeDelta + durationDelta);
-
-        // Check for overlaps (excluding the entire recurring group)
-        const overlapping = await checkSlotOverlap(
-            newStartTime,
-            newEndTime,
-            slot.id,
-            existingSlot.recurringGroupId ?? undefined // Exclude entire recurring group
-        );
-
-        if (overlapping) {
-            throw new Error(
-                `Cannot update: slot on ${newStartTime.toLocaleDateString()} would overlap with "${overlapping.show.title}"`
-            );
-        }
-    }
-
-    // Update all slots
-    for (const slot of slotsToUpdate) {
-        const newStartTime = new Date(slot.originalStart.getTime() + timeDelta);
-        const newEndTime = new Date(slot.originalEnd.getTime() + timeDelta + durationDelta);
-
-        await prisma.scheduleSlot.update({
-            where: { id: slot.id },
-            data: {
-                startTime: newStartTime,
-                endTime: newEndTime,
-                isRecurring,
-            },
-        });
-    }
-
-    // If toggling recurring ON, generate future slots
-    if (isRecurring && !existingSlot.isRecurring) {
-        // ✅ DST-AWARE: Generate future slots with timezone logic
-        const { add } = await import('date-fns');
-        const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
-        const { getStationTimezone } = await import('@/lib/station-time');
-        const stationTz = getStationTimezone();
-
-        // Generate a unique ID to link all instances of this recurring show
-        const recurringGroupId = crypto.randomUUID();
-
-        // Update the existing slot with the recurringGroupId
-        await prisma.scheduleSlot.update({
+    try {
+        // Get the existing slot to check if recurring status changed
+        const existingSlot = await prisma.scheduleSlot.findUnique({
             where: { id },
-            data: { recurringGroupId }
+            include: { show: true }
         });
 
-        const duration = endTime.getTime() - startTime.getTime();
-        const slotsToCreate = [];
+        if (!existingSlot) {
+            return { success: false, error: "Schedule slot not found" };
+        }
 
-        // Generate 51 additional weeks (slot 0 is the updated existing one)
-        for (let i = 1; i < 52; i++) {
-            // Convert to station time
-            const initialStationStart = toZonedTime(startTime, stationTz);
-            const initialStationEnd = toZonedTime(endTime, stationTz);
+        // NEW: Determine which slots to update
+        let slotsToUpdate: Array<{ id: string; originalStart: Date; originalEnd: Date }> = [];
 
-            // Add weeks in station timezone
-            const futureStationStart = add(initialStationStart, { weeks: i });
-            const futureStationEnd = add(initialStationEnd, { weeks: i });
+        if (existingSlot.recurringGroupId && isRecurring) {
+            // This is an existing recurring show - update current and future instances
+            const relatedSlots = await prisma.scheduleSlot.findMany({
+                where: {
+                    recurringGroupId: existingSlot.recurringGroupId,
+                    startTime: { gte: existingSlot.startTime } // Current and future only
+                },
+                orderBy: { startTime: 'asc' }
+            });
 
-            // Convert back to UTC
-            const slotStart = fromZonedTime(
-                format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                stationTz
+            slotsToUpdate = relatedSlots.map(slot => ({
+                id: slot.id,
+                originalStart: slot.startTime,
+                originalEnd: slot.endTime
+            }));
+        } else {
+            // Single slot update (non-recurring or first instance)
+            slotsToUpdate = [{
+                id,
+                originalStart: existingSlot.startTime,
+                originalEnd: existingSlot.endTime
+            }];
+        }
+
+        // Calculate time delta and duration delta
+        const timeDelta = startTime.getTime() - existingSlot.startTime.getTime();
+        const newDuration = endTime.getTime() - startTime.getTime();
+        const oldDuration = existingSlot.endTime.getTime() - existingSlot.startTime.getTime();
+        const durationDelta = newDuration - oldDuration;
+
+        // Check for overlaps for each slot that will be updated
+        for (const slot of slotsToUpdate) {
+            const newStartTime = new Date(slot.originalStart.getTime() + timeDelta);
+            const newEndTime = new Date(slot.originalEnd.getTime() + timeDelta + durationDelta);
+
+            // Check for overlaps (excluding the entire recurring group)
+            const overlapping = await checkSlotOverlap(
+                newStartTime,
+                newEndTime,
+                slot.id,
+                existingSlot.recurringGroupId ?? undefined // Exclude entire recurring group
             );
-            const slotEnd = fromZonedTime(
-                format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                stationTz
-            );
 
-            // Check for overlaps
-            const overlapping = await checkSlotOverlap(slotStart, slotEnd, id);
             if (overlapping) {
-                throw new Error(
-                    `Cannot create recurring slots: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
-                );
+                return {
+                    success: false,
+                    error: `Cannot update: slot on ${newStartTime.toLocaleDateString()} would overlap with "${overlapping.show.title}"`
+                };
             }
+        }
 
-            slotsToCreate.push({
-                showId: existingSlot.showId,
-                startTime: slotStart,
-                endTime: slotEnd,
-                isRecurring: true,
-                recurringGroupId, // NEW: Link all instances together
+        // Update all slots
+        for (const slot of slotsToUpdate) {
+            const newStartTime = new Date(slot.originalStart.getTime() + timeDelta);
+            const newEndTime = new Date(slot.originalEnd.getTime() + timeDelta + durationDelta);
+
+            await prisma.scheduleSlot.update({
+                where: { id: slot.id },
+                data: {
+                    startTime: newStartTime,
+                    endTime: newEndTime,
+                    isRecurring,
+                },
             });
         }
 
-        await prisma.scheduleSlot.createMany({
-            data: slotsToCreate,
-        });
-    }
+        // If toggling recurring ON, generate future slots
+        if (isRecurring && !existingSlot.isRecurring) {
+            // ✅ DST-AWARE: Generate future slots with timezone logic
+            const { add } = await import('date-fns');
+            const { toZonedTime, fromZonedTime, format } = await import('date-fns-tz');
+            const { getStationTimezone } = await import('@/lib/station-time');
+            const stationTz = getStationTimezone();
 
-    revalidatePath("/schedule");
+            // Generate a unique ID to link all instances of this recurring show
+            const recurringGroupId = crypto.randomUUID();
+
+            // Update the existing slot with the recurringGroupId
+            await prisma.scheduleSlot.update({
+                where: { id },
+                data: { recurringGroupId }
+            });
+
+            const duration = endTime.getTime() - startTime.getTime();
+            const slotsToCreate = [];
+
+            // Generate 51 additional weeks (slot 0 is the updated existing one)
+            for (let i = 1; i < 52; i++) {
+                // Convert to station time
+                const initialStationStart = toZonedTime(startTime, stationTz);
+                const initialStationEnd = toZonedTime(endTime, stationTz);
+
+                // Add weeks in station timezone
+                const futureStationStart = add(initialStationStart, { weeks: i });
+                const futureStationEnd = add(initialStationEnd, { weeks: i });
+
+                // Convert back to UTC
+                const slotStart = fromZonedTime(
+                    format(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
+                const slotEnd = fromZonedTime(
+                    format(futureStationEnd, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
+                    stationTz
+                );
+
+                // Check for overlaps
+                const overlapping = await checkSlotOverlap(slotStart, slotEnd, id);
+                if (overlapping) {
+                    return {
+                        success: false,
+                        error: `Cannot create recurring slots: Slot ${i + 1} (${slotStart.toLocaleDateString()}) would overlap with "${overlapping.show.title}"`
+                    };
+                }
+
+                slotsToCreate.push({
+                    showId: existingSlot.showId,
+                    startTime: slotStart,
+                    endTime: slotEnd,
+                    isRecurring: true,
+                    recurringGroupId, // NEW: Link all instances together
+                });
+            }
+
+            await prisma.scheduleSlot.createMany({
+                data: slotsToCreate,
+            });
+        }
+
+        revalidatePath("/schedule");
+        return { success: true };
+
+    } catch (error) {
+        console.error("Failed to update schedule slot:", error);
+        return { success: false, error: error instanceof Error ? error.message : "Unknown error occurred" };
+    }
 }
 
 export async function deleteScheduleSlot(

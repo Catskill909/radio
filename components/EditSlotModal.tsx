@@ -161,10 +161,17 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
         setError(null)
         try {
             const endTime = new Date(startTime.getTime() + duration * 60000)
-            await updateScheduleSlot(slot.id, startTime, endTime, isRecurring)
+            const result = await updateScheduleSlot(slot.id, startTime, endTime, isRecurring)
+
+            if (result && !result.success) {
+                setError(result.error || 'Failed to update schedule slot')
+                setIsSaving(false)
+                return
+            }
+
             window.location.href = window.location.href
         } catch (err: any) {
-            setError(err.message)
+            setError(err.message || 'An unexpected error occurred')
             setIsSaving(false)
         }
     }
