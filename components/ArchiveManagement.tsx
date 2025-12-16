@@ -43,6 +43,8 @@ export default function ArchiveManagement({ timezone }: ArchiveManagementProps) 
     const [deleteConfirmShow, setDeleteConfirmShow] = useState<string | null>(null)
     const [deleteConfirmText, setDeleteConfirmText] = useState('')
     const [deleting, setDeleting] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 10
 
     useEffect(() => {
         loadArchives()
@@ -106,6 +108,18 @@ export default function ArchiveManagement({ timezone }: ArchiveManagementProps) 
     const totalArchived = archives.reduce((sum, a) => sum + a.archivedCount, 0)
     const totalSize = archives.reduce((sum, a) => sum + a.totalSize, 0)
 
+    // Pagination calculations
+    const totalPages = Math.ceil(archives.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const paginatedArchives = archives.slice(startIndex, endIndex)
+
+    const goToPage = (page: number) => {
+        setCurrentPage(page)
+        // Collapse all expanded shows when changing pages
+        setExpandedShows(new Set())
+    }
+
     if (loading) {
         return (
             <section className="bg-gray-800 rounded-lg p-6 border border-gray-700">
@@ -141,7 +155,7 @@ export default function ArchiveManagement({ timezone }: ArchiveManagementProps) 
 
                     {/* Per-show cards */}
                     <div className="space-y-3">
-                        {archives.map(archive => (
+                        {paginatedArchives.map(archive => (
                             <div key={archive.showId} className="border border-gray-700 rounded-lg overflow-hidden">
                                 {/* Header */}
                                 <div
@@ -212,6 +226,70 @@ export default function ArchiveManagement({ timezone }: ArchiveManagementProps) 
                             </div>
                         ))}
                     </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700/50">
+                            <div className="text-sm text-gray-400">
+                                Showing {startIndex + 1}-{Math.min(endIndex, archives.length)} of {archives.length} shows
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {/* Previous Button */}
+                                <button
+                                    onClick={() => goToPage(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="px-3 py-1.5 rounded-lg border border-gray-700 bg-gray-800/50 hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer text-sm"
+                                >
+                                    Previous
+                                </button>
+
+                                {/* Page Numbers */}
+                                <div className="flex items-center gap-1">
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                        // Show first page, last page, current page, and pages around current
+                                        const showPage =
+                                            page === 1 ||
+                                            page === totalPages ||
+                                            Math.abs(page - currentPage) <= 1
+
+                                        if (!showPage) {
+                                            // Show ellipsis only once between gaps
+                                            if (page === currentPage - 2 || page === currentPage + 2) {
+                                                return (
+                                                    <span key={page} className="px-2 text-gray-500">
+                                                        ...
+                                                    </span>
+                                                )
+                                            }
+                                            return null
+                                        }
+
+                                        return (
+                                            <button
+                                                key={page}
+                                                onClick={() => goToPage(page)}
+                                                className={`min-w-[36px] h-9 rounded-lg border transition-all cursor-pointer text-sm font-medium ${currentPage === page
+                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30'
+                                                        : 'border-gray-700 bg-gray-800/50 hover:bg-gray-700 text-gray-300'
+                                                    }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+
+                                {/* Next Button */}
+                                <button
+                                    onClick={() => goToPage(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="px-3 py-1.5 rounded-lg border border-gray-700 bg-gray-800/50 hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer text-sm"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
 
