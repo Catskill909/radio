@@ -534,7 +534,7 @@ export default function EditSlotModal({ isOpen, onClose, slot, streams }: EditSl
                                 <div className="flex justify-end pt-4">
                                     <button
                                         onClick={handleSaveRecording}
-                                        disabled={isSavingRecording}
+                                        disabled={isSavingRecording || (recordingEnabled && !recordingSource)}
                                         className="px-4 py-2 bg-red-600/80 hover:bg-red-600 disabled:bg-red-800/50 disabled:cursor-not-allowed text-white rounded-md text-sm font-medium transition-colors"
                                     >
                                         {isSavingRecording ? 'Saving...' : 'Save Recording Settings'}

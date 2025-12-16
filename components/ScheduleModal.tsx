@@ -935,7 +935,8 @@ export default function ScheduleModal({
                                         }
                                         handleCreateAndSchedule()
                                     }}
-                                    className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 text-white font-medium transition-all ${(!newShowTitle || !newShowCategory) ? 'opacity-50' : ''}`}
+                                    disabled={!newShowTitle || !newShowCategory || (recordingEnabled && !recordingSource)}
+                                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/5 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:opacity-50 text-white font-medium transition-all"
                                 >
                                     Create & Schedule Show
                                 </button>
