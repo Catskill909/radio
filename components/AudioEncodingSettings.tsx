@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { updateStationSettings } from '@/app/actions'
 import { Check } from 'lucide-react'
-import HelpIcon from '@/components/HelpIcon'
 
 interface AudioEncodingSettingsProps {
     initialSettings: {
@@ -75,14 +74,7 @@ export default function AudioEncodingSettings({ initialSettings }: AudioEncoding
 
     return (
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-6">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
-                        Audio Recording Quality
-                        <HelpIcon articleId="audio-encoding-quality" tooltip="Configure encoding settings for recorded shows." />
-                    </h2>
-                    <p className="text-sm text-gray-400">Configure encoding settings for recorded shows</p>
-                </div>
+            <div className="flex items-center justify-end mb-6">
                 <button
                     onClick={handleSave}
                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all cursor-pointer ${saved

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Archive, Download, Trash2, ChevronDown, ChevronRight, HardDrive, AlertTriangle } from 'lucide-react'
 import { getArchivedEpisodes, deleteArchivedEpisode, deleteShowArchives } from '@/app/actions'
 import { formatInTimezone } from '@/lib/client-date-utils'
-import HelpIcon from '@/components/HelpIcon'
 
 interface ArchivedEpisode {
     id: string
@@ -110,10 +109,6 @@ export default function ArchiveManagement({ timezone }: ArchiveManagementProps) 
     if (loading) {
         return (
             <section className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <Archive className="w-5 h-5" />
-                    Archive Management
-                </h2>
                 <div className="flex items-center justify-center py-8">
                     <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full"></div>
                     <span className="ml-3 text-gray-400">Loading archives...</span>
@@ -124,12 +119,6 @@ export default function ArchiveManagement({ timezone }: ArchiveManagementProps) 
 
     return (
         <section className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Archive className="w-5 h-5" />
-                Archive Management
-                <HelpIcon articleId="rss-episode-controls" tooltip="Manage archived episodes beyond your feed limit." />
-            </h2>
-
             {archives.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                     <HardDrive className="w-12 h-12 mx-auto mb-3 opacity-50" />

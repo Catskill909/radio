@@ -107,20 +107,38 @@ export default async function SettingsPage() {
                 </div>
 
                 {/* Full Width: Data Management (Import/Export) */}
-                <DataManagement />
+                <section>
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        Data Management
+                        <HelpIcon articleId="import-export-data" tooltip="Import and export your station data." />
+                    </h2>
+                    <DataManagement />
+                </section>
 
                 {/* Full Width: Audio Encoding Settings */}
-                <AudioEncodingSettings
-                    initialSettings={{
-                        audioCodec: (settings as any).audioCodec || 'libmp3lame',
-                        audioBitrate: (settings as any).audioBitrate || 192,
-                        audioSampleRate: (settings as any).audioSampleRate || null,
-                        audioVBR: (settings as any).audioVBR ?? true,
-                    }}
-                />
+                <section>
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        Audio Recording Quality
+                        <HelpIcon articleId="audio-encoding-quality" tooltip="Configure encoding settings for recorded shows." />
+                    </h2>
+                    <AudioEncodingSettings
+                        initialSettings={{
+                            audioCodec: (settings as any).audioCodec || 'libmp3lame',
+                            audioBitrate: (settings as any).audioBitrate || 192,
+                            audioSampleRate: (settings as any).audioSampleRate || null,
+                            audioVBR: (settings as any).audioVBR ?? true,
+                        }}
+                    />
+                </section>
 
                 {/* Full Width: Archive Management */}
-                <ArchiveManagement timezone={timezone} />
+                <section>
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        Archive Management
+                        <HelpIcon articleId="rss-episode-controls" tooltip="Manage archived episodes beyond your feed limit." />
+                    </h2>
+                    <ArchiveManagement timezone={timezone} />
+                </section>
 
                 {/* Full Width: ACRCloud Song Recognition */}
                 <section>
