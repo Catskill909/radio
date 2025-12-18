@@ -33,6 +33,16 @@ The Schedule page shows your programming in a visual calendar format:
 1. Click any **empty time slot** in the calendar
 2. A modal appears with scheduling controls
 
+### Click and Drag Scheduling
+
+You can also **click and drag** across multiple time slots to create a show with a custom duration:
+
+1. Click on the start time and **drag** down to the desired end time
+2. Release the mouse button
+3. The Schedule Show modal opens with the **duration pre-calculated**
+
+This is perfect for shows with non-standard durations!
+
 ### Select a Show
 
 The **Show Picker** displays all your shows as visual cards:

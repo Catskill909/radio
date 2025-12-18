@@ -65,13 +65,15 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - 15-minute grid (`step=15`, `timeslots=4`) with accurate visual heights
   - Events sized by duration (10, 30, 45, 60+ minutes render correctly)
 - **Scheduling workflows**
-  - Click an empty time slot to schedule
+  - **Click an empty time slot** to schedule a show at that time
+  - **Click and drag across multiple slots** 🆕 to create a show with custom duration - the Schedule Show modal opens with duration pre-calculated
   - **Select existing show** or **create new show in-place** from the modal
   - **Visual Show Picker** 🆕: Compact card grid with images, titles, and type badges for browsing shows
     - Search/filter by title, host, or type
     - Alphabetically sorted for easy navigation
   - **Guided UX flow** 🆕: After selecting a show, modal auto-scrolls to reveal Duration/Repeat settings with cards peeking at the top as visual anchor
   - **Inline show editing**: When selecting existing show, full show settings (metadata, recording) are exposed for review/editing before scheduling
+  - **Per-slot recording scope** 🆕: When enabling recording, choose "Only this broadcast" or "All future broadcasts" to control whether recording applies to just this slot or globally
   - Duration selector with recurring weekly toggle
   - Edit existing slot via modal (start time, duration, recurring flag)
   - Delete slot with confirmation

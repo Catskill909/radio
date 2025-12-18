@@ -125,9 +125,22 @@ export async function createShow(formData: FormData, shouldRedirect: boolean = t
                 });
             }
 
-            await prisma.scheduleSlot.createMany({
-                data: slotsToCreate,
-            });
+            // Create slots and collect their IDs
+            const createdSlotIds: string[] = [];
+            for (const slotData of slotsToCreate) {
+                const createdSlot = await prisma.scheduleSlot.create({
+                    data: slotData,
+                });
+                createdSlotIds.push(createdSlot.id);
+            }
+
+            revalidatePath("/shows");
+            revalidatePath("/schedule");
+
+            if (shouldRedirect) {
+                redirect("/shows");
+            }
+            return { success: true, showId: show.id, slotIds: createdSlotIds };
         }
 
         revalidatePath("/shows");
@@ -136,7 +149,7 @@ export async function createShow(formData: FormData, shouldRedirect: boolean = t
         if (shouldRedirect) {
             redirect("/shows");
         }
-        return { success: true };
+        return { success: true, showId: show.id, slotIds: [] };
 
     } catch (error) {
         // NEXT_REDIRECT error must be re-thrown to be handled by Next.js
@@ -525,12 +538,17 @@ export async function createScheduleSlot(
             }
         }
 
-        await prisma.scheduleSlot.createMany({
-            data: slotsToCreate,
-        });
+        // Create slots and collect their IDs
+        const createdSlotIds: string[] = [];
+        for (const slotData of slotsToCreate) {
+            const createdSlot = await prisma.scheduleSlot.create({
+                data: slotData,
+            });
+            createdSlotIds.push(createdSlot.id);
+        }
 
         revalidatePath("/schedule");
-        return { success: true };
+        return { success: true, slotIds: createdSlotIds };
 
     } catch (error) {
         console.error("Failed to create schedule slot:", error);

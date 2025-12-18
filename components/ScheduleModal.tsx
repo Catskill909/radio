@@ -1,8 +1,9 @@
 'use client'
 
-import { X, Plus, Rss } from 'lucide-react'
+import { X, Plus, Rss, Radio } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
-import { createScheduleSlot, createShow } from '@/app/actions'
+import { createScheduleSlot, createShow, updateSlotRecording, updateShowRecordingSource } from '@/app/actions'
+import { format } from 'date-fns'
 import ImageUpload from '@/components/ImageUpload'
 import RecordingControls from '@/components/RecordingControls'
 import ScheduleErrorModal from '@/components/ScheduleErrorModal'
@@ -62,6 +63,11 @@ export default function ScheduleModal({
     const [selectedShowId, setSelectedShowId] = useState('')
     const [duration, setDuration] = useState(60)
     const [isRecurring, setIsRecurring] = useState(false)
+
+    // Slot-specific recording state (for scope selector)
+    const [slotRecordingEnabled, setSlotRecordingEnabled] = useState(false)
+    const [slotRecordingSource, setSlotRecordingSource] = useState('')
+    const [recordingScope, setRecordingScope] = useState<'single' | 'all-future'>('single')
 
     // Error modal state
     const [errorModalOpen, setErrorModalOpen] = useState(false)
@@ -212,6 +218,10 @@ export default function ScheduleModal({
             setArchivingEnabled(false)
             setDuration(60)
             setIsRecurring(false)
+            // Reset slot recording states
+            setSlotRecordingEnabled(false)
+            setSlotRecordingSource('')
+            setRecordingScope('single')
             // Scroll back to top when modal reopens
             if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollTop = 0
@@ -249,6 +259,13 @@ export default function ScheduleModal({
             return
         }
 
+        // Validate recording source if enabled
+        if (slotRecordingEnabled && !slotRecordingSource) {
+            setErrorMessage('Please select a recording source')
+            setErrorModalOpen(true)
+            return
+        }
+
         try {
             // Convert start time: "User clicked 5:45 PM" -> "5:45 PM Station Time" -> UTC
             const startTimeUTC = getStationTimeUTC(selectedSlot.start)
@@ -270,6 +287,25 @@ export default function ScheduleModal({
                 setErrorMessage(result.error || 'Failed to schedule show')
                 setErrorModalOpen(true)
                 return
+            }
+
+            // Apply slot recording override if enabled
+            if (slotRecordingEnabled && result?.slotIds && result.slotIds.length > 0) {
+                // Update recording source on the show
+                await updateShowRecordingSource(selectedShowId, slotRecordingSource)
+
+                if (recordingScope === 'single') {
+                    // Only apply override to the first slot (for single broadcasts)
+                    // or to all slots if recurring but user chose "single"
+                    for (const slotId of result.slotIds) {
+                        await updateSlotRecording(slotId, true, 'single')
+                    }
+                } else {
+                    // 'all-future' - apply to all created slots
+                    for (const slotId of result.slotIds) {
+                        await updateSlotRecording(slotId, true, 'this-and-future')
+                    }
+                }
             }
 
             onClose()
@@ -341,6 +377,19 @@ export default function ScheduleModal({
                 setErrorModalOpen(true)
                 return
             }
+
+            // Apply slot recording override based on scope selection
+            // Note: For new shows, recordingEnabled is already set on the Show via formData
+            // The scope determines whether we apply per-slot overrides
+            if (recordingEnabled && recordingScope === 'single' && result?.slotIds && result.slotIds.length > 0) {
+                // Apply override to individual slots when scope is 'single'
+                // This makes just these slots record, overriding future show default changes
+                for (const slotId of result.slotIds) {
+                    await updateSlotRecording(slotId, true, 'single')
+                }
+            }
+            // If scope is 'all-future', the show's recordingEnabled is already set to true
+            // and all slots will inherit that default - no per-slot override needed
 
             onClose()
             window.location.reload()
@@ -515,18 +564,99 @@ export default function ScheduleModal({
                                                         key={selectedShowId}
                                                         show={shows.find(s => s.id === selectedShowId) as unknown as PrismaShow}
                                                         streams={streams}
-                                                        hideRecordingControls={false}
+                                                        hideRecordingControls={true}
                                                         hideActionButtons={true}
                                                         formId="schedule-edit-show-form"
                                                         onAfterSubmit={handleScheduleExisting}
                                                         onDirtyChange={setEditFormDirty}
                                                     />
+
+                                                    {/* Slot Recording Section - matching EditSlotModal pattern */}
+                                                    <div className="bg-gray-800/50 rounded-xl p-6 border border-gray-800 mt-6">
+                                                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                                                            <Radio className="w-5 h-5 text-red-400" />
+                                                            Recording for This Slot
+                                                        </h3>
+
+                                                        {/* Recording Toggle */}
+                                                        <div className="flex items-center justify-between py-2">
+                                                            <span className="text-sm font-medium text-gray-300">
+                                                                {slotRecordingEnabled ? 'Recording enabled' : 'Enable recording'}
+                                                            </span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setSlotRecordingEnabled(!slotRecordingEnabled)}
+                                                                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${slotRecordingEnabled ? 'bg-red-600' : 'bg-gray-700'}`}
+                                                            >
+                                                                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${slotRecordingEnabled ? 'translate-x-7' : 'translate-x-1'}`} />
+                                                            </button>
+                                                        </div>
+
+                                                        {/* Recording Source & Scope - only when enabled */}
+                                                        {slotRecordingEnabled && (
+                                                            <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                                {/* Recording Source Dropdown */}
+                                                                <div className="space-y-2">
+                                                                    <label className="block text-sm font-medium text-gray-300">
+                                                                        Recording Source
+                                                                    </label>
+                                                                    <select
+                                                                        value={slotRecordingSource}
+                                                                        onChange={(e) => setSlotRecordingSource(e.target.value)}
+                                                                        className={`w-full bg-gray-800 border rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all text-gray-200 ${!slotRecordingSource ? 'border-red-500' : 'border-gray-700'}`}
+                                                                    >
+                                                                        <option value="">Select a source...</option>
+                                                                        {streams.map((stream) => (
+                                                                            <option key={stream.id} value={stream.url}>
+                                                                                {stream.name}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                    <p className="text-xs text-gray-500">
+                                                                        Select an Icecast stream to record from.
+                                                                    </p>
+                                                                </div>
+
+                                                                {/* Scope Selector */}
+                                                                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+                                                                    <p className="text-sm font-medium text-gray-300 mb-3">Apply this change to:</p>
+                                                                    <div className="space-y-2">
+                                                                        <label className="flex items-center gap-3 cursor-pointer">
+                                                                            <input
+                                                                                type="radio"
+                                                                                name="slotRecordingScope"
+                                                                                checked={recordingScope === 'single'}
+                                                                                onChange={() => setRecordingScope('single')}
+                                                                                className="w-4 h-4 text-red-600 bg-gray-800 border-gray-600 focus:ring-red-500"
+                                                                            />
+                                                                            <span className="text-sm text-gray-300">
+                                                                                Only {selectedSlot ? format(selectedSlot.start, 'MMM d, yyyy') : 'this broadcast'}
+                                                                            </span>
+                                                                        </label>
+                                                                        <label className="flex items-center gap-3 cursor-pointer">
+                                                                            <input
+                                                                                type="radio"
+                                                                                name="slotRecordingScope"
+                                                                                checked={recordingScope === 'all-future'}
+                                                                                onChange={() => setRecordingScope('all-future')}
+                                                                                className="w-4 h-4 text-red-600 bg-gray-800 border-gray-600 focus:ring-red-500"
+                                                                            />
+                                                                            <span className="text-sm text-gray-300">
+                                                                                All future {selectedSlot ? format(selectedSlot.start, 'EEEE') + ' ' : ''}broadcasts
+                                                                            </span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
                                                     {/* Schedule Show button at the bottom - submits the form which updates + schedules */}
                                                     <div className="flex justify-center pt-6 mt-4 border-t border-gray-700">
                                                         <button
                                                             type="submit"
                                                             form="schedule-edit-show-form"
-                                                            disabled={!selectedShowId}
+                                                            disabled={!selectedShowId || (slotRecordingEnabled && !slotRecordingSource)}
                                                             className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg border border-blue-500/50 hover:border-blue-500 bg-transparent hover:bg-blue-500/10 disabled:border-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:animate-none text-white font-medium transition-all animate-[pulse-border_2s_ease-in-out_infinite]"
                                                             style={{
                                                                 animation: selectedShowId ? 'pulse-border 2s ease-in-out infinite' : 'none'
@@ -912,6 +1042,39 @@ export default function ScheduleModal({
                                                 onRecordingSourceChange={setRecordingSource}
                                                 streams={streams}
                                             />
+
+                                            {/* Scope Selector for new shows - shown when recording enabled */}
+                                            {recordingEnabled && (
+                                                <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700 mt-4">
+                                                    <p className="text-sm font-medium text-gray-300 mb-3">Apply recording to:</p>
+                                                    <div className="space-y-2">
+                                                        <label className="flex items-center gap-3 cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                name="newShowRecordingScope"
+                                                                checked={recordingScope === 'single'}
+                                                                onChange={() => setRecordingScope('single')}
+                                                                className="w-4 h-4 text-red-600 bg-gray-800 border-gray-600 focus:ring-red-500"
+                                                            />
+                                                            <span className="text-sm text-gray-300">
+                                                                Only {selectedSlot ? format(selectedSlot.start, 'MMM d, yyyy') : 'this broadcast'}
+                                                            </span>
+                                                        </label>
+                                                        <label className="flex items-center gap-3 cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                name="newShowRecordingScope"
+                                                                checked={recordingScope === 'all-future'}
+                                                                onChange={() => setRecordingScope('all-future')}
+                                                                className="w-4 h-4 text-red-600 bg-gray-800 border-gray-600 focus:ring-red-500"
+                                                            />
+                                                            <span className="text-sm text-gray-300">
+                                                                All future {selectedSlot ? format(selectedSlot.start, 'EEEE') + ' ' : ''}broadcasts
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Cover Image - Span 4 */}

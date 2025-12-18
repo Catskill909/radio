@@ -25,6 +25,22 @@ Recording is configured per-show in the show settings:
 3. **Select Stream Source** - Choose an Icecast stream
 4. **Configure Quality** (optional) - Adjust audio encoding settings
 
+## Per-Slot Recording Scope
+
+When enabling recording while scheduling, you can choose the **scope**:
+
+### "Only this broadcast"
+- Recording applies **only to this specific time slot**
+- Future show edits won't affect this slot's recording status
+- Best for: one-time recordings, special broadcasts
+
+### "All future broadcasts"
+- Recording is enabled on the **show itself**
+- All scheduled instances inherit the setting
+- Best for: regular Weekly shows that should always record
+
+> **💡 Tip:** Use "Only this broadcast" when you want to record a single episode but not commit to recording all future episodes of that show.
+
 ## Selecting a Stream Source
 
 ### Prerequisites
