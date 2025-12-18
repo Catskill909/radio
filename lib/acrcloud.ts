@@ -141,16 +141,14 @@ export async function identifySong(
         console.log(`🎧 Capturing live audio from stream (${bitrateKbps}kbps)...`);
 
         // ACRCloud optimal settings: 10 seconds is the recommended duration
-        // This provides the best balance of accuracy, speed, and bandwidth
-        const captureDurationSeconds = 10; // ACRCloud optimal recommendation
-        const maxCaptureSizeKB = 500; // ACRCloud recommends under 1MB
+        const captureDurationSeconds = 10; // Target duration
+        const minCaptureDurationSeconds = 8; // Minimum for reliable fingerprinting
+        const maxCaptureTimeMs = 15000; // Timeout after 15 seconds
         const bytesPerSecond = (bitrateKbps * 1000) / 8;
-        const targetBytes = captureDurationSeconds * bytesPerSecond;
-        const captureBytes = Math.min(targetBytes, maxCaptureSizeKB * 1024);
         const chunks: Uint8Array[] = [];
         let totalBytes = 0;
 
-        console.log(`📊 Target capture: ${captureBytes} bytes (${captureDurationSeconds} seconds)`);
+        console.log(`📊 Target: ${captureDurationSeconds}s | Minimum: ${minCaptureDurationSeconds}s | Timeout: ${maxCaptureTimeMs / 1000}s`);
 
         // Fetch audio from stream
         const streamResponse = await fetch(streamUrl, {
@@ -166,42 +164,63 @@ export async function identifySong(
             throw new Error('Could not read stream');
         }
 
-        // Capture audio
+        // Capture audio with timeout-based approach
         const startTime = Date.now();
-        while (totalBytes < captureBytes) {
+        const timeout = startTime + maxCaptureTimeMs;
+
+        while (Date.now() < timeout) {
             const { done, value } = await reader.read();
-            if (done) break;
-            chunks.push(value);
-            totalBytes += value.length;
+
+            if (value) {
+                chunks.push(value);
+                totalBytes += value.length;
+            }
+
+            // Check if we have enough data duration-wise
+            const capturedDuration = totalBytes / bytesPerSecond;
+            if (capturedDuration >= captureDurationSeconds) {
+                break; // Got enough audio
+            }
+
+            // If stream ended but we don't have minimum duration, that's an error
+            if (done && capturedDuration < minCaptureDurationSeconds) {
+                reader.cancel();
+                throw new Error(`Stream ended too early: only ${capturedDuration.toFixed(1)}s captured (need ${minCaptureDurationSeconds}s minimum)`);
+            }
+
+            if (done) break; // Stream ended naturally after minimum duration
         }
+
         const captureTime = (Date.now() - startTime) / 1000;
         reader.cancel();
 
         // Combine chunks into a single buffer
         const audioBuffer = Buffer.concat(chunks.map(chunk => Buffer.from(chunk)));
 
-        // Calculate actual duration captured
+        // Validate we have enough audio
         const actualDuration = audioBuffer.length / bytesPerSecond;
+        if (actualDuration < minCaptureDurationSeconds) {
+            throw new Error(`Insufficient audio captured: ${actualDuration.toFixed(1)}s (need ${minCaptureDurationSeconds}s minimum)`);
+        }
 
         // Enhanced diagnostic logging
         console.log(`📤 Captured ${audioBuffer.length} bytes in ${captureTime.toFixed(1)}s`);
-        console.log(`📊 Stream bitrate: ${bitrateKbps}kbps | Duration: 10s (optimized) | Actual: ~${actualDuration.toFixed(1)}s`);
-        console.log(`🎯 Recognition mode: recorded audio (live stream optimization)`);
+        console.log(`📊 Stream bitrate: ${bitrateKbps}kbps | Duration: ${actualDuration.toFixed(1)}s / ${captureDurationSeconds}s target`);
+        console.log(`🎯 Recognition mode: clean web streaming (no audio_data_type parameter)`);
 
         // Generate signature
         const timestamp = Math.floor(Date.now() / 1000).toString();
         const signature = generateSignature(accessKey, accessSecret, timestamp);
 
-        // Build form data
+        // Build form data for CLEAN WEB STREAMING (Azuracast/Icecast over HTTP)
+        // NOT microphone audio - using default clean audio mode
         const formData = new FormData();
-        formData.append('sample', new Blob([audioBuffer], { type: 'audio/mpeg' }), 'sample.mp3');
+        formData.append('sample', new Blob([audioBuffer]), 'sample');
         formData.append('access_key', accessKey);
         formData.append('sample_bytes', audioBuffer.length.toString());
         formData.append('timestamp', timestamp);
         formData.append('signature', signature);
         formData.append('data_type', 'audio');
-        formData.append('audio_data_type', 'recorded'); // CRITICAL: Use 'recorded' mode for live streams with noise
-        formData.append('audio_format', 'mp3'); // Explicit format hint for decoder
         formData.append('signature_version', '1');
 
         // Send to ACRCloud
