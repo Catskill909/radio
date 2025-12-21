@@ -527,6 +527,9 @@ radio-suite/
 - [x] Automatic bitrate detection for ACRCloud (stream-specific optimization)
 
 ### Next Up
+- [ ] **Stream Alerts & Failover** – 📋 [Implementation Plan](./docs/STREAM_ALERTS_FAILOVER_PLAN.md)
+  - Email notifications when streams go down
+  - Automatic failover to backup stream
 - [ ] Enhanced public-facing pages (show details, host bios)
 - [ ] Recording dashboard with status monitoring
 - [ ] Batch episode editing

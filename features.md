@@ -664,6 +664,11 @@ This section is intentionally lightweight – it is meant to be edited as priori
 
 ### P1 – Near-Term
 
+- **Stream Alerts & Automatic Failover** 🆕 – 📋 **[Implementation Plan](./docs/STREAM_ALERTS_FAILOVER_PLAN.md)**
+  - **Email Alerts**: Notify admins when streams go offline (SMTP config in Settings UI)
+  - **Automatic Failover**: Switch to backup stream when primary fails
+  - **Recording Failover**: Part 1/Part 2 episode handling when stream fails mid-recording
+
 - **Enhanced Settings & Station Configuration**
   - **Recording Behavior**
     - Pre-roll buffer: "Start recording X seconds early" to prevent cut-offs
