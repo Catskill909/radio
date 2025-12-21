@@ -143,23 +143,27 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
                         <h4 className="text-sm font-bold text-white line-clamp-2 leading-tight mb-1" title={episode.title}>
                             {episode.title}
                         </h4>
-                        <p className="text-xs text-gray-400 mb-2">
-                            {format(new Date(episode.publishedAt), 'MMMM d, yyyy')}
-                        </p>
-
-                        {/* More Info Button */}
-                        {episode.description && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowInfoModal(true);
-                                }}
-                                className="text-xs text-gray-500 hover:text-blue-400 transition-colors flex items-center gap-1 mb-2"
-                            >
-                                <span>More info</span>
-                                <ChevronDown className="w-3 h-3" />
-                            </button>
-                        )}
+                        {/* Date and More Info on same line */}
+                        <div className="flex items-center gap-2 mb-2 text-xs">
+                            <span className="text-gray-400">
+                                {format(new Date(episode.publishedAt), 'MMMM d, yyyy')}
+                            </span>
+                            {episode.description && (
+                                <>
+                                    <span className="text-gray-500">–</span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowInfoModal(true);
+                                        }}
+                                        className="text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-0.5"
+                                    >
+                                        <span>More info</span>
+                                        <ChevronDown className="w-3 h-3" />
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {isActive ? (

@@ -30,13 +30,13 @@ export default function EpisodeInfoModal({ episode, isOpen, onClose }: EpisodeIn
                         <Dialog.Title>{episode.title}</Dialog.Title>
                     </VisuallyHidden.Root>
 
-                    {/* Close button */}
+                    {/* Close button - smaller, top-right corner, solid background with animation */}
                     <Dialog.Close asChild>
                         <button
-                            className="absolute top-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                            className="absolute top-3 right-3 z-10 w-7 h-7 bg-gray-700 text-gray-300 rounded-full flex items-center justify-center hover:bg-gray-600 hover:text-white hover:rotate-90 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
                             aria-label="Close"
                         >
-                            <X className="w-5 h-5" />
+                            <X className="w-4 h-4" />
                         </button>
                     </Dialog.Close>
 
