@@ -243,8 +243,8 @@ export const helpArticles: Record<string, HelpArticle> = {
         category: 'Getting Started',
         order: 5,
         filePath: '/content/help/getting-started/station-stats.md',
-        relatedTopics: ['stream-health-monitoring', 'recording-configuration'],
-        keywords: ['stats', 'dashboard', 'websocket', 'recordings', 'streams', 'real-time', 'monitoring']
+        relatedTopics: ['stream-health-monitoring', 'recording-configuration', 'public-listen-page'],
+        keywords: ['stats', 'dashboard', 'websocket', 'recordings', 'streams', 'real-time', 'monitoring', 'engagement', 'analytics', 'plays', 'episodes', 'trends', 'top episodes', 'listeners']
     },
     'song-recognition': {
         id: 'song-recognition',

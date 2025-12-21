@@ -52,6 +52,7 @@ export interface Episode {
     duration: number;
     audioPath: string;
     coverImage: string;
+    showId?: string; // For play tracking
 }
 
 export interface ShowDetail {

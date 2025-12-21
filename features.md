@@ -155,9 +155,18 @@ StationDock is built with intentional design choices that prioritize a premium, 
   - **Live site listener count** - tracks users actively playing audio
   - Stream health summary (online/offline counts)
   - Live recording event log (started/completed/failed events)
-- **Listener Analytics** 🔮 *(Future Development)*
-  - Historical listener stats (today, this week, this month)
-  - See [docs/listener-analytics.md](docs/listener-analytics.md) for implementation plan
+- **Engagement Analytics** 🆕
+  - **Episode Play Tracking** – Tracks plays from public `/listen` page modals
+  - **Directory Overview** – Cards showing Total Shows, Total Episodes, and Live Listeners
+  - **Time Range Filters** – View stats for 7 Days, 30 Days, 90 Days, or All Time
+  - **Show Filter** – Filter analytics to specific shows via dropdown
+  - **Engagement Trends Chart** – Smooth line graph showing daily plays with:
+    - Adaptive Y-axis scaling (auto-adjusts from 5 to 1000+)
+    - Hover tooltips with date, plays, and downloads
+    - Gradient fill and data point circles
+  - **Top Episodes Table** – Ranked list of most-played episodes
+  - **Top Shows Table** – Shows ranked by play count with episode counts
+  - Database: `EpisodePlay` model for individual plays, `PlayStats` for aggregations
 
 ---
 

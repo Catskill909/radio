@@ -61,6 +61,7 @@ export async function GET(
                 duration: rec.episode!.duration || 0,
                 audioPath: rec.filePath,
                 coverImage: rec.episode!.imageUrl || show.image || '',
+                showId: id, // For play tracking
             }));
 
         // Get schedule info

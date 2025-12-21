@@ -142,3 +142,28 @@ model StationSettings {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// Episode Play Tracking (Public /listen page only)
+model EpisodePlay {
+  id          String   @id @default(uuid())
+  episodeId   String
+  showId      String
+  playedAt    DateTime @default(now())
+  duration    Int?     // seconds listened (optional, for completion tracking)
+  userAgent   String?  // browser info for unique listener estimation
+  sessionId   String?  // to group plays by session
+  createdAt   DateTime @default(now())
+  
+  @@index([episodeId])
+  @@index([showId])
+  @@index([playedAt])
+}
+
+// Daily aggregated play statistics
+model PlayStats {
+  id              String   @id @default(uuid())
+  date            DateTime @unique  // Daily aggregation (date only, no time)
+  totalPlays      Int      @default(0)
+  uniqueListeners Int      @default(0)
+  createdAt       DateTime @default(now())
+}

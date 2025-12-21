@@ -27,7 +27,7 @@ StationDock combines a powerful **admin dashboard** for scheduling and automatio
 - **Podcast feeds** – Global RSS feed and per-show iTunes-compatible RSS feeds that automatically reflect show/episode edits, with in-app copy/open UI.
 - **Stream monitoring** – Icecast streams dashboard with health checks, status badges, bitrate/listener stats, and error diagnostics.
 - **Real-time updates** – WebSocket-powered "Live" indicator; instant stream health, recording status, and show transition notifications push to your browser in real-time.
-- **Stats dashboard** – Dedicated `/stats` page showing live site listener count, stream health, and a real-time recording event log.
+- **Stats dashboard** – Dedicated `/stats` page showing live site listener count, stream health, real-time recording event log, and **engagement analytics** with episode play tracking from the public listen page.
 - **Live streaming** – Configure active audio stream in Settings; public listen page with live player, loading indicators, and buffering feedback.
 - **Station Identity** – Configure station name, description, email, and default artwork in Settings; used for RSS feeds and public metadata.
 - **Modern admin UI** – Dark theme, responsive layout, modals, tooltips, Settings page, and keyboard shortcuts in the editor workflows.

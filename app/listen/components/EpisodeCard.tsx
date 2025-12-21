@@ -20,10 +20,31 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
     const [duration, setDuration] = useState(0);
     const [showInfoModal, setShowInfoModal] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
+    const hasTrackedRef = useRef(false); // Prevent duplicate tracking
 
     // Extract filename for API URL
     const filename = episode.audioPath ? episode.audioPath.split(/[/\\]/).pop() : '';
     const audioUrl = filename ? `/api/audio/${filename}` : '';
+
+    // Track play when episode starts
+    const trackPlay = async () => {
+        if (hasTrackedRef.current) return; // Already tracked this play session
+        hasTrackedRef.current = true;
+
+        try {
+            await fetch('/api/public/stats/play', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    episodeId: episode.id,
+                    showId: episode.showId || '',
+                })
+            });
+        } catch (e) {
+            // Silently fail - don't break playback
+            console.debug('Failed to track play:', e);
+        }
+    };
 
     // Handle Active State Changes
     useEffect(() => {
@@ -31,6 +52,7 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
 
         if (isActive) {
             setIsPaused(false);
+            trackPlay(); // Track the play event
             // Small timeout to ensure DOM is ready and prevent immediate interruption
             const timer = setTimeout(() => {
                 if (mounted && audioRef.current) {
@@ -57,6 +79,7 @@ export default function EpisodeCard({ episode, isPlaying: isActive, onPlay, full
             setIsPaused(false);
             setProgress(0);
             setCurrentTime(0);
+            hasTrackedRef.current = false; // Reset tracking for next play
         }
     }, [isActive]);
 
