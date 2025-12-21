@@ -139,6 +139,20 @@ model StationSettings {
   acrcloudRequestCount  Int     @default(0)       // Current month's request count
   acrcloudResetDate     DateTime?                 // Date when counter was last reset (null = never)
   
+  // SMTP Configuration (for email alerts)
+  smtpHost       String?                          // e.g., "mail.yourdomain.com"
+  smtpPort       Int       @default(587)          // Common: 587 (TLS), 465 (SSL), 25 (unencrypted)
+  smtpUser       String?                          // SMTP username/email
+  smtpPassword   String?                          // Encrypted before storage (AES-256)
+  smtpFromName   String?   @default("StationDock Alerts")  // Display name in From header
+  smtpUseTls     Boolean   @default(true)         // Use STARTTLS/TLS encryption
+  
+  // Stream Alert Settings
+  alertEmails       String?   // JSON array: ["admin@station.com", "engineer@station.com"]
+  alertAllStreams   Boolean   @default(false)     // true = all streams, false = primary only
+  alertCooldownMins Int       @default(5)         // Minutes between alerts for same stream
+  alertOnRecovery   Boolean   @default(true)      // Send email when stream comes back online
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

@@ -1,4 +1,4 @@
-import { getStationSettings, getStreams, getMenuSettings, getAcrcloudSettings } from "@/app/actions";
+import { getStationSettings, getStreams, getMenuSettings, getAcrcloudSettings, getSmtpSettings, getAlertSettings } from "@/app/actions";
 import StationClock from "@/components/StationClock";
 import StationIdentityForm from "@/components/StationIdentityForm";
 import StationTimezoneForm from "@/components/StationTimezoneForm";
@@ -10,6 +10,8 @@ import HelpIcon from '@/components/HelpIcon';
 import DataManagement from "@/components/DataManagement";
 import ACRCloudSettings from "@/components/ACRCloudSettings";
 import ArchiveManagement from "@/components/ArchiveManagement";
+import SMTPConfigForm from "@/components/SMTPConfigForm";
+import AlertEmailSettings from "@/components/AlertEmailSettings";
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +24,8 @@ export default async function SettingsPage() {
     const streams = await getStreams();
     const menuSettings = await getMenuSettings();
     const acrcloudSettings = await getAcrcloudSettings();
+    const smtpSettings = await getSmtpSettings();
+    const alertSettings = await getAlertSettings();
     const timezone = settings.timezone || "UTC";
 
     return (
@@ -150,6 +154,24 @@ export default async function SettingsPage() {
                         initialSettings={acrcloudSettings}
                         availableStreams={streams}
                     />
+                </section>
+
+                {/* Full Width: Email Configuration (SMTP) */}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        Email Configuration
+                        <HelpIcon articleId="email-configuration" tooltip="Configure SMTP settings for sending alert emails." />
+                    </h2>
+                    <SMTPConfigForm initialSettings={smtpSettings} />
+                </section>
+
+                {/* Full Width: Stream Alert Notifications */}
+                <section>
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        Stream Alerts
+                        <HelpIcon articleId="stream-alerts" tooltip="Get notified when streams go offline." />
+                    </h2>
+                    <AlertEmailSettings initialSettings={alertSettings} />
                 </section>
             </div>
         </div>

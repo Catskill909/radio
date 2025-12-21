@@ -1890,3 +1890,219 @@ export async function deleteShowArchives(showId: string): Promise<number> {
 
     return deletedCount;
 }
+
+// ============================================
+// SMTP Configuration Actions
+// ============================================
+
+import { encrypt, decrypt, isEncrypted } from '@/lib/crypto';
+
+export async function getSmtpSettings() {
+    const settings = await prisma.stationSettings.findUnique({
+        where: { id: 'station' },
+        select: {
+            smtpHost: true,
+            smtpPort: true,
+            smtpUser: true,
+            smtpPassword: true,
+            smtpFromName: true,
+            smtpUseTls: true,
+        }
+    });
+
+    return {
+        smtpHost: settings?.smtpHost ?? '',
+        smtpPort: settings?.smtpPort ?? 587,
+        smtpUser: settings?.smtpUser ?? '',
+        // Never return actual password, just indicate if one is set
+        hasPassword: !!settings?.smtpPassword,
+        smtpFromName: settings?.smtpFromName ?? 'StationDock Alerts',
+        smtpUseTls: settings?.smtpUseTls ?? true,
+    };
+}
+
+export async function updateSmtpSettings(
+    smtpHost: string,
+    smtpPort: number,
+    smtpUser: string,
+    smtpPassword: string | null,
+    smtpFromName: string,
+    smtpUseTls: boolean
+) {
+    const updateData: any = {
+        smtpHost: smtpHost.trim() || null,
+        smtpPort: smtpPort,
+        smtpUser: smtpUser.trim() || null,
+        smtpFromName: smtpFromName.trim() || 'StationDock Alerts',
+        smtpUseTls: smtpUseTls,
+    };
+
+    // Only update password if a new one is provided
+    // null means "keep existing", empty string means "clear"
+    if (smtpPassword === '') {
+        updateData.smtpPassword = null;
+    } else if (smtpPassword) {
+        // Encrypt the password before storing
+        updateData.smtpPassword = encrypt(smtpPassword);
+    }
+    // If smtpPassword is null, don't include it in update (keep existing)
+
+    await prisma.stationSettings.upsert({
+        where: { id: 'station' },
+        update: updateData,
+        create: {
+            id: 'station',
+            timezone: 'UTC',
+            ...updateData
+        }
+    });
+
+    revalidatePath('/settings');
+
+    return { success: true };
+}
+
+export async function testSmtpConnection(testEmailAddress: string) {
+    // Dynamically import nodemailer to avoid build issues
+    const nodemailer = await import('nodemailer');
+
+    // Get SMTP settings
+    const settings = await prisma.stationSettings.findUnique({
+        where: { id: 'station' },
+        select: {
+            smtpHost: true,
+            smtpPort: true,
+            smtpUser: true,
+            smtpPassword: true,
+            smtpFromName: true,
+            smtpUseTls: true,
+            name: true,
+        }
+    });
+
+    if (!settings?.smtpHost || !settings?.smtpUser || !settings?.smtpPassword) {
+        return {
+            success: false,
+            error: 'SMTP settings are incomplete. Please configure host, username, and password.'
+        };
+    }
+
+    // Decrypt the password
+    let decryptedPassword: string;
+    try {
+        decryptedPassword = isEncrypted(settings.smtpPassword)
+            ? decrypt(settings.smtpPassword)
+            : settings.smtpPassword;
+    } catch (e) {
+        return {
+            success: false,
+            error: 'Failed to decrypt SMTP password. Please re-enter your password.'
+        };
+    }
+
+    try {
+        // Create transporter
+        const transporter = nodemailer.createTransport({
+            host: settings.smtpHost,
+            port: settings.smtpPort,
+            secure: settings.smtpPort === 465, // true for 465, false for other ports
+            auth: {
+                user: settings.smtpUser,
+                pass: decryptedPassword,
+            },
+            tls: settings.smtpUseTls ? {
+                rejectUnauthorized: false // Allow self-signed certs
+            } : undefined,
+        });
+
+        // Verify connection
+        await transporter.verify();
+
+        // Send test email
+        const stationName = settings.name || 'StationDock';
+        const fromName = settings.smtpFromName || 'StationDock Alerts';
+
+        await transporter.sendMail({
+            from: `"${fromName}" <${settings.smtpUser}>`,
+            to: testEmailAddress,
+            subject: `✓ ${stationName} - Email Test Successful`,
+            text: `This is a test email from ${stationName}.\n\nYour SMTP configuration is working correctly!\n\nSent at: ${new Date().toISOString()}`,
+            html: `
+                <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #22c55e; margin-bottom: 16px;">✓ Email Test Successful</h2>
+                    <p style="color: #333; margin-bottom: 12px;">This is a test email from <strong>${stationName}</strong>.</p>
+                    <p style="color: #333; margin-bottom: 12px;">Your SMTP configuration is working correctly!</p>
+                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+                    <p style="color: #6b7280; font-size: 12px;">Sent at: ${new Date().toISOString()}</p>
+                </div>
+            `,
+        });
+
+        return { success: true };
+    } catch (error: any) {
+        console.error('SMTP test failed:', error);
+        return {
+            success: false,
+            error: error.message || 'Failed to send test email'
+        };
+    }
+}
+
+// ============================================
+// Alert Settings Actions
+// ============================================
+
+export async function getAlertSettings() {
+    // Note: Using 'as any' to work around IDE TypeScript caching
+    const settings = await prisma.stationSettings.findUnique({
+        where: { id: 'station' }
+    }) as any;
+
+    // Parse alertEmails JSON string to array
+    let emails: string[] = [];
+    if (settings?.alertEmails) {
+        try {
+            emails = JSON.parse(settings.alertEmails);
+        } catch {
+            emails = [];
+        }
+    }
+
+    return {
+        alertEmails: emails,
+        alertAllStreams: settings?.alertAllStreams ?? false,
+        alertCooldownMins: settings?.alertCooldownMins ?? 5,
+        alertOnRecovery: settings?.alertOnRecovery ?? true,
+        hasSmtpConfigured: !!(settings?.smtpHost && settings?.smtpUser && settings?.smtpPassword),
+    };
+}
+
+export async function updateAlertSettings(
+    alertEmails: string[],
+    alertAllStreams: boolean,
+    alertCooldownMins: number,
+    alertOnRecovery: boolean
+) {
+    // Note: Using 'as any' to work around IDE TypeScript caching
+    await (prisma.stationSettings.upsert as any)({
+        where: { id: 'station' },
+        update: {
+            alertEmails: JSON.stringify(alertEmails),
+            alertAllStreams,
+            alertCooldownMins,
+            alertOnRecovery,
+        },
+        create: {
+            id: 'station',
+            timezone: 'UTC',
+            alertEmails: JSON.stringify(alertEmails),
+            alertAllStreams,
+            alertCooldownMins,
+            alertOnRecovery,
+        }
+    });
+
+    revalidatePath('/settings');
+    return { success: true };
+}
+
