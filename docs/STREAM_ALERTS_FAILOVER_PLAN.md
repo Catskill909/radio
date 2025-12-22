@@ -1,6 +1,53 @@
 # Stream Failover & Email Alerts - Planning Document
 
-> **Status:** PLANNING ONLY - No code changes yet. Awaiting user review.
+> **Status:** Phase 1 COMPLETE ✅ — Phase 2 & 3 pending implementation
+
+---
+
+## Implementation Status
+
+| Phase | Feature | Status | Date |
+|-------|---------|--------|------|
+| **1A** | SMTP Configuration UI | ✅ Complete | 2024-12-21 |
+| **1B** | Alert Recipients + Preferences UI | ✅ Complete | 2024-12-21 |
+| **1C** | Stream Health → Email Integration | ⏳ Next | — |
+| **2** | Automatic Failover | 📋 Planned | — |
+| **3** | Enhanced Features (webhooks, history) | 📋 Planned | — |
+
+### Phase 1 Implementation Details
+
+**Files Created:**
+- `lib/crypto.ts` — AES-256-CBC encryption for SMTP passwords
+- `components/SMTPConfigForm.tsx` — SMTP server configuration with test email
+- `components/AlertEmailSettings.tsx` — Alert recipients + preferences management
+- `content/help/settings/email-configuration.md` — Help documentation
+- `content/help/settings/stream-alerts.md` — Help documentation
+
+**Schema Changes (already applied to production):**
+```prisma
+model StationSettings {
+  // SMTP Config (Phase 1A)
+  smtpHost       String?
+  smtpPort       Int       @default(587)
+  smtpUser       String?
+  smtpPassword   String?   // Encrypted
+  smtpFromName   String?   @default("StationDock Alerts")
+  smtpUseTls     Boolean   @default(true)
+  
+  // Alert Settings (Phase 1B)
+  alertEmails       String?   // JSON array
+  alertAllStreams   Boolean   @default(false)
+  alertCooldownMins Int       @default(5)
+  alertOnRecovery   Boolean   @default(true)
+}
+```
+
+**Server Actions Added to `app/actions.ts`:**
+- `getSmtpSettings()` — Fetch SMTP config (password returns `hasPassword: boolean`)
+- `updateSmtpSettings()` — Save SMTP config with encryption
+- `testSmtpConnection()` — Send test email via nodemailer
+- `getAlertSettings()` — Fetch alert preferences
+- `updateAlertSettings()` — Save alert preferences
 
 ---
 
@@ -471,22 +518,31 @@ While implementing these, consider adding:
 
 ## Summary
 
-| Feature | Files Changed | New Files | Breaking Changes |
-|---------|---------------|-----------|------------------|
-| SMTP Config UI | 2 | 2 | None |
-| Email Alerts | 2 | 2 | None |
-| Auto-Failover | 4 | 0 | None |
+| Feature | Files Changed | New Files | Breaking Changes | Status |
+|---------|---------------|-----------|------------------|--------|
+| SMTP Config UI | 2 | 2 | None | ✅ Done |
+| Email Alerts UI | 2 | 2 | None | ✅ Done |
+| Stream → Email Hook | 1 | 0 | None | ⏳ Next |
+| Auto-Failover | 4 | 0 | None | 📋 Planned |
 
 **Implementation is fully additive** – no existing functionality will be modified in breaking ways.
 
-**Recommendation:** Start with SMTP Config + Email Alerts (Phase 1), then add Failover (Phase 2).
+---
+
+## Next Steps (Phase 1C)
+
+1. **Add email trigger to health check** — Modify `/api/streams/health/route.ts`:
+   - Detect status transitions (online → offline, offline → online)
+   - Check cooldown period before sending
+   - Send email to all `alertEmails` recipients
+
+2. **Create email utility** — `lib/email-alerts.ts`:
+   - `sendStreamDownAlert(stream, recipients)`
+   - `sendStreamRecoveredAlert(stream, recipients)`
+   - Email template with stream name, URL, timestamp, all recipients listed
+
+3. **Track last alert time** — Add `lastAlertSent` to schema or in-memory for cooldown
 
 ---
 
-*This is a planning document. No code changes have been made. Ready to implement when you give the go-ahead.*
-
-**Recommendation:** Implement Email Alerts first as a standalone feature, then tackle Failover.
-
----
-
-*This is a planning document. No code changes have been made. Please review and provide feedback on the approach.*
+*Last updated: 2024-12-21*
