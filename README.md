@@ -4,6 +4,8 @@
 
 > **⚠️ AI AGENT NOTE:** Do NOT use browser_subagent or browser testing tools on this project. The user will perform all manual testing. Browser automation slows down the machine significantly.
 
+> **📋 PROJECT STATUS:** See [Beta Roadmap](./docs/BETA_ROADMAP.md) for current progress, next steps, and areas to watch.
+
 StationDock combines a powerful **admin dashboard** for scheduling and automation with a clean **public-facing listener site**. It handles everything from planning your weekly grid to recording live broadcasts and automatically publishing them as podcasts.
 
 ### Key Capabilities:
