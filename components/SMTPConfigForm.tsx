@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { updateSmtpSettings, testSmtpConnection } from '@/app/actions';
 import { Check, Mail, Eye, EyeOff, AlertCircle, Send, Server } from 'lucide-react';
 import Switch from './Switch';
-import HelpIcon from './HelpIcon';
 
 interface SMTPConfigFormProps {
     initialSettings: {
@@ -128,19 +127,18 @@ export default function SMTPConfigForm({ initialSettings }: SMTPConfigFormProps)
     };
 
     return (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 max-w-3xl">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <Mail className="w-6 h-6 text-blue-400" />
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-100">Email Configuration</h2>
+                        <h3 className="text-lg font-semibold text-gray-100">SMTP Server</h3>
                         <p className="text-sm text-gray-400">
                             Configure SMTP server for sending alert emails.
                         </p>
                     </div>
                 </div>
-                <HelpIcon articleId="email-configuration" tooltip="Set up email notifications for stream alerts" />
             </div>
 
             {/* SMTP Server Settings */}

@@ -156,23 +156,26 @@ export default async function SettingsPage() {
                     />
                 </section>
 
-                {/* Full Width: Email Configuration (SMTP) */}
-                <section>
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        Email Configuration
-                        <HelpIcon articleId="email-configuration" tooltip="Configure SMTP settings for sending alert emails." />
-                    </h2>
-                    <SMTPConfigForm initialSettings={smtpSettings} />
-                </section>
+                {/* Two-Column: Email Configuration + Stream Alerts */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Email Configuration (SMTP) */}
+                    <section>
+                        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                            Email Configuration
+                            <HelpIcon articleId="email-configuration" tooltip="Configure SMTP settings for sending alert emails." />
+                        </h2>
+                        <SMTPConfigForm initialSettings={smtpSettings} />
+                    </section>
 
-                {/* Full Width: Stream Alert Notifications */}
-                <section>
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        Stream Alerts
-                        <HelpIcon articleId="stream-alerts" tooltip="Get notified when streams go offline." />
-                    </h2>
-                    <AlertEmailSettings initialSettings={alertSettings} />
-                </section>
+                    {/* Stream Alert Notifications */}
+                    <section>
+                        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                            Stream Alerts
+                            <HelpIcon articleId="stream-alerts" tooltip="Get notified when streams go offline." />
+                        </h2>
+                        <AlertEmailSettings initialSettings={alertSettings} />
+                    </section>
+                </div>
             </div>
         </div>
     );

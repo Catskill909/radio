@@ -729,6 +729,7 @@ This section is intentionally lightweight – it is meant to be edited as priori
   - **Log/Clock Management**: Define strict rotation rules and hour templates
 
 - **System Enhancements**
+  - **Prisma Upgrade**: Upgrade from v5.22 to v7.x (major version with breaking changes - requires migration guide)
   - **Multi-user Roles**: Granular permissions (Admin vs. DJ vs. Scheduler)
   - **Cloud Storage**: S3-compatible backend for recordings and assets
   - **Visual Waveform Previews**: In-browser scrubbing for all library content

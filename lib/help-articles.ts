@@ -263,6 +263,24 @@ export const helpArticles: Record<string, HelpArticle> = {
         filePath: '/content/help/podcasting/rss-episode-controls.md',
         relatedTopics: ['rss-feed-management', 'publishing-episodes', 'managing-recordings'],
         keywords: ['rss', 'episode limit', 'archiving', 'feed limit', 'auto-delete', 'archive management', 'download', 'storage']
+    },
+    'email-configuration': {
+        id: 'email-configuration',
+        title: 'Email Configuration (SMTP)',
+        category: 'Settings & Configuration',
+        order: 9,
+        filePath: '/content/help/settings/email-configuration.md',
+        relatedTopics: ['stream-alerts', 'station-settings'],
+        keywords: ['smtp', 'email', 'gmail', 'alert', 'notification', 'password', 'tls', 'mail']
+    },
+    'stream-alerts': {
+        id: 'stream-alerts',
+        title: 'Stream Alerts',
+        category: 'Settings & Configuration',
+        order: 10,
+        filePath: '/content/help/settings/stream-alerts.md',
+        relatedTopics: ['email-configuration', 'stream-health-monitoring'],
+        keywords: ['alert', 'notification', 'email', 'offline', 'recovery', 'cooldown', 'recipients']
     }
 }
 

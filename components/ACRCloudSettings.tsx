@@ -151,13 +151,13 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
     };
 
     return (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 max-w-3xl">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 max-w-2xl">
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <Music className="w-6 h-6 text-purple-400" />
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-100">ACRCloud Song Recognition</h2>
+                        <h3 className="text-lg font-semibold text-gray-100">ACRCloud Integration</h3>
                         <p className="text-sm text-gray-400">
                             Automatically identify songs playing on your stream.{' '}
                             <a
@@ -171,7 +171,6 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
                         </p>
                     </div>
                 </div>
-                <HelpIcon articleId="song-recognition" tooltip="Learn how to set up song recognition" />
             </div>
 
             {/* Enable Toggle */}
@@ -252,102 +251,98 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
                 </div>
             )}
 
-            {/* Environment Variables Notice OR Credentials Form */}
-            {initialSettings.envConfigured ? (
-                <div className="mt-4 p-4 bg-green-900/20 border border-green-800/30 rounded-lg flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                        <p className="text-sm text-green-300 font-medium">Credentials configured via environment variables</p>
-                        <p className="text-xs text-green-400/70 mt-1">
-                            API keys are securely set in your server environment. No configuration needed here.
-                        </p>
-                    </div>
-                </div>
-            ) : (
-                /* Credentials Section - only shown when not using env vars */
-                <div className={`mt-6 space-y-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
-                    <h3 className="text-sm font-medium text-gray-300">API Credentials</h3>
-
-                    {/* Host + Access Key (2-column grid) */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* Host Dropdown */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-400 mb-1.5">
-                                Host Region
-                            </label>
-                            <select
-                                value={host}
-                                onChange={(e) => setHost(e.target.value)}
-                                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            >
-                                {HOST_OPTIONS.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Access Key */}
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-400 mb-1.5">
-                                Access Key
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type={showKey ? 'text' : 'password'}
-                                    value={accessKey}
-                                    onChange={(e) => setAccessKey(e.target.value)}
-                                    placeholder="Your ACRCloud access key"
-                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 pr-12 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowKey(!showKey)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
-                                >
-                                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </button>
+            {/* Two-Column Layout: Config on left, Test on right */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                {/* Left Column: API Credentials */}
+                <div className={`space-y-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                    {/* Environment Variables Notice OR Credentials Form */}
+                    {initialSettings.envConfigured ? (
+                        <div className="p-4 bg-green-900/20 border border-green-800/30 rounded-lg flex items-start gap-3">
+                            <Check className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+                            <div>
+                                <p className="text-sm text-green-300 font-medium">Credentials configured via environment variables</p>
+                                <p className="text-xs text-green-400/70 mt-1">
+                                    API keys are securely set in your server environment.
+                                </p>
                             </div>
                         </div>
-                    </div>
+                    ) : (
+                        <>
+                            <h4 className="text-sm font-medium text-gray-300">API Credentials</h4>
 
-                    {/* Access Secret (full width with show/hide) */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1.5">
-                            Access Secret
-                        </label>
-                        <div className="relative">
-                            <input
-                                type={showSecret ? 'text' : 'password'}
-                                value={accessSecret}
-                                onChange={(e) => setAccessSecret(e.target.value)}
-                                placeholder="Your ACRCloud access secret"
-                                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 pr-12 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowSecret(!showSecret)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
-                            >
-                                {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
-                        </div>
-                    </div>
+                            {/* Host Region */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1.5">
+                                    Host Region
+                                </label>
+                                <select
+                                    value={host}
+                                    onChange={(e) => setHost(e.target.value)}
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                >
+                                    {HOST_OPTIONS.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Access Key */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1.5">
+                                    Access Key
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showKey ? 'text' : 'password'}
+                                        value={accessKey}
+                                        onChange={(e) => setAccessKey(e.target.value)}
+                                        placeholder="Your ACRCloud access key"
+                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 pr-12 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowKey(!showKey)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
+                                    >
+                                        {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Access Secret */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1.5">
+                                    Access Secret
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showSecret ? 'text' : 'password'}
+                                        value={accessSecret}
+                                        onChange={(e) => setAccessSecret(e.target.value)}
+                                        placeholder="Your ACRCloud access secret"
+                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 pr-12 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSecret(!showSecret)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors cursor-pointer"
+                                    >
+                                        {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
-            )}
 
-            {/* Divider */}
-            <div className="border-t border-gray-800 my-6" />
+                {/* Right Column: Test Song Recognition */}
+                <div className={`space-y-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <h4 className="text-sm font-medium text-gray-300">Test Song Recognition</h4>
 
-            {/* Test Section */}
-            <div className={`space-y-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>
-                <h3 className="text-sm font-medium text-gray-300">Test Song Recognition</h3>
-
-                {/* Stream Selector + Controls */}
-                <div className="flex flex-wrap items-end gap-3">
-                    {/* Stream Dropdown */}
-                    <div className="flex-1 min-w-[200px]">
+                    {/* Stream Selector */}
+                    <div>
                         <label className="block text-sm font-medium text-gray-400 mb-1.5">
                             Test Stream
                         </label>
@@ -374,71 +369,69 @@ export default function ACRCloudSettings({ initialSettings, availableStreams }: 
                         </select>
                     </div>
 
-                    {/* Play/Pause Button */}
-                    <button
-                        onClick={togglePlay}
-                        disabled={!testStreamUrl}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors cursor-pointer"
-                    >
-                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                        {isPlaying ? 'Stop' : 'Play'}
-                    </button>
+                    {/* Play/Pause + Identify Buttons */}
+                    <div className="flex gap-3">
+                        <button
+                            onClick={togglePlay}
+                            disabled={!testStreamUrl}
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors cursor-pointer"
+                        >
+                            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                            {isPlaying ? 'Stop' : 'Play'}
+                        </button>
 
-                    {/* Identify Button */}
-                    <button
-                        onClick={handleIdentify}
-                        disabled={!testStreamUrl || isIdentifying || (!initialSettings.envConfigured && (!accessKey || !accessSecret))}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors cursor-pointer"
-                    >
-                        <Search className="w-4 h-4" />
-                        {isIdentifying ? 'Identifying...' : 'Identify Song'}
-                    </button>
+                        <button
+                            onClick={handleIdentify}
+                            disabled={!testStreamUrl || isIdentifying || (!initialSettings.envConfigured && (!accessKey || !accessSecret))}
+                            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm transition-colors cursor-pointer"
+                        >
+                            <Search className="w-4 h-4" />
+                            {isIdentifying ? 'Identifying...' : 'Identify Song'}
+                        </button>
+                    </div>
+
+                    {/* Error Display */}
+                    {error && (
+                        <div className="p-3 bg-red-900/20 border border-red-800/30 rounded-lg flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4 text-red-400" />
+                            <p className="text-sm text-red-300">{error}</p>
+                        </div>
+                    )}
+
+                    {/* Identified Song Display */}
+                    {identifiedSong && (
+                        <div className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg flex items-start gap-4">
+                            {/* Cover Art */}
+                            <div className="w-16 h-16 bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
+                                {identifiedSong.coverArt ? (
+                                    <img
+                                        src={identifiedSong.coverArt}
+                                        alt="Album cover"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <Music className="w-6 h-6 text-gray-500" />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Song Info */}
+                            <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-gray-100 truncate">{identifiedSong.title}</p>
+                                <p className="text-sm text-gray-400 truncate">{identifiedSong.artist}</p>
+                                {identifiedSong.album && (
+                                    <p className="text-xs text-gray-500 truncate mt-1">
+                                        Album: {identifiedSong.album}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hidden Audio Element */}
+                    <audio ref={audioRef} className="hidden" />
                 </div>
-
-                {/* Error Display */}
-                {error && (
-                    <div className="p-3 bg-red-900/20 border border-red-800/30 rounded-lg flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 text-red-400" />
-                        <p className="text-sm text-red-300">{error}</p>
-                    </div>
-                )}
-
-                {/* Identified Song Display */}
-                {identifiedSong && (
-                    <div className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg flex items-start gap-4">
-                        {/* Cover Art */}
-                        <div className="w-20 h-20 bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
-                            {identifiedSong.coverArt ? (
-                                <img
-                                    src={identifiedSong.coverArt}
-                                    alt="Album cover"
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <Music className="w-8 h-8 text-gray-500" />
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Song Info */}
-                        <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-100 truncate">{identifiedSong.title}</p>
-                            <p className="text-sm text-gray-400 truncate">{identifiedSong.artist}</p>
-                            {identifiedSong.album && (
-                                <p className="text-xs text-gray-500 truncate mt-1">
-                                    Album: {identifiedSong.album}
-                                </p>
-                            )}
-                            <p className="text-xs text-gray-500 mt-2">
-                                Identified: {new Date(identifiedSong.identifiedAt).toLocaleTimeString()}
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Hidden Audio Element */}
-                <audio ref={audioRef} className="hidden" />
             </div>
 
             {/* Divider */}

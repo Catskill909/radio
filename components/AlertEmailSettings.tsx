@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { updateAlertSettings } from '@/app/actions';
 import { Check, Bell, Plus, X, Users, Clock, AlertCircle } from 'lucide-react';
 import Switch from './Switch';
-import HelpIcon from './HelpIcon';
 
 interface AlertEmailSettingsProps {
     initialSettings: {
@@ -112,19 +111,18 @@ export default function AlertEmailSettings({ initialSettings }: AlertEmailSettin
     };
 
     return (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 max-w-3xl">
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <Bell className="w-6 h-6 text-orange-400" />
                     <div>
-                        <h2 className="text-lg font-semibold text-gray-100">Stream Alert Notifications</h2>
+                        <h3 className="text-lg font-semibold text-gray-100">Notification Settings</h3>
                         <p className="text-sm text-gray-400">
                             Get notified when streams go offline or recover.
                         </p>
                     </div>
                 </div>
-                <HelpIcon articleId="stream-alerts" tooltip="Configure email alerts for stream outages" />
             </div>
 
             {/* SMTP Warning */}
@@ -281,10 +279,10 @@ export default function AlertEmailSettings({ initialSettings }: AlertEmailSettin
                     onClick={handleSave}
                     disabled={isSaving || !initialSettings.hasSmtpConfigured}
                     className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-medium transition-all cursor-pointer ${saved
-                            ? 'bg-green-600 text-white'
-                            : hasChanges
-                                ? 'bg-orange-600 hover:bg-orange-700 text-white animate-pulse'
-                                : 'border border-gray-700 hover:border-gray-600 bg-transparent hover:bg-gray-800 text-white'
+                        ? 'bg-green-600 text-white'
+                        : hasChanges
+                            ? 'bg-orange-600 hover:bg-orange-700 text-white animate-pulse'
+                            : 'border border-gray-700 hover:border-gray-600 bg-transparent hover:bg-gray-800 text-white'
                         } ${!initialSettings.hasSmtpConfigured ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                     {saved ? (
