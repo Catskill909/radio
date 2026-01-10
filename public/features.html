@@ -728,41 +728,40 @@
     </footer>
 
     <script>
-        // Screenshot data - titles derived from filenames
+        // Gallery images from /images/gallery/ - numbered in order
         const screenshots = [
-            { file: 'login-view.png', title: 'Login View', icon: 'fa-lock' },
-            { file: 'shows-view.png', title: 'Shows View', icon: 'fa-microphone-alt' },
-            { file: 'schedule1.png', title: 'Schedule 1', icon: 'fa-calendar-alt' },
-            { file: 'shedule-show1.png', title: 'Schedule Show 1', icon: 'fa-calendar-plus' },
-            { file: 'schedule-show2.png', title: 'Schedule Show 2', icon: 'fa-calendar-check' },
-            { file: 'edit-sho1.png', title: 'Edit Show 1', icon: 'fa-edit' },
-            { file: 'Edit-show2.png', title: 'Edit Show 2', icon: 'fa-sliders-h' },
-            { file: 'streams-view.png', title: 'Streams View', icon: 'fa-broadcast-tower' },
-            { file: 'recordings-view.png', title: 'Recordings View', icon: 'fa-circle-dot' },
-            { file: 'podcasts-view.png', title: 'Podcasts View', icon: 'fa-podcast' },
-            { file: 'podcasts-manage-episodes.png', title: 'Podcasts Manage Episodes', icon: 'fa-list' },
-            { file: 'podcasts-edit-episode.png', title: 'Podcasts Edit Episode', icon: 'fa-pen' },
-            { file: 'audio-editor1.png', title: 'Audio Editor - Peak Meters', icon: 'fa-waveform-lines' },
-            { file: 'audio-editor2.png', title: 'Audio Editor - VU Meters', icon: 'fa-gauge' },
-            { file: 'audio-editor3.png', title: 'Audio Editor - Editing Tools', icon: 'fa-scissors' },
-            { file: 'audio-editor4.png', title: 'Audio Editor - Normalize', icon: 'fa-sliders' },
-            { file: 'stats-view.png', title: 'Stats View', icon: 'fa-chart-line' },
-            { file: 'stats1.png', title: 'Stats Overview', icon: 'fa-chart-simple' },
-            { file: 'stats2.png', title: 'Engagement Analytics', icon: 'fa-chart-area' },
-            { file: 'settings1.png', title: 'Settings 1', icon: 'fa-gear' },
-            { file: 'settings2.png', title: 'Settings 2', icon: 'fa-gear' },
-            { file: 'settings3.png', title: 'Settings 3', icon: 'fa-gear' },
-            { file: 'settings4.png', title: 'Settings 4', icon: 'fa-gear' },
-            { file: 'settings5.png', title: 'Settings 5', icon: 'fa-gear' },
-            { file: 'settings6.png', title: 'Settings 6', icon: 'fa-gear' },
-            { file: 'settings7.png', title: 'Settings 7', icon: 'fa-gear' },
-            { file: 'front1.png', title: 'Front 1', icon: 'fa-headphones' },
-            { file: 'front2.png', title: 'Front 2', icon: 'fa-headphones' },
-            { file: 'help1.png', title: 'Help 1', icon: 'fa-question-circle' },
-            { file: 'help2.png', title: 'Help 2', icon: 'fa-question-circle' },
-            { file: 'help3.png', title: 'Help 3', icon: 'fa-question-circle' },
-            { file: 'archiving.png', title: 'Archive Management', icon: 'fa-box-archive' },
-            { file: 'email-setup-alerts.png', title: 'Email & Stream Alerts', icon: 'fa-bell' }
+            { file: '1-front-1.png', title: 'Public Listen Page', icon: 'fa-headphones' },
+            { file: '2-front-2.png', title: 'Listen Page - Now Playing', icon: 'fa-headphones' },
+            { file: '3-front-archive-1.png', title: 'Episode Archive', icon: 'fa-box-archive' },
+            { file: '4-shows-1.png', title: 'Shows Management', icon: 'fa-microphone-alt' },
+            { file: '5-shows-edit-1.png', title: 'Edit Show', icon: 'fa-edit' },
+            { file: '6-shows-edit-2.png', title: 'Show Details', icon: 'fa-sliders-h' },
+            { file: '7-schedule-1.png', title: 'Weekly Schedule', icon: 'fa-calendar-alt' },
+            { file: '8-schedule-edit-1.png', title: 'Schedule Show', icon: 'fa-calendar-plus' },
+            { file: '9-schedule-edit-2.png', title: 'Schedule Options', icon: 'fa-calendar-check' },
+            { file: '10-schedule-edit-3.png', title: 'Recurring Shows', icon: 'fa-repeat' },
+            { file: '11-streams-1.png', title: 'Stream Management', icon: 'fa-broadcast-tower' },
+            { file: '12-streams-2.png', title: 'Stream Health', icon: 'fa-signal' },
+            { file: '13-recordings-1.png', title: 'Recordings', icon: 'fa-circle-dot' },
+            { file: '14-podcasts-1.png', title: 'Podcast Dashboard', icon: 'fa-podcast' },
+            { file: '15-podcasts-2.png', title: 'Episode Management', icon: 'fa-list' },
+            { file: '16-podcasts-3.png', title: 'Edit Episode', icon: 'fa-pen' },
+            { file: '17-podcasts-4.png', title: 'Audio Editor', icon: 'fa-waveform-lines' },
+            { file: '18-stats-1.png', title: 'Stats Overview', icon: 'fa-chart-line' },
+            { file: '19-stats-2.png', title: 'Engagement Analytics', icon: 'fa-chart-area' },
+            { file: '20-stats-3.png', title: 'Listener Trends', icon: 'fa-chart-simple' },
+            { file: '21-settings-1.png', title: 'Settings', icon: 'fa-gear' },
+            { file: '22-settings-menu-1.png', title: 'Menu Configuration', icon: 'fa-bars' },
+            { file: '23-settings-menu-2.png', title: 'Menu Editor', icon: 'fa-grip-lines' },
+            { file: '24-settings-identity-1.png', title: 'Station Identity', icon: 'fa-id-card' },
+            { file: '25-settings-various-1.png', title: 'General Settings', icon: 'fa-sliders' },
+            { file: '26-settings-audio-1.png', title: 'Audio Quality', icon: 'fa-volume-high' },
+            { file: '27-settings-archive-1.png', title: 'Archive Settings', icon: 'fa-box-archive' },
+            { file: '28-settings-ai-song-1.png', title: 'Song Recognition', icon: 'fa-music' },
+            { file: '29-settings-email-1.png', title: 'Email Alerts', icon: 'fa-bell' },
+            { file: '30-help-1.png', title: 'Help System', icon: 'fa-question-circle' },
+            { file: '31-help-2.png', title: 'Documentation', icon: 'fa-book' },
+            { file: '32-help-3.png', title: 'FAQ', icon: 'fa-circle-question' }
         ];
 
         let currentLightboxIndex = 0;
@@ -775,7 +774,7 @@
             // Helper to get thumbnail path from original filename
             const getThumbPath = (file) => {
                 const baseName = file.substring(0, file.lastIndexOf('.'));
-                return `/screenshots/thumbs/${baseName}_thumb.jpg`;
+                return `/images/gallery/thumbs/${baseName}_thumb.jpg`;
             };
 
             grid.innerHTML = screenshots.map((item, index) => `
@@ -816,7 +815,7 @@
             const counter = document.getElementById('lightboxCounter');
 
             const item = screenshots[index];
-            image.src = `/screenshots/${item.file}`;
+            image.src = `/images/gallery/${item.file}`;
             image.alt = item.title;
             caption.innerHTML = `<i class="fas ${item.icon}" style="color: #22d3ee; margin-right: 0.5rem;"></i>${item.title}`;
             counter.textContent = `${index + 1} / ${screenshots.length}`;
@@ -842,7 +841,7 @@
                 currentLightboxIndex = (currentLightboxIndex + direction + screenshots.length) % screenshots.length;
                 const item = screenshots[currentLightboxIndex];
 
-                image.src = `/screenshots/${item.file}`;
+                image.src = `/images/gallery/${item.file}`;
                 image.alt = item.title;
                 caption.innerHTML = `<i class="fas ${item.icon}" style="color: #22d3ee; margin-right: 0.5rem;"></i>${item.title}`;
                 document.getElementById('lightboxCounter').textContent = `${currentLightboxIndex + 1} / ${screenshots.length}`;
