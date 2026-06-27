@@ -12,7 +12,7 @@ export interface StreamTestResult {
     maxListeners?: number
     genre?: string
     description?: string
-    errorMessage?: string
+    errorMessage?: string | null
     responseTime?: number
 }
 
@@ -96,7 +96,7 @@ export async function testStream(url: string): Promise<StreamTestResult> {
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
 
-        const response = await fetch(url, {
+        let response = await fetch(url, {
             method: 'HEAD',
             headers: {
                 'Icy-MetaData': '1', // Request Icecast metadata
@@ -104,6 +104,29 @@ export async function testStream(url: string): Promise<StreamTestResult> {
             },
             signal: controller.signal,
         })
+
+        // Some Icecast/AzuraCast mounts return 404/405/501 for HEAD requests even
+        // though the stream is live. Fall back to GET before declaring it offline.
+        if (!response.ok) {
+            console.log(`⚠️ HEAD returned HTTP ${response.status} for ${url}, retrying with GET...`);
+            const getController = new AbortController()
+            const getTimeoutId = setTimeout(() => getController.abort(), 10000)
+            try {
+                response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Icy-MetaData': '1',
+                        'User-Agent': 'RadioSuite/1.0',
+                    },
+                    signal: getController.signal,
+                })
+                // Only the headers are needed here; cancel the body so we don't
+                // download the live stream indefinitely.
+                response.body?.cancel().catch(() => { })
+            } finally {
+                clearTimeout(getTimeoutId)
+            }
+        }
 
         clearTimeout(timeoutId)
         const responseTime = Date.now() - startTime
@@ -131,6 +154,7 @@ export async function testStream(url: string): Promise<StreamTestResult> {
             isValid: true,
             status: 'online',
             ...metadata,
+            errorMessage: null,
             responseTime,
         }
     } catch (error: any) {
