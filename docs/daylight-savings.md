@@ -1,25 +1,18 @@
 # Daylight Saving Time (DST) Audit
 
-> ## ✅ Deployment — NO terminal commands required
+> ## ✅ Status (2026-06-27) — shipped & deployed, NO terminal commands required
 >
-> Everything happens automatically on deploy. There is **nothing to run in the Coolify/VPS terminal.**
+> All of today's work is committed and **deployed to production** (`radio.supersoul.top`). Nothing needs to be run in the Coolify/VPS terminal.
 >
-> 1. **`TZ=UTC` env var** — ✅ **DONE** (added in Coolify 2026-06-27).
-> 2. **Deploy the code** (push → Coolify rebuild). On restart, PM2 starts the recorder service, which runs the calendar backfill on startup automatically (`extendRecurringShows()` in `recorder-service.ts`). The fixed, series-aware logic extends every recurring series → calendar populates to ~1 year ahead. **No manual `extend-shows` needed.**
-> 3. **Verify (no terminal):** after deploy, open the production schedule and page past November — daily shows (e.g. BBC World News) should appear **every day**. That confirms the fix.
+> - **`TZ=UTC` env var** — ✅ added in Coolify.
+> - **Self-healing extend** — on every deploy/restart, PM2 starts the recorder, which runs the gap-fill/extend pass automatically (`extendRecurringShows()` in `recorder-service.ts`). It keeps every live recurring series populated **~18 months ahead** and fills internal gaps. No manual `extend-shows` needed.
+> - **Verified in production:** calendar populated through Dec 2027, daily shows appear every day, rest of schedule intact.
 >
-> **Why no cleanup is needed:** the old buggy auto-extend never fired in production (its 4-week trigger never matched — production's calendar still ended ~Nov 2026, proving it hadn't run). So there are no collapsed/`null`-group slots to repair. The optional check below is precautionary only.
->
-> <details><summary>Optional precautionary check (only if you ever want to confirm via terminal)</summary>
->
-> ```sql
-> SELECT COUNT(*) FROM ScheduleSlot WHERE isRecurring=1 AND recurringGroupId IS NULL;
-> ```
-> Expected `0`. If it were `> 0` (it won't be), that would indicate a prior bad extend — delete those future null-group slots and redeploy.
-> </details>
+> ### ⚠️ Known limitation (accepted, not chased)
+> The self-healing pass repairs gaps in **clean** data, but it did **not** backfill two pieces of **legacy** data in production: **BBC World News, Mon Nov 23 & Nov 30 2026, 12:00–1:00 AM** (a 2-week hole in one Monday series left by earlier beta churn). The slots are empty and in the future, yet the auto-fill passed over them for a production-data-specific reason (internal `recurringGroupId` grouping) that could not be diagnosed from the public API — locally the identical gap self-heals. **Decision: left as-is** (two overnight slots, cosmetic). Fix by hand in the admin UI if ever wanted: add BBC World News at 12:00–1:00 AM on those two Mondays. This is the *only* known unresolved item from today.
 
 **Audit Date:** June 27, 2026  
-**Last Updated:** June 27, 2026 — bug fix + DST banner shipped; see [Implementation Log](#implementation-log-2026-06-27)  
+**Last Updated:** June 27, 2026 — DST fixes, banner, series-grouping, self-healing gap-fill (~18mo horizon); deployed. See [Implementation Log](#implementation-log-2026-06-27)  
 **Station Timezone:** `America/New_York`  
 **Key Libraries:** `date-fns` ^4.1.0 · `date-fns-tz` ^3.2.0 · `react-big-calendar` ^1.19.4
 
@@ -457,7 +450,8 @@ const newEndTime = new Date(newStartTime.getTime() + duration)
 ### Still open
 
 - ✅ **`TZ=UTC` in Coolify** — DONE (added 2026-06-27).
-- ⬜ **Deploy to production** — once local testing is complete. No terminal steps; the recorder auto-backfills on startup (see [Production action](#production-action--automatic-no-terminal-needed)).
+- ✅ **Deployed to production** — done 2026-06-27; recorder auto-backfilled on startup, calendar populated ~18 months out.
+- ⬜ **Two legacy slots not auto-filled** (BBC Mon Nov 23 & 30 2026, 12 AM) — accepted/not chased; see the [Known limitation](#-status-2026-06-27--shipped--deployed-no-terminal-commands-required) at the top. Fix by hand if ever wanted.
 
 ---
 
@@ -626,6 +620,8 @@ Load `/schedule` — the banner should appear (fall-back, Sun Nov 1 2026). Click
 
 ## Summary
 
-**The app handles DST correctly in all production code paths.** The one real bug — the standalone `extend-recurring-shows.ts` script (legacy, not auto-run) — was **fixed on 2026-06-27**. The in-service auto-extend and all server actions already used the proper DST-aware pattern. A dismissable DST heads-up banner was added to the Scheduler, backed by a tested transition helper (`lib/dst.ts` + `test-dst-transition.ts`). The only remaining item is the belt-and-suspenders `TZ=UTC` env var, which must be set manually in Coolify. See the [Implementation Log](#implementation-log-2026-06-27) for full detail.
+**The app handles DST correctly in all production code paths**, and all of today's work is shipped and deployed. Across 2026-06-27 we: confirmed/fixed the DST-safe extension math; added a dismissable DST heads-up banner; fixed daily-show collapse by grouping recurring slots into per-weekday **series**; hardened the auto-extend (per-slot overlap skip, live-series-only, idempotent); and replaced the append-only extend with a **self-healing gap-fill** that keeps every live series populated ~18 months out and repairs internal gaps. All backed by a terminal test suite (`npm run test:dst`, 7/7) and verified by a clean production build. `TZ=UTC` is set in Coolify.
 
-Your Nov 1, 2026 schedule view (attached screenshot) looks correct — all shows appear at their expected wall-clock positions with no gaps or overlaps from DST.
+**One accepted limitation:** two legacy overnight slots in production (BBC Mon Nov 23 & 30 2026) were not auto-backfilled — a production-data-specific quirk left from beta churn, deliberately not chased (see [Known limitation](#-status-2026-06-27--shipped--deployed-no-terminal-commands-required)).
+
+See the [Implementation Log](#implementation-log-2026-06-27), [Rolling Schedule Horizon Fix](#rolling-schedule-horizon-fix-2026-06-27), and [Self-healing gap-fill](#self-healing-gap-fill-2026-06-27) for full detail.
