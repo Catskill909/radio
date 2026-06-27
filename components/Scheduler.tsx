@@ -11,6 +11,7 @@ import { Repeat, Clock } from 'lucide-react'
 import { Tooltip } from './Tooltip'
 import EditSlotModal from '@/components/EditSlotModal'
 import ScheduleModal from '@/components/ScheduleModal'
+import DstBanner from '@/components/DstBanner'
 
 const locales = {
     'en-US': enUS,
@@ -206,6 +207,8 @@ export default function Scheduler({ shows, initialSlots, streams, stationTimezon
 
     return (
         <div className="w-full h-full">
+            {/* DST heads-up: only renders in the ~week before a transition; dismissable */}
+            <DstBanner stationTimezone={stationTimezone} />
             {/* Full-Width Calendar */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 h-full">
                 <BigCalendar
