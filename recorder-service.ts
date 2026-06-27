@@ -4,8 +4,8 @@ import fs from 'fs'
 import path from 'path'
 import { formatInStationTime, getStationTimezone } from './lib/station-time'
 import { generateRecordingFilename } from './lib/filename-utils'
-import { horizonThreshold, HORIZON_EXTENSION_WEEKS } from './lib/schedule-horizon'
-import { recurringSeriesKey } from './lib/recurring-series'
+import { horizonTarget } from './lib/schedule-horizon'
+import { recurringSeriesKey, planMissingSeriesSlots } from './lib/recurring-series'
 
 const prisma = new PrismaClient()
 const RECORDINGS_DIR = path.join(process.cwd(), 'recordings')
@@ -727,6 +727,7 @@ async function extendRecurringShows() {
             seriesGroups.set(key, existing)
         }
 
+        const now = new Date()
         let totalExtended = 0
 
         for (const [, slots] of seriesGroups.entries()) {
@@ -734,80 +735,52 @@ async function extendRecurringShows() {
             const showId = slots[0].showId
             const recurringGroupId = slots[0].recurringGroupId
             const latestSlot = slots.reduce((latest, current) => {
-                return new Date(current.endTime) > new Date(latest.endTime) ? current : latest
+                return new Date(current.startTime) > new Date(latest.startTime) ? current : latest
             })
 
-            const latestEndTime = new Date(latestSlot.endTime)
-            const now = new Date()
+            // Skip abandoned remnant series whose last airing is already in the past —
+            // they must not be resurrected (would generate past-dated slots).
+            if (new Date(latestSlot.endTime) <= now) continue
 
-            // Top up a series only when it is still LIVE (latest slot in the future)
-            // and running low (< the rolling-horizon buffer). Requiring `> now` skips
-            // abandoned remnant series whose last airing is already in the past — those
-            // must not be resurrected (fixed +52w from an old baseline generates
-            // past-dated/overlapping slots and never clears the threshold, so the
-            // extend would re-fire on every restart). Mirrors extend-recurring-shows.ts.
-            if (latestEndTime > now && latestEndTime < horizonThreshold(now)) {
-                console.log(`[AUTO-EXTEND] "${show.title}" needs extension - ends ${latestEndTime.toLocaleDateString()}`)
+            // Ensure a weekly slot every week from `from` through the horizon (or the
+            // series' existing latest slot, whichever is later): this FILLS internal
+            // gaps and EXTENDS forward in one pass. Idempotent (returns only missing
+            // slots), DST-aware, so a stale gap left by an older run self-heals.
+            // `from` is the later of now and the series' first slot, so we never
+            // backfill the past or create slots before a future-dated series begins.
+            const earliestStart = new Date(slots[0].startTime) // query orders by startTime asc
+            const from = new Date(Math.max(now.getTime(), earliestStart.getTime()))
+            const until = new Date(Math.max(new Date(latestSlot.startTime).getTime(), horizonTarget(now).getTime()))
+            const missing = planMissingSeriesSlots({ slots, stationTz, from, until })
+            if (missing.length === 0) continue
 
-                const firstSlot = slots.reduce((earliest, current) => {
-                    return new Date(current.startTime) < new Date(earliest.startTime) ? current : earliest
+            // Drop only the individual slots that would overlap a DIFFERENT show (e.g.
+            // a 2 AM show shifted to 3 AM on the spring-forward day). Never double-books.
+            const toCreate = []
+            let skipped = 0
+            for (const slot of missing) {
+                const overlapping = await prisma.scheduleSlot.findFirst({
+                    where: {
+                        showId: { not: showId },
+                        startTime: { lt: slot.endTime },
+                        endTime: { gt: slot.startTime },
+                    },
                 })
+                if (overlapping) { skipped++; continue }
+                toCreate.push({
+                    showId: showId,
+                    startTime: slot.startTime,
+                    endTime: slot.endTime,
+                    sourceUrl: latestSlot.sourceUrl,
+                    isRecurring: true,
+                    recurringGroupId: recurringGroupId, // keep the slot in its series
+                })
+            }
 
-                const duration = new Date(firstSlot.endTime).getTime() - new Date(firstSlot.startTime).getTime()
-                const slotsToCreate = []
-
-                // ✅ DST-AWARE: Use timezone-aware logic for extension
-                const { add } = require('date-fns');
-                const { toZonedTime, fromZonedTime, format: formatTz } = require('date-fns-tz');
-
-                for (let i = 1; i <= HORIZON_EXTENSION_WEEKS; i++) {
-                    // Convert latest slot to station time
-                    const latestStationStart = toZonedTime(new Date(latestSlot.startTime), stationTz);
-
-                    // Add weeks in station timezone (maintains wall-clock time)
-                    const futureStationStart = add(latestStationStart, { weeks: i });
-
-                    // Convert back to UTC
-                    const newStartTime = fromZonedTime(
-                        formatTz(futureStationStart, "yyyy-MM-dd'T'HH:mm:ss", { timeZone: stationTz }),
-                        stationTz
-                    );
-                    const newEndTime = new Date(newStartTime.getTime() + duration)
-
-                    slotsToCreate.push({
-                        showId: showId,
-                        startTime: newStartTime,
-                        endTime: newEndTime,
-                        sourceUrl: firstSlot.sourceUrl,
-                        isRecurring: true,
-                        recurringGroupId: recurringGroupId, // keep the slot in its series
-                    })
-                }
-
-                // Drop only the individual slots that would overlap a DIFFERENT show
-                // (e.g. a 2 AM show shifted to 3 AM on the spring-forward day), keeping
-                // the rest of the series. Never creates a double-booking, and never
-                // drops a whole year over one DST-day collision. Mirrors the standalone
-                // extend-recurring-shows.ts; the admin UI also prevents overlaps.
-                const toCreate = []
-                let skipped = 0
-                for (const newSlot of slotsToCreate) {
-                    const overlapping = await prisma.scheduleSlot.findFirst({
-                        where: {
-                            showId: { not: showId },
-                            startTime: { lt: newSlot.endTime },
-                            endTime: { gt: newSlot.startTime },
-                        },
-                    })
-                    if (overlapping) skipped++
-                    else toCreate.push(newSlot)
-                }
-
-                if (toCreate.length > 0) {
-                    await prisma.scheduleSlot.createMany({ data: toCreate })
-                    totalExtended++
-                }
-                console.log(`[AUTO-EXTEND] ✅ Extended "${show.title}" (+${toCreate.length} slots${skipped ? `, skipped ${skipped} overlapping` : ''})`)
+            if (toCreate.length > 0) {
+                await prisma.scheduleSlot.createMany({ data: toCreate })
+                totalExtended++
+                console.log(`[AUTO-EXTEND] ✅ "${show.title}" +${toCreate.length} slot(s)${skipped ? `, skipped ${skipped} overlapping` : ''}`)
             }
         }
 

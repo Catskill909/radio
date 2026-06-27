@@ -481,19 +481,15 @@ Recurring shows are generated ~52 weeks ahead at creation time (these were creat
 
 ### The fix — a larger, shared rolling horizon
 
-New single source of truth: **`lib/schedule-horizon.ts`**
+New single source of truth: **`lib/schedule-horizon.ts`**.
 
-```ts
-export const HORIZON_TRIGGER_WEEKS = 26;   // ~6 months guaranteed minimum runway
-export const HORIZON_EXTENSION_WEEKS = 52; // 1 year added per top-up (→ up to ~18 months ahead)
-export function horizonThreshold(now = new Date()): Date { /* now + 26 weeks */ }
-```
+> **Note (superseded the same day):** this section describes the original *append-based* horizon (trigger `< 26 weeks` → add `52`). It was later replaced by the **self-healing gap-fill** model below — the constants are now a single `HORIZON_WEEKS = 78` (~18 months). See [Self-healing gap-fill](#self-healing-gap-fill-2026-06-27). The history is kept here for context.
 
-Both extension paths now import these constants (so they can never drift):
-- `recorder-service.ts` auto-extend — trigger `< 4 weeks` → `< horizonThreshold()` (26 weeks); loop `i <= HORIZON_EXTENSION_WEEKS`.
-- `extend-recurring-shows.ts` — same.
+Both extension paths import from this module (so they can never drift):
+- `recorder-service.ts` auto-extend.
+- `extend-recurring-shows.ts`.
 
-**Effect:** every recurring show always keeps **between 6 and 18 months** of future slots. To change how far ahead the schedule stays populated, edit `HORIZON_TRIGGER_WEEKS` in one place.
+**Effect:** every recurring show always keeps a generous rolling window of future slots. To change how far ahead the schedule stays populated, edit `HORIZON_WEEKS` in one place.
 
 ### One-time backfill (already applied locally)
 
@@ -541,6 +537,23 @@ A pre-deploy audit ("will the Coolify push be safe?") found and fixed two more i
 2. **Idempotency — only extend LIVE series.** The trigger was `latestEndTime < threshold`. Abandoned **remnant series** (e.g. Classic Country "Sun 14:00" = 2 slots ending 2025-11-30) matched it, and a fixed +52w from a year-old baseline never cleared the threshold — so the extend **re-fired every run**, piling up past-dated/overlapping slots (a real risk since the recorder auto-extends on *every* PM2 restart). Fixed by requiring `latestEndTime > now` (still live) **and** `< threshold` (running low). Result: run 1 extends 94 live series; **run 2 adds 0 slots — idempotent.** Abandoned remnants are left untouched (not resurrected).
 
 **Pre-deploy verification (all green):** `npm run test:dst` 7/7 · `npm run build` exit 0 (`✓ Compiled successfully`) · extend is idempotent (re-run = 0) · 0 cross-show overlaps · daily shows stay daily · horizon 2027-11-28.
+
+### Self-healing gap-fill (2026-06-27): the extend now repairs internal gaps
+
+**Symptom (found in production):** after deploy, BBC World News was missing on **Mondays Nov 23 & 30** only — present before and after. Confirmed via the production public API (`/api/public/schedule`): a Monday-only 2-week hole at the original/extended boundary.
+
+**Root cause:** the extend logic was **append-only** — it generated weekly slots *forward from each series' latest slot*. Once a series was extended to the far horizon (by an earlier, less-correct run), a later run saw it as "done" and never went back to fill an **internal** gap. The deployed code couldn't self-repair stale gaps (the documented "doesn't retroactively repair" caveat). The current code is correct on clean data (local: BBC Monday present every week), but production's slots were generated during earlier iteration and carried a hole.
+
+**Fix — gap-fill, not append.** New pure, tested helper **`planMissingSeriesSlots()`** (`lib/recurring-series.ts`): given a series' existing slots, it returns the weekly slots MISSING between `from` and `until`, by station-local date. Both extend paths now, for every **live** series, ensure a weekly slot every week from `max(now, series-start)` through `horizonTarget(now)` (or the series' latest, whichever is later). This **fills internal gaps AND extends forward in one idempotent, DST-aware pass.** A stale gap (from any source) now self-heals on the next recorder restart — no manual repair, no terminal.
+
+Properties (all verified locally, incl. reproducing the exact production gap by deleting BBC Monday slots and watching them refill):
+- **Self-heals** internal gaps · **idempotent** (re-run adds 0) · **DST-aware** (generated slots hold wall-clock time across transitions) · **overlap-safe** (per-slot skip) · **no remnant resurrection** (skips series whose last airing already passed) · **never backfills** before a series' first slot or before `now`.
+
+**Horizon config simplified.** `lib/schedule-horizon.ts` now exposes a single knob — **`HORIZON_WEEKS = 78`** (~18 months) — and `horizonTarget(now)`. The old `HORIZON_TRIGGER_WEEKS` / `HORIZON_EXTENSION_WEEKS` / `horizonThreshold` (append-era) were removed. The schedule now keeps a clean **rolling ~18-month** window for every live series.
+
+**New regression tests** in `test-recurring-series.ts` cover the planner: gap-fill, forward-extend, idempotency, the `from` boundary (no past/pre-start backfill), DST wall-clock, and empty series.
+
+**Production fix path:** redeploy this code; on the recorder's startup auto-extend it fills the existing gaps automatically. No terminal step.
 
 ---
 
