@@ -63,3 +63,6 @@ dev.db*
 
 # Temporary reference project - delete after ACRCloud integration planning
 /song-api/
+
+# Local-only docs
+docs/ACRCLOUD_HANDOFF.md
