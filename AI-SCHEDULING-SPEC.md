@@ -595,6 +595,16 @@ schedule occurrence only and is not a substitute for this new show-level field.
 Integration must also reconcile legacy 15-minute validation guidance while
 leaving recording and episode duration fields semantically unchanged.
 
+Show creation begins with the five required fields. `More show details` opens a
+clear Show Details surface containing StationDock-compatible optional fields; it
+must not crowd the schedule-completion card or make optional profile enrichment
+look required.
+
+Baseline authoring must ultimately distinguish weekly, alternating-week,
+limited-run, and one-time patterns from dated occurrence overrides. An
+alternating baseline cannot be declared ready from a single representative week;
+deterministic readiness must audit its full repeating cycle.
+
 ### Guidance behavior
 
 Deterministic application code supplies every coverage total, gap, conflict,
@@ -703,11 +713,15 @@ Work incrementally.
 - Repository inspection and architecture review are complete.
 - The scaffold, deterministic scheduling core, and portable override/ChangeSet/
   Undo foundations are complete and tested in sibling `ai-scheduler`.
-- The current automated suite contains 35 passing scheduling and compatibility
-  tests, including parity with StationDock's category taxonomy when both sibling
-  repositories are present.
-- Phase 3A is validating the data-backed 24/7 operator calendar, readiness
-  hierarchy, right-side assistant, themes, and responsive behavior.
+- The current automated suite contains 45 passing tests covering deterministic
+  scheduling, overrides/Undo, readiness, duration guidance, calendar selection,
+  help integrity, and parity with StationDock's category taxonomy when both
+  sibling repositories are present.
+- Phase 3A has an advanced data-backed 24/7 operator calendar with readiness
+  hierarchy, right-side assistant, themes, Help Center, compact application
+  shell, and exact 30-minute-grid start selection. Listener designs, high-risk
+  override states, recurrence/setup design, and formal accessibility review
+  remain open.
 - The current operator prototype is deliberately no-write.
 - No StationDock application code, recorder code, or production schema has been
   changed by the standalone project.
@@ -745,6 +759,7 @@ Implement and test:
 - recorder re-check behavior
 - atomic schedule changes
 - Undo/change history
+- a write-capable manual Show Details and schedule-pattern workflow before AI
 
 These improvements should work for manual scheduling too where practical.
 
@@ -831,5 +846,6 @@ Use this as the initial prompt after placing this file in the cloned repository:
 **Status:** Canonical product/safety blueprint; standalone foundations complete
 through Phase 2 and Phase 3A design validation is active.
 
-**Next step:** Complete the Phase 3A experience gate, then build the portable
-schedule views before beginning provider implementation.
+**Next step:** Complete the Phase 3A experience gate, build the portable schedule
+views, and prove the write-capable manual operator workflow before beginning
+provider implementation.

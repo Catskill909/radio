@@ -225,8 +225,10 @@ later UI/integration work.
   tentative end from typical show length without crossing booked time, and mirror
   the selected start in a keyboard-accessible assistant time control.
 - **Current checkpoint:** data-backed operator prototype running with a no-write
-  structured proposal flow; listener wireframes and remaining high-risk states are
-  still open.
+  structured proposal flow, 24/7 readiness, exact time selection, typical-duration
+  guidance, compact top-bar shell, themes, and searchable Help Center. The 45-test
+  suite passes; listener wireframes, recurrence/setup design, high-risk states,
+  and formal accessibility review are still open.
 - **Exit criteria:** approved operator/listener wireframes, tokenized themes,
   accessibility/device review, and no unresolved DST/midnight/override display
   rule.
@@ -235,6 +237,18 @@ later UI/integration work.
 - Build the 5 views against the common contract, responsive, station/visitor timezone modes
 - `ScheduleViewSwitcher` + admin default-view setting
 - **Exit criteria:** all views render the seed schedule correctly, including the midnight-split and DST-week data
+
+### Phase 3C — Write-Capable Operator Scheduling
+
+- Add/Edit Show uses a full Show Details surface: name, host, category, typical
+  length, and airtime are required; StationDock-compatible profile fields remain
+  optional and progressively disclosed.
+- Implement weekly, alternating-week, limited-run, and one-time patterns with
+  explicit boundaries. Alternating readiness audits the full repeating cycle.
+- Manual preview/apply/Undo routes through the deterministic Phase 1/2 operations;
+  it must work with no AI provider configured.
+- **Exit criteria:** persist, reload, and safely Undo a representative schedule
+  built from an incomplete template through `Ready to air`.
 
 ### Phase 4 — AI Layer (3–5 days)
 - **Provider interface first, Gemini implementation second.** The `AiProvider` interface (`interpret(request, context) → StructuredIntent`) is defined before any provider code — Gemini is just the first implementation behind it
@@ -245,7 +259,7 @@ later UI/integration work.
   - "Test key" button validates auth before saving (distinguishes bad key vs provider outage)
   - No hard-coded model names anywhere (spec §16)
 - `StructuredIntent` types + zod validation — AI output is never trusted raw
-- Constrained command layer: `inspect_schedule`, `check_conflicts`, `preview_change`, `apply_change`, `undo_change` — all calling Phase 1/2 code
+- Constrained command layer: `inspect_schedule`, `check_conflicts`, `preview_change`, `apply_change`, `undo_change` — all calling the same Phase 1/2 operations proven through the Phase 3C manual workflow
 - Provider health handling: distinguish bad key vs outage; feature degrades to manual-only
 - **Exit criteria:** a natural-language request produces a validated intent + deterministic preview via Gemini, with zero DB writes until approval; a second provider stub proves the abstraction holds
 
@@ -264,7 +278,7 @@ later UI/integration work.
 - **Exit criteria:** spec §6 scenarios + undo for both
 
 ### Phase 7 — Integration Playbook (1–2 days, documentation + dry run)
-- Written migration guide: schema additions (`defaultDurationMinutes`, `status`, `overrideOfSlotId`, `ChangeSet` model → `prisma db push`), file copy map (`lib/scheduling/`, `lib/ai/`, `components/schedule-views/`, `components/ai-chat/`), wiring points in radio-suite (`app/actions.ts`, `/listen`, `/settings`, recorder re-check per spec §9)
+- Written migration guide: schema additions (`defaultDurationMinutes`, `status`, `overrideOfSlotId`, `ChangeSet` model → `prisma db push`), file copy map (`lib/scheduling/`, `lib/ai/`, `components/schedule-views/`, `components/operator-schedule/`, `components/ai-chat/`), wiring points in radio-suite (`app/actions.ts`, `/listen`, `/settings`, recorder re-check per spec §9)
 - Dry-run integration on a radio-suite clone
 - **Exit criteria:** documented, tested insertion path; recorder re-check behavior verified against live schedule changes (spec §9 edge case: schedule changed mid-recording)
 
@@ -279,6 +293,8 @@ later UI/integration work.
 | 3 | Recorder re-check | Build a standalone mock only if it adds clear value; otherwise verify directly during radio-suite integration | Phase 7 |
 | 4 | Visitor view-switching | On by default or admin-only | Phase 3B |
 | 5 | Whether `ChangeSet` also wraps *manual* edits in radio-suite (spec §10 suggests yes, eventually) | Integration scope | Phase 7 |
+| 6 | Sub-30-minute programs | Keep the current minimum or design smaller increments after the core workflow is proven | Phase 3C / integration |
+| 7 | Alternating readiness horizon | Audit the full two-week cycle or a generalized least-common recurrence cycle | Phase 3A design |
 
 ---
 
@@ -290,7 +306,9 @@ Onboarding, crawling, imports, PDF ingestion, metadata enrichment, AI copywritin
 
 ## 7. Estimated Timeline
 
-The original ~3–4 week estimate remains directional. Phases 0–2 are complete and
-Phase 3A is active. AI still enters only after the deterministic foundations and
-experience/display gate, exactly preserving the specification's "deterministic
-code before AI" rule.
+The original ~3–4 week estimate remains directional and should be revisited after
+Phase 3A because the approved scope now explicitly includes a write-capable manual
+operator phase. Phases 0–2 are complete and Phase 3A is active. AI still enters
+only after the deterministic foundations, experience/display gate, and manual
+operation workflow, preserving the specification's "deterministic code before
+AI" rule.
