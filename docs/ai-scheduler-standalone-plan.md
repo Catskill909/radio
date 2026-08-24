@@ -221,6 +221,9 @@ later UI/integration work.
 - Use a compact global top bar for show/settings navigation and primary actions;
   do not duplicate the visible Schedule and Assistant surfaces in a permanent
   left rail or stack redundant headings above readiness.
+- Let a pointer select an exact 30-minute start within open airtime, derive the
+  tentative end from typical show length without crossing booked time, and mirror
+  the selected start in a keyboard-accessible assistant time control.
 - **Current checkpoint:** data-backed operator prototype running with a no-write
   structured proposal flow; listener wireframes and remaining high-risk states are
   still open.

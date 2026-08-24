@@ -620,6 +620,12 @@ that duplicates the visible calendar and assistant. Put show navigation, setting
 and primary actions in the global top bar, and avoid stacking redundant workspace
 eyebrows, page titles, and subtitles above readiness.
 
+Within open airtime, pointer position may select a start time on the 30-minute
+grid rather than always loading the gap's beginning. The selected show's typical
+length proposes the end without crossing booked airtime. Always expose the loaded
+start as a structured time control so keyboard and assistive-technology users can
+make the same selection without spatial pointing.
+
 Dark and light presentation, keyboard access, screen-reader labels, zoom behavior,
 and reduced-motion support are part of the design gate. Proposal UI must remain
 visibly no-write until the user reaches an explicit impact preview and confirms a
