@@ -218,6 +218,9 @@ later UI/integration work.
   deferred.
 - Keep calendar and assistant in context together. The operator assistant uses a
   right-side panel that collapses horizontally into a persistent right rail.
+- Use a compact global top bar for show/settings navigation and primary actions;
+  do not duplicate the visible Schedule and Assistant surfaces in a permanent
+  left rail or stack redundant headings above readiness.
 - **Current checkpoint:** data-backed operator prototype running with a no-write
   structured proposal flow; listener wireframes and remaining high-risk states are
   still open.

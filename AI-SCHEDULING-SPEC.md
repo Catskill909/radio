@@ -615,6 +615,11 @@ context. On the operator workspace, the assistant is a right-side panel that may
 collapse horizontally into a persistent right rail. Optional details remain
 behind progressive disclosure until required setup is complete.
 
+While scheduling is a single focused workspace, do not add a permanent left rail
+that duplicates the visible calendar and assistant. Put show navigation, settings,
+and primary actions in the global top bar, and avoid stacking redundant workspace
+eyebrows, page titles, and subtitles above readiness.
+
 Dark and light presentation, keyboard access, screen-reader labels, zoom behavior,
 and reduced-motion support are part of the design gate. Proposal UI must remain
 visibly no-write until the user reaches an explicit impact preview and confirms a
