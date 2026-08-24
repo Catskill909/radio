@@ -46,10 +46,11 @@ Use **identical field names** to radio-suite's Prisma models so queries port ver
 
 ```prisma
 model Show {
-  id               String   @id @default(uuid())
-  title            String
-  type             String
-  recordingEnabled Boolean  @default(false)
+  id                     String   @id @default(uuid())
+  title                  String
+  type                   String
+  defaultDurationMinutes Int      @default(60) // NEW; required typical length
+  recordingEnabled       Boolean  @default(false)
   // ... same subset of fields as radio-suite
 }
 
@@ -124,6 +125,21 @@ When both repositories are present, the standalone test suite compares the full
 taxonomy against the mother-app module. UI code must use this taxonomy rather than
 derive ad hoc category choices from seed data.
 
+### 2.6 Planned Show Length
+
+`Show.defaultDurationMinutes` is the required typical or planned length and is
+at least 30 minutes in the current standalone core. It is not the authoritative
+duration of every scheduled occurrence; `ScheduleSlot.startTime` and `endTime`
+remain authoritative for an airing. A mismatch is allowed with a visible warning
+and operator confirmation. Programs under 30 minutes are deferred until the core
+schedule experience can assess calendar, recurrence, conflict, recording, and
+integration complexity.
+
+StationDock's current `createShow` form accepts a `duration` value only to compute
+the first slot's end time, and `lib/schedule-errors.ts` still mentions a 15-minute
+minimum. Phase 7 must migrate that behavior and copy deliberately; recording and
+episode `duration` fields are unrelated and must not be repurposed.
+
 ---
 
 ## 3. NEW: Front-User Schedule Display Variety
@@ -195,7 +211,11 @@ later UI/integration work.
   labels, 24/7 coverage gaps, midnight continuation, DST-week behavior,
   replacement, recording consequence, impact preview, and Undo states.
 - Guide schedule completion deterministically: 24/7 coverage plus required show
-  name, host, time, and category; optional metadata never blocks readiness.
+  name, host, typical length of at least 30 minutes, time, and category; optional
+  metadata never blocks readiness.
+- Keep typical show length separate from occurrence duration. A shorter or longer
+  placement receives a confirmable warning, while sub-30-minute scheduling is
+  deferred.
 - Keep calendar and assistant in context together. The operator assistant uses a
   right-side panel that collapses horizontally into a persistent right rail.
 - **Current checkpoint:** data-backed operator prototype running with a no-write
@@ -238,7 +258,7 @@ later UI/integration work.
 - **Exit criteria:** spec §6 scenarios + undo for both
 
 ### Phase 7 — Integration Playbook (1–2 days, documentation + dry run)
-- Written migration guide: schema additions (`status`, `overrideOfSlotId`, `ChangeSet` model → `prisma db push`), file copy map (`lib/scheduling/`, `lib/ai/`, `components/schedule-views/`, `components/ai-chat/`), wiring points in radio-suite (`app/actions.ts`, `/listen`, `/settings`, recorder re-check per spec §9)
+- Written migration guide: schema additions (`defaultDurationMinutes`, `status`, `overrideOfSlotId`, `ChangeSet` model → `prisma db push`), file copy map (`lib/scheduling/`, `lib/ai/`, `components/schedule-views/`, `components/ai-chat/`), wiring points in radio-suite (`app/actions.ts`, `/listen`, `/settings`, recorder re-check per spec §9)
 - Dry-run integration on a radio-suite clone
 - **Exit criteria:** documented, tested insertion path; recorder re-check behavior verified against live schedule changes (spec §9 edge case: schedule changed mid-recording)
 

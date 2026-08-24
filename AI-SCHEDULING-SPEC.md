@@ -562,8 +562,8 @@ StationDock may describe its schedule setup as `Ready to air` only when:
 
 - the configured baseline week has complete 24/7 active coverage;
 - active occurrences have no invalid intervals or overlaps;
-- every show in setup scope has a non-empty show name, host, scheduled time, and
-  category.
+- every show in setup scope has a non-empty show name, host, scheduled time,
+  category, and typical show length of at least 30 minutes.
 
 Midnight-split rows count as one logical occurrence. Suppressed, replaced, moved,
 or cancelled originals do not count as active airtime. DST transition weeks must
@@ -582,6 +582,18 @@ Category selection follows the existing canonical Apple Podcasts taxonomy in
 `lib/itunes-categories.ts`. The operator selects a required category and may add
 an optional subcategory; the existing stored form is `Category` or `Category >
 Subcategory`.
+
+Typical show length is a fifth required field. It describes the program's usual
+length and must be stored separately from each occurrence's actual start/end
+duration. A shorter or longer occurrence is permitted after the operator sees
+both values and confirms the mismatch; for example, a two-hour show may
+intentionally occupy a one-hour slot. The current standalone core blocks shows
+and occurrences shorter than 30 minutes. Support for shorter programs is a
+deferred core-product and integration decision, not an automatic rounding rule.
+The existing `createShow` form's `duration` input currently controls its first
+schedule occurrence only and is not a substitute for this new show-level field.
+Integration must also reconcile legacy 15-minute validation guidance while
+leaving recording and episode duration fields semantically unchanged.
 
 ### Guidance behavior
 
