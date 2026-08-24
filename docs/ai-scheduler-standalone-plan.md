@@ -224,11 +224,15 @@ later UI/integration work.
 - Let a pointer select an exact 30-minute start within open airtime, derive the
   tentative end from typical show length without crossing booked time, and mirror
   the selected start in a keyboard-accessible assistant time control.
+- Keep optional artwork in quick show entry. Open the complete Show Details modal
+  only on explicit request, with one synchronized draft and clearly separated
+  listener, publishing, archive, contact, and recording sections.
 - **Current checkpoint:** data-backed operator prototype running with a no-write
   structured proposal flow, 24/7 readiness, exact time selection, typical-duration
-  guidance, compact top-bar shell, themes, and searchable Help Center. The 45-test
-  suite passes; listener wireframes, recurrence/setup design, high-risk states,
-  and formal accessibility review are still open.
+  guidance, compact top-bar shell, themes, searchable Help Center, optional
+  quick-entry artwork, and the explicit Show Details modal. The 45-test suite
+  passes; listener wireframes, recurrence/setup design, high-risk states, and
+  formal accessibility review are still open.
 - **Exit criteria:** approved operator/listener wireframes, tokenized themes,
   accessibility/device review, and no unresolved DST/midnight/override display
   rule.

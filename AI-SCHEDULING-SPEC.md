@@ -598,7 +598,10 @@ leaving recording and episode duration fields semantically unchanged.
 Show creation begins with the five required fields. `More show details` opens a
 clear Show Details surface containing StationDock-compatible optional fields; it
 must not crowd the schedule-completion card or make optional profile enrichment
-look required.
+look required. The current standalone prototype also offers optional artwork in
+quick entry, keeps that artwork and required fields synchronized with the full
+modal, and never opens the modal automatically. Persistence remains later
+write-capable workflow work.
 
 Baseline authoring must ultimately distinguish weekly, alternating-week,
 limited-run, and one-time patterns from dated occurrence overrides. An
@@ -719,7 +722,8 @@ Work incrementally.
   sibling repositories are present.
 - Phase 3A has an advanced data-backed 24/7 operator calendar with readiness
   hierarchy, right-side assistant, themes, Help Center, compact application
-  shell, and exact 30-minute-grid start selection. Listener designs, high-risk
+  shell, exact 30-minute-grid start selection, optional quick-entry artwork, and
+  an explicit synchronized Show Details modal. Listener designs, high-risk
   override states, recurrence/setup design, and formal accessibility review
   remain open.
 - The current operator prototype is deliberately no-write.
