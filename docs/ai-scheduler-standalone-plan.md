@@ -224,6 +224,9 @@ later UI/integration work.
 - Let a pointer select an exact 30-minute start within open airtime, derive the
   tentative end from typical show length without crossing booked time, and mirror
   the selected start in a keyboard-accessible assistant time control.
+- Carry that selected station-local date/day/time into `Create a new show
+  instead`, prefill its first pattern, and retain it through show review. Global
+  Add Show remains blank because it has no placement context.
 - Keep optional artwork in quick show entry. Open the complete Show Details modal
   only on explicit request, with one synchronized draft and clearly separated
   listener, publishing, archive, contact, and recording sections.

@@ -641,6 +641,13 @@ length proposes the end without crossing booked airtime. Always expose the loade
 start as a structured time control so keyboard and assistive-technology users can
 make the same selection without spatial pointing.
 
+If the operator chooses `Create a new show instead` from that gap, carry the
+station-local date, weekday, and selected start into show creation. Suggest a
+weekly pattern at that time while preserving the actual date for an alternating
+anchor, limited-run boundary, or one-time special if the operator changes the
+pattern. Global Add Show begins blank because it has no calendar context. Review
+must show every proposed airtime before conflict/recording consequences and save.
+
 Pointer cues must describe the action actually available: default cursor for
 non-interactive calendar space, precise add/select cursor for open airtime, and a
 link pointer for show inspection. Do not use a grab cursor on the whole event
