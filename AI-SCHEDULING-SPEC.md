@@ -607,6 +607,8 @@ Baseline authoring must ultimately distinguish weekly, alternating-week,
 limited-run, and one-time patterns from dated occurrence overrides. An
 alternating baseline cannot be declared ready from a single representative week;
 deterministic readiness must audit its full repeating cycle.
+One show may have more than one airtime pattern—for example, a live Monday show
+and a Saturday replay at a different time—without duplicating its show metadata.
 
 ### Guidance behavior
 
@@ -638,6 +640,13 @@ grid rather than always loading the gap's beginning. The selected show's typical
 length proposes the end without crossing booked airtime. Always expose the loaded
 start as a structured time control so keyboard and assistive-technology users can
 make the same selection without spatial pointing.
+
+Pointer cues must describe the action actually available: default cursor for
+non-interactive calendar space, precise add/select cursor for open airtime, and a
+link pointer for show inspection. Do not use a grab cursor on the whole event
+before drag-to-move exists. A future move uses a dedicated handle with
+`grab`/`grabbing` plus an equivalent click and keyboard workflow; all paths share
+the same deterministic conflict preview and confirmation.
 
 Dark and light presentation, keyboard access, screen-reader labels, zoom behavior,
 and reduced-motion support are part of the design gate. Proposal UI must remain
@@ -716,16 +725,17 @@ Work incrementally.
 - Repository inspection and architecture review are complete.
 - The scaffold, deterministic scheduling core, and portable override/ChangeSet/
   Undo foundations are complete and tested in sibling `ai-scheduler`.
-- The current automated suite contains 45 passing tests covering deterministic
-  scheduling, overrides/Undo, readiness, duration guidance, calendar selection,
+- The current automated suite contains 49 passing tests covering deterministic
+  scheduling, schedule-pattern validation, overrides/Undo, readiness, duration guidance, calendar selection,
   help integrity, and parity with StationDock's category taxonomy when both
   sibling repositories are present.
 - Phase 3A has an advanced data-backed 24/7 operator calendar with readiness
   hierarchy, right-side assistant, themes, Help Center, compact application
   shell, exact 30-minute-grid start selection, optional quick-entry artwork, and
-  an explicit synchronized Show Details modal. Listener designs, high-risk
-  override states, recurrence/setup design, and formal accessibility review
-  remain open.
+  an explicit synchronized Show Details modal. A no-write station-language
+  pattern chooser now covers weekly, alternating-week, limited-run, and one-time
+  programming. Listener designs, high-risk override states, pattern validation,
+  and formal accessibility review remain open.
 - The current operator prototype is deliberately no-write.
 - No StationDock application code, recorder code, or production schema has been
   changed by the standalone project.

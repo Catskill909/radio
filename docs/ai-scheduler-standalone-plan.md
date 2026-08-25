@@ -227,12 +227,16 @@ later UI/integration work.
 - Keep optional artwork in quick show entry. Open the complete Show Details modal
   only on explicit request, with one synchronized draft and clearly separated
   listener, publishing, archive, contact, and recording sections.
+- Use honest pointer cues: precise selection for open airtime, inspection for
+  scheduled shows, and a dedicated `grab`/`grabbing` handle only when safe move
+  behavior exists, always with a non-drag alternative.
 - **Current checkpoint:** data-backed operator prototype running with a no-write
   structured proposal flow, 24/7 readiness, exact time selection, typical-duration
   guidance, compact top-bar shell, themes, searchable Help Center, optional
-  quick-entry artwork, and the explicit Show Details modal. The 45-test suite
-  passes; listener wireframes, recurrence/setup design, high-risk states, and
-  formal accessibility review are still open.
+  quick-entry artwork, the explicit Show Details modal, and a no-write weekly /
+  alternating / limited-run / one-time pattern chooser. The 49-test suite passes;
+  listener wireframes, pattern validation, high-risk states, and formal
+  accessibility review are still open.
 - **Exit criteria:** approved operator/listener wireframes, tokenized themes,
   accessibility/device review, and no unresolved DST/midnight/override display
   rule.
@@ -248,7 +252,8 @@ later UI/integration work.
   length, and airtime are required; StationDock-compatible profile fields remain
   optional and progressively disclosed.
 - Implement weekly, alternating-week, limited-run, and one-time patterns with
-  explicit boundaries. Alternating readiness audits the full repeating cycle.
+  explicit boundaries and multiple airtime/replay patterns per show. Alternating
+  readiness audits the full repeating cycle.
 - Manual preview/apply/Undo routes through the deterministic Phase 1/2 operations;
   it must work with no AI provider configured.
 - **Exit criteria:** persist, reload, and safely Undo a representative schedule
