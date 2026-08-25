@@ -616,6 +616,23 @@ Deterministic application code supplies every coverage total, gap, conflict,
 missing-field count, and affected-record preview. AI may explain and prioritize
 those facts but must not guess them.
 
+Once the baseline calendar is in place, the assistant should accelerate ordinary
+station changes rather than restart onboarding. For a clear contextual request
+such as “replace Wednesday at 8 PM with this show,” reuse the selected occurrence,
+known show, deterministic conflicts, and existing metadata. Do not ask the
+operator to repeat facts StationDock already knows. Ask only for genuinely
+ambiguous scope (this date versus the recurring pattern), missing required facts,
+or a consequence such as recording that cannot be derived from station rules.
+Consequential replacement/removal still receives a concise impact preview and
+confirmation, then one atomic apply with Undo.
+
+Use `Remove` for calendar placement changes. Removal offers one dated airing or
+every scheduled airing and retains the Show record and metadata. `Delete show`
+belongs only in the full Show interface; its danger-zone confirmation must list
+all attached schedule patterns/occurrences and other affected records before
+deleting the show itself. Midnight-split rows appear as one logical airing in
+every removal or deletion impact list.
+
 Guidance priority is:
 
 1. invalid or conflicting time slots;

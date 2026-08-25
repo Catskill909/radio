@@ -257,8 +257,13 @@ later UI/integration work.
 - Implement weekly, alternating-week, limited-run, and one-time patterns with
   explicit boundaries and multiple airtime/replay patterns per show. Alternating
   readiness audits the full repeating cycle.
+- Calendar placement uses `Remove`: confirm one dated airing or every scheduled
+  airing while retaining the show. Full Show Details separately owns `Delete
+  show` and previews all attached airtime impact.
 - Manual preview/apply/Undo routes through the deterministic Phase 1/2 operations;
   it must work with no AI provider configured.
+- Later AI requests reuse calendar context and deterministic facts, ask only for
+  genuine ambiguity or missing consequences, and call these same operations.
 - **Exit criteria:** persist, reload, and safely Undo a representative schedule
   built from an incomplete template through `Ready to air`.
 
