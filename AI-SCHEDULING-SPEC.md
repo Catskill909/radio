@@ -595,6 +595,25 @@ schedule occurrence only and is not a substitute for this new show-level field.
 Integration must also reconcile legacy 15-minute validation guidance while
 leaving recording and episode duration fields semantically unchanged.
 
+Duration entry must keep its unit visible. Phase 3A should validate one shared
+compact selector for quick entry and Show Details with human-readable common
+choices (`30 minutes`, `1 hour`, `1 hour 30 minutes`, and longer radio blocks)
+plus a custom path. A modal is unnecessary for this single value unless future
+advanced timing rules justify it. The stored contract remains integer minutes.
+
+StationDock's editorial show types will be upgraded to `Public Affairs`, `News`,
+`Music`, `Arts & Culture`, and `Health`. This is separate from the required Apple
+Podcasts category. The old Local/Syndicated dimension becomes optional show
+origin, preserving information instead of mixing two concepts in `Show.type`.
+Neither editorial type nor origin becomes a sixth readiness blocker.
+
+Migration may map Local/Syndicated Music to Music plus origin. Local/Syndicated
+Podcast preserves origin but requires staff to select an editorial type; AI and
+migration code must not guess. For Pacifica, selecting Music visibly inherits an
+overridable 14-day completed-recording retention default. It must not
+automatically enable recording. Exact time-based retention, feed episode limits,
+and archive visibility are separate policies.
+
 Show creation begins with the five required fields. `More show details` opens a
 clear Show Details surface containing StationDock-compatible optional fields; it
 must not crowd the schedule-completion card or make optional profile enrichment
@@ -736,6 +755,9 @@ High-priority scenarios:
 - special records when enabled
 - special does not record when disabled
 - active recording reacts correctly to live schedule change
+- Pacifica Music inherits 14-day retention without silently enabling recording
+- completed Music recordings older than the effective retention are cleaned up
+  by age, while feed limits remain independent
 
 ### Failure / safety
 - conflict prevents unintended write
@@ -769,6 +791,11 @@ Work incrementally.
   removal has explicit one/all-airtime scope. Listener designs, resize and
   high-risk override states, pattern validation, and formal accessibility review
   remain open.
+- An August 25 integration-readiness audit found no current blocking drift and
+  recorded the staged upgrade path: typed adapters, additive schema/backfill,
+  editorial type/origin migration, exact Pacifica Music retention, active-reader
+  and recorder updates, a production-shaped clone, feature-flagged cutover, and
+  rollback without schedule dual writes.
 - The current operator prototype is deliberately no-write.
 - No StationDock application code, recorder code, or production schema has been
   changed by the standalone project.

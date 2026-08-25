@@ -48,8 +48,10 @@ Use **identical field names** to radio-suite's Prisma models so queries port ver
 model Show {
   id                     String   @id @default(uuid())
   title                  String
-  type                   String
+  type                   String?  // UPGRADED editorial type; transitional null allowed
+  origin                 String?  // NEW: Local | Syndicated
   defaultDurationMinutes Int      @default(60) // NEW; required typical length
+  recordingRetentionDays Int?     // NEW: null inherits station/type policy
   recordingEnabled       Boolean  @default(false)
   // ... same subset of fields as radio-suite
 }
@@ -67,6 +69,8 @@ model ScheduleSlot {
   // NEW (built here, ported to radio-suite in integration):
   status            String    @default("ACTIVE") // ACTIVE | SUPPRESSED | REPLACED | MOVED | CANCELLED
   overrideOfSlotId  String?   // links a replacement to the slot it overrides
+  createdAt         DateTime  @default(now()) // NEW: ChangeSet snapshot
+  updatedAt         DateTime  @updatedAt      // NEW: optimistic Undo check
 }
 ```
 
@@ -139,6 +143,29 @@ StationDock's current `createShow` form accepts a `duration` value only to compu
 the first slot's end time, and `lib/schedule-errors.ts` still mentions a 15-minute
 minimum. Phase 7 must migrate that behavior and copy deliberately; recording and
 episode `duration` fields are unrelated and must not be repurposed.
+
+The current standalone number input is not the final UX. Phase 3A validates one
+shared, unit-bearing selector for quick entry and Show Details: readable common
+choices (`30 minutes`, `1 hour`, `1 hour 30 minutes`, `2 hours`, and longer radio
+blocks) plus a clearly labeled custom value. A compact select/combobox is favored
+over a modal unless future advanced timing rules justify one. Storage remains
+integer minutes and the sub-30-minute product decision remains deferred.
+
+### 2.7 Show Type, Origin, and Music Retention Upgrade
+
+Integration may improve the existing model rather than preserve mixed legacy
+labels. Editorial show type becomes `Public Affairs`, `News`, `Music`, `Arts &
+Culture`, or `Health`. `Local`/`Syndicated` is preserved separately as optional
+origin. Neither becomes a sixth schedule-readiness field.
+
+Legacy Local/Syndicated Music maps to editorial Music plus origin. Legacy
+Local/Syndicated Podcast preserves origin but requires staff classification; the
+migration must not guess an editorial type from podcast format or Apple category.
+
+For Pacifica, selecting Music visibly inherits a default 14-day completed-
+recording retention policy. This does not enable recording. The policy is
+overridable per show and must use elapsed time rather than approximating two weeks
+with `feedEpisodeLimit = 2`; feed visibility and audio retention remain separate.
 
 ---
 
@@ -216,6 +243,8 @@ later UI/integration work.
 - Keep typical show length separate from occurrence duration. A shorter or longer
   placement receives a confirmable warning, while sub-30-minute scheduling is
   deferred.
+- Validate the shared unit-bearing duration selector, with common readable
+  choices and a custom path that never hides its unit.
 - Keep calendar and assistant in context together. The operator assistant uses a
   right-side panel that collapses horizontally into a persistent right rail.
 - Use a compact global top bar for show/settings navigation and primary actions;
@@ -230,6 +259,9 @@ later UI/integration work.
 - Keep optional artwork in quick show entry. Open the complete Show Details modal
   only on explicit request, with one synchronized draft and clearly separated
   listener, publishing, archive, contact, and recording sections.
+- Prototype the five editorial show types separately from optional
+  Local/Syndicated origin. Selecting Music at Pacifica shows an overridable
+  14-day retention default without automatically enabling recording.
 - Use honest pointer cues: precise selection for open airtime, inspection for
   scheduled shows, and a dedicated `grab`/`grabbing` handle only when safe move
   behavior exists, always with a non-drag alternative.
@@ -259,6 +291,9 @@ later UI/integration work.
 - Add/Edit Show uses a full Show Details surface: name, host, category, typical
   length, and airtime are required; StationDock-compatible profile fields remain
   optional and progressively disclosed.
+- Use the same approved duration selector in quick entry and Show Details. Persist
+  editorial type, optional origin, station retention default, and show override
+  through one typed Show adapter.
 - Implement weekly, alternating-week, limited-run, and one-time patterns with
   explicit boundaries and multiple airtime/replay patterns per show. Alternating
   readiness audits the full repeating cycle.
@@ -303,8 +338,15 @@ later UI/integration work.
 - **Exit criteria:** spec §6 scenarios + undo for both
 
 ### Phase 7 — Integration Playbook (1–2 days, documentation + dry run)
-- Written migration guide: schema additions (`defaultDurationMinutes`, `status`, `overrideOfSlotId`, `ChangeSet` model → `prisma db push`), file copy map (`lib/scheduling/`, `lib/ai/`, `components/schedule-views/`, `components/operator-schedule/`, `components/ai-chat/`), wiring points in radio-suite (`app/actions.ts`, `/listen`, `/settings`, recorder re-check per spec §9)
-- Dry-run integration on a radio-suite clone
+- Written migration guide: schema additions (`defaultDurationMinutes`, `status`,
+  `overrideOfSlotId`, slot timestamps, `ChangeSet`, editorial type/origin, and
+  recording-retention settings), complete Show-field adapter, file copy map, and
+  wiring points in radio-suite actions, public views, settings, and recorder.
+- Upgrade legacy type data without guessing ambiguous podcast classifications;
+  implement exact age-based Music cleanup independently of feed limits.
+- Dry-run integration on a production-shaped radio-suite clone. Mount the new
+  scheduler behind a feature flag while the old UI remains a rollback surface
+  over the same mutation operations; never dual-write schedules.
 - **Exit criteria:** documented, tested insertion path; recorder re-check behavior verified against live schedule changes (spec §9 edge case: schedule changed mid-recording)
 
 ---
@@ -320,6 +362,8 @@ later UI/integration work.
 | 5 | Whether `ChangeSet` also wraps *manual* edits in radio-suite (spec §10 suggests yes, eventually) | Integration scope | Phase 7 |
 | 6 | Sub-30-minute programs | Keep the current minimum or design smaller increments after the core workflow is proven | Phase 3C / integration |
 | 7 | Alternating readiness horizon | Audit the full two-week cycle or a generalized least-common recurrence cycle | Phase 3A design |
+| 8 | ~~Editorial show types~~ | **DECIDED:** Public Affairs, News, Music, Arts & Culture, Health; Local/Syndicated moves to origin | ~~Integration planning~~ ✓ |
+| 9 | ~~Pacifica Music retention~~ | **DECIDED:** visible, overridable 14-day completed-recording retention default; independent of recording enablement/feed limits | ~~Integration planning~~ ✓ |
 
 ---
 
