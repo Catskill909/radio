@@ -233,12 +233,17 @@ later UI/integration work.
 - Use honest pointer cues: precise selection for open airtime, inspection for
   scheduled shows, and a dedicated `grab`/`grabbing` handle only when safe move
   behavior exists, always with a non-drag alternative.
+- Prototype a separate bottom-edge `ns-resize` handle with a ghost boundary and
+  live assistant time/duration/conflict/recording feedback. It changes the
+  occurrence only unless recurring scope is explicitly chosen, and has an
+  equivalent end-time/keyboard workflow.
 - **Current checkpoint:** data-backed operator prototype running with a no-write
   structured proposal flow, 24/7 readiness, exact time selection, typical-duration
   guidance, compact top-bar shell, themes, searchable Help Center, optional
   quick-entry artwork, the explicit Show Details modal, and a no-write weekly /
-  alternating / limited-run / one-time pattern chooser. The 49-test suite passes;
-  listener wireframes, pattern validation, high-risk states, and formal
+  alternating / limited-run / one-time pattern chooser, contextual new-show
+  review, and scoped airtime removal. The 50-test suite passes; listener
+  wireframes, resize, pattern validation, high-risk states, and formal
   accessibility review are still open.
 - **Exit criteria:** approved operator/listener wireframes, tokenized themes,
   accessibility/device review, and no unresolved DST/midnight/override display
@@ -260,6 +265,9 @@ later UI/integration work.
 - Calendar placement uses `Remove`: confirm one dated airing or every scheduled
   airing while retaining the show. Full Show Details separately owns `Delete
   show` and previews all attached airtime impact.
+- Implement move and bottom-edge resize through deterministic validation and
+  atomic ChangeSets. Pointer resize defaults to one occurrence; recurring scope
+  requires explicit preview/confirmation, and all paths provide Undo.
 - Manual preview/apply/Undo routes through the deterministic Phase 1/2 operations;
   it must work with no AI provider configured.
 - Later AI requests reuse calendar context and deterministic facts, ask only for

@@ -672,6 +672,13 @@ before drag-to-move exists. A future move uses a dedicated handle with
 `grab`/`grabbing` plus an equivalent click and keyboard workflow; all paths share
 the same deterministic conflict preview and confirmation.
 
+A future bottom-edge `ns-resize` handle changes an occurrence's end time, not the
+show's typical length. During resize, show a ghost end boundary and live assistant
+feedback for original/proposed times, actual duration, typical-length mismatch,
+conflicts, and recording consequences. Snap to the current 30-minute grid/minimum.
+Pointer resize defaults to one occurrence; changing a recurring pattern requires
+explicit scope. End-time fields and keyboard increments provide equivalent access.
+
 Dark and light presentation, keyboard access, screen-reader labels, zoom behavior,
 and reduced-motion support are part of the design gate. Proposal UI must remain
 visibly no-write until the user reaches an explicit impact preview and confirms a
@@ -744,13 +751,13 @@ High-priority scenarios:
 
 Work incrementally.
 
-### Standalone checkpoint — August 24, 2026
+### Standalone checkpoint — August 25, 2026
 
 - Repository inspection and architecture review are complete.
 - The scaffold, deterministic scheduling core, and portable override/ChangeSet/
   Undo foundations are complete and tested in sibling `ai-scheduler`.
-- The current automated suite contains 49 passing tests covering deterministic
-  scheduling, schedule-pattern validation, overrides/Undo, readiness, duration guidance, calendar selection,
+- The current automated suite contains 50 passing tests covering deterministic
+  scheduling, missing-duration safety, schedule-pattern validation, overrides/Undo, readiness, duration guidance, calendar selection,
   help integrity, and parity with StationDock's category taxonomy when both
   sibling repositories are present.
 - Phase 3A has an advanced data-backed 24/7 operator calendar with readiness
@@ -758,8 +765,10 @@ Work incrementally.
   shell, exact 30-minute-grid start selection, optional quick-entry artwork, and
   an explicit synchronized Show Details modal. A no-write station-language
   pattern chooser now covers weekly, alternating-week, limited-run, and one-time
-  programming. Listener designs, high-risk override states, pattern validation,
-  and formal accessibility review remain open.
+  programming; calendar context carries into new-show review, and scheduled-show
+  removal has explicit one/all-airtime scope. Listener designs, resize and
+  high-risk override states, pattern validation, and formal accessibility review
+  remain open.
 - The current operator prototype is deliberately no-write.
 - No StationDock application code, recorder code, or production schema has been
   changed by the standalone project.
