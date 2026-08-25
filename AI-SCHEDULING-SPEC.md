@@ -778,8 +778,9 @@ Work incrementally.
 - Repository inspection and architecture review are complete.
 - The scaffold, deterministic scheduling core, and portable override/ChangeSet/
   Undo foundations are complete and tested in sibling `ai-scheduler`.
-- The current automated suite contains 50 passing tests covering deterministic
-  scheduling, missing-duration safety, schedule-pattern validation, overrides/Undo, readiness, duration guidance, calendar selection,
+- The current automated suite contains 54 passing tests covering deterministic
+  scheduling, logical calendar move/resize previews, common/custom duration
+  selection, missing-duration safety, schedule-pattern validation, overrides/Undo, readiness, duration guidance, calendar selection,
   help integrity, and parity with StationDock's category taxonomy when both
   sibling repositories are present.
 - Phase 3A has an advanced data-backed 24/7 operator calendar with readiness
@@ -788,9 +789,14 @@ Work incrementally.
   an explicit synchronized Show Details modal. A no-write station-language
   pattern chooser now covers weekly, alternating-week, limited-run, and one-time
   programming; calendar context carries into new-show review, and scheduled-show
-  removal has explicit one/all-airtime scope. Listener designs, resize and
-  high-risk override states, pattern validation, and formal accessibility review
-  remain open.
+  removal has explicit one/all-airtime scope. Listener designs, applied high-risk
+  override states, pattern persistence, and formal accessibility review remain
+  open.
+- Shared unit-bearing typical-length entry and no-write Move, Replace, and
+  bottom-edge Resize consequence flows are now implemented in the standalone.
+  They include explicit scope, logical midnight duration, visible-week conflict
+  checks, recording warnings, and keyboard paths; persistence, complete future-
+  date inspection, recorder re-check, ChangeSets, and Undo remain later gates.
 - An August 25 integration-readiness audit found no current blocking drift and
   recorded the staged upgrade path: typed adapters, additive schema/backfill,
   editorial type/origin migration, exact Pacifica Music retention, active-reader

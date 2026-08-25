@@ -274,9 +274,11 @@ later UI/integration work.
   guidance, compact top-bar shell, themes, searchable Help Center, optional
   quick-entry artwork, the explicit Show Details modal, and a no-write weekly /
   alternating / limited-run / one-time pattern chooser, contextual new-show
-  review, and scoped airtime removal. The 50-test suite passes; listener
-  wireframes, resize, pattern validation, high-risk states, and formal
-  accessibility review are still open.
+  review, scoped airtime removal, and shared unit-bearing duration entry. No-write
+  Move, Replace, and bottom-edge Resize show logical duration, explicit scope,
+  visible-week conflicts, and recording consequences with pointer/keyboard parity.
+  The 54-test suite passes; listener wireframes, applied write states, pattern
+  persistence, and formal accessibility review are still open.
 - **Exit criteria:** approved operator/listener wireframes, tokenized themes,
   accessibility/device review, and no unresolved DST/midnight/override display
   rule.
