@@ -155,12 +155,17 @@ integer minutes and the sub-30-minute product decision remains deferred.
 
 Integration may improve the existing model rather than preserve mixed legacy
 labels. Editorial show type becomes `Public Affairs`, `News`, `Music`, `Arts &
-Culture`, or `Health`. `Local`/`Syndicated` is preserved separately as optional
+Culture`, `Health`, or `Special Broadcast`. `Local`/`Syndicated` is preserved separately as optional
 origin. Neither becomes a sixth schedule-readiness field.
 
 Legacy Local/Syndicated Music maps to editorial Music plus origin. Legacy
 Local/Syndicated Podcast preserves origin but requires staff classification; the
 migration must not guess an editorial type from podcast format or Apple category.
+
+`Special Broadcast` covers live and exceptional programming. A custom dated
+replacement carries the selected occurrence date, start, and duration into a
+one-time draft, then applies as a linked replacement exception without rewriting
+the recurring baseline.
 
 For Pacifica, selecting Music visibly inherits a default 14-day completed-
 recording retention policy. This does not enable recording. The policy is
@@ -259,7 +264,7 @@ later UI/integration work.
 - Keep optional artwork in quick show entry. Open the complete Show Details modal
   only on explicit request, with one synchronized draft and clearly separated
   listener, publishing, archive, contact, and recording sections.
-- Prototype the five editorial show types separately from optional
+- Prototype the six editorial show types separately from optional
   Local/Syndicated origin. Selecting Music at Pacifica shows an overridable
   14-day retention default without automatically enabling recording.
 - Use honest pointer cues: precise selection for open airtime, inspection for
@@ -364,7 +369,7 @@ later UI/integration work.
 | 5 | Whether `ChangeSet` also wraps *manual* edits in radio-suite (spec §10 suggests yes, eventually) | Integration scope | Phase 7 |
 | 6 | Sub-30-minute programs | Keep the current minimum or design smaller increments after the core workflow is proven | Phase 3C / integration |
 | 7 | Alternating readiness horizon | Audit the full two-week cycle or a generalized least-common recurrence cycle | Phase 3A design |
-| 8 | ~~Editorial show types~~ | **DECIDED:** Public Affairs, News, Music, Arts & Culture, Health; Local/Syndicated moves to origin | ~~Integration planning~~ ✓ |
+| 8 | ~~Editorial show types~~ | **DECIDED:** Public Affairs, News, Music, Arts & Culture, Health, Special Broadcast; Local/Syndicated moves to origin | ~~Integration planning~~ ✓ |
 | 9 | ~~Pacifica Music retention~~ | **DECIDED:** visible, overridable 14-day completed-recording retention default; independent of recording enablement/feed limits | ~~Integration planning~~ ✓ |
 
 ---

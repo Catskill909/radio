@@ -602,7 +602,7 @@ plus a custom path. A modal is unnecessary for this single value unless future
 advanced timing rules justify it. The stored contract remains integer minutes.
 
 StationDock's editorial show types will be upgraded to `Public Affairs`, `News`,
-`Music`, `Arts & Culture`, and `Health`. This is separate from the required Apple
+`Music`, `Arts & Culture`, `Health`, and `Special Broadcast`. This is separate from the required Apple
 Podcasts category. The old Local/Syndicated dimension becomes optional show
 origin, preserving information instead of mixing two concepts in `Show.type`.
 Neither editorial type nor origin becomes a sixth readiness blocker.
@@ -613,6 +613,12 @@ migration code must not guess. For Pacifica, selecting Music visibly inherits an
 overridable 14-day completed-recording retention default. It must not
 automatically enable recording. Exact time-based retention, feed episode limits,
 and archive visibility are separate policies.
+
+`Special Broadcast` covers live broadcasts and other exceptional programming.
+When an operator replaces a dated airing with a newly created special, the UI
+must carry the selected occurrence date, start, and duration into a one-time
+draft. Apply must create a linked replacement exception and preserve the normal
+recurring baseline.
 
 Show creation begins with the five required fields. `More show details` opens a
 clear Show Details surface containing StationDock-compatible optional fields; it
@@ -792,11 +798,14 @@ Work incrementally.
   removal has explicit one/all-airtime scope. Listener designs, applied high-risk
   override states, pattern persistence, and formal accessibility review remain
   open.
-- Shared unit-bearing typical-length entry and no-write Move, Replace, and
+- Shared unit-bearing typical-length entry, live draft-to-calendar duration
+  synchronization, and no-write Move, Replace, and
   bottom-edge Resize consequence flows are now implemented in the standalone.
   They include explicit scope, logical midnight duration, visible-week conflict
   checks, recording warnings, and keyboard paths; persistence, complete future-
   date inspection, recorder re-check, ChangeSets, and Undo remain later gates.
+- Replace can also hand a selected occurrence into a new one-time Special
+  Broadcast draft while preserving the recurring baseline.
 - An August 25 integration-readiness audit found no current blocking drift and
   recorded the staged upgrade path: typed adapters, additive schema/backfill,
   editorial type/origin migration, exact Pacifica Music retention, active-reader
