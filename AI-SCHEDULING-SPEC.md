@@ -734,6 +734,42 @@ This principle is included here because it reflects the intended product philoso
 
 ---
 
+## 19A. Public API, RSS, and Feed Compatibility
+
+Scheduling changes must preserve StationDock's listener and podcast surfaces.
+Public schedule, HTTP now-playing, WebSocket now-playing, show schedule summaries,
+the recorder, conflicts, and reusable views must resolve the same normalized
+active-occurrence projection. Suppressed/replaced/cancelled originals remain
+available to history and recordings but cannot appear on air; an active
+replacement appears exactly once. Range queries use half-open intersection and
+station-time request semantics, while responses retain ISO UTC instants.
+
+The current `/api/public/schedule` response remains a stable V1 serializer for
+existing listeners. Breaking changes require an explicit V2 contract. HTTP and
+WebSocket now-playing must use the same projection and payload shape.
+
+Integration must preserve `/api/feed`, `/api/feed/show/{showId}`, episode GUIDs,
+and audio enclosure URLs. Published episodes retain immutable show identity even
+if an airing is later removed, replaced, moved, or undone. Editorial show type is
+not an Apple Podcasts category; `Special Broadcast` must never be emitted as a
+category fallback. Feed episode limits, archive behavior, and elapsed-time
+recording retention are distinct policies with tested `null`, `0`, and positive
+limit semantics. Feed cache refresh and backward-compatible versioned import/
+export are integration gates.
+
+`Ready to air` and `Ready for podcast distribution` are separate completion
+states. Description, compliant artwork, author, owner email, language, and
+explicit metadata may be required for RSS distribution without blocking schedule
+coverage. AI may guide staff to missing public metadata. Creative metadata
+drafting remains an explicit future option requiring operator review, not part of
+the V1 scheduling scope defined in Section 19.
+
+The full evidence inventory and regression matrix live in
+`../ai-scheduler/docs/API-FEED-INTEGRATION-AUDIT-2026-08-25.md` when the sibling
+repository is present.
+
+---
+
 ## 20. Testing Priorities
 
 Automated tests are necessary, but scheduling/recording must also be tested against real clock behavior in the isolated clone.
@@ -781,6 +817,19 @@ High-priority scenarios:
 - Undo restores prior state
 - Undo does not corrupt recurring groups
 - repeated Undo attempt is safe
+
+### Public API and feeds
+- active replacement appears once while suppressed original is absent
+- station-time ranges cover normal, DST-short, and DST-long days
+- HTTP and WebSocket now-playing payloads remain identical
+- current public schedule V1 response remains compatible
+- global/per-show feed URLs, episode GUIDs, enclosures, and show ownership survive
+  schedule remove/replace/move/Undo
+- `Special Broadcast` uses a valid Apple category, never editorial type fallback
+- feed-limit `null`, `0`, and positive values behave identically across surfaces
+- public recordings expose only approved statuses, and show-type filter migration
+  has explicit compatibility behavior
+- version-1 backup restores after the additive migration
 
 ---
 

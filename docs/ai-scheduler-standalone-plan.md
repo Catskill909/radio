@@ -15,13 +15,17 @@ progress; no radio-suite application code integrated.
 
 ## 1. Why Standalone-First
 
-Build the AI scheduling system in a clean-room app that **mirrors radio-suite's stack and data model exactly**, so that when it's proven, integration is a copy-and-wire job — not a rewrite.
+Build the AI scheduling system in a clean-room app that remains compatible with
+radio-suite's current stack and data while deliberately improving beta models and
+workflows when evidence supports it. Integration should be an explicit adapter,
+migration, and wiring job—not an accidental rewrite or a freeze of legacy limits.
 
 Benefits:
 - Zero risk to the live station (`radio.supersoul.top`) during development
 - Fast iteration without touching production schema
 - Forces clean module boundaries (nothing can secretly depend on radio-suite internals)
-- The schedule display views get built against the same JSON contract radio-suite's public API already emits
+- Schedule display views use a normalized active-occurrence contract with a
+  stable serializer for the JSON radio-suite's public API already emits
 
 ---
 
@@ -116,7 +120,8 @@ ai-scheduler/
 
 **Rule:** Nothing in `lib/` or `components/schedule-views/` or `components/ai-chat/` may import from `app/`. All portable code consumes:
 - Prisma client (same models)
-- A normalized schedule JSON contract (identical shape to radio-suite's `/api/public/schedule` response)
+- A normalized active-occurrence schedule contract plus a stable serializer for
+  radio-suite's existing `/api/public/schedule` response
 - Station settings via a small interface (so radio-suite's `getStationSettings` slots in)
 
 ### 2.5 Canonical Show Categories
@@ -190,7 +195,9 @@ Radio-suite currently has one public display (the `/listen` day-list). This proj
 
 ### 3.2 Common Contract
 
-Every view consumes the **same normalized props** — exactly what radio-suite's public API returns:
+Every view consumes the **same normalized props**. An explicit V1 serializer
+preserves what radio-suite's public API returns today; internal view types do not
+bind directly to Prisma or a page-owned interface:
 
 ```ts
 interface ScheduleViewProps {
@@ -285,16 +292,22 @@ later UI/integration work.
   review, scoped airtime removal, and shared unit-bearing duration entry. No-write
   Move, Replace, and bottom-edge Resize show logical duration, explicit scope,
   visible-week conflicts, and recording consequences with pointer/keyboard parity.
-  The 54-test suite passes; listener wireframes, applied write states, pattern
+  The 56-test suite passes; listener wireframes, applied write states, pattern
   persistence, and formal accessibility review are still open.
 - **Exit criteria:** approved operator/listener wireframes, tokenized themes,
   accessibility/device review, and no unresolved DST/midnight/override display
   rule.
 
 ### Phase 3B — Schedule Display Views (3–4 days)
-- Build the 5 views against the common contract, responsive, station/visitor timezone modes
+- Freeze typed V1 public-schedule and now-playing fixtures from StationDock.
+  Build one normalized active-occurrence adapter with half-open range
+  intersection, station-time request semantics, logical-midnight continuity, and
+  identical HTTP/WebSocket now-playing payloads.
+- Build the 5 views against that common contract, responsive, station/visitor timezone modes
 - `ScheduleViewSwitcher` + admin default-view setting
-- **Exit criteria:** all views render the seed schedule correctly, including the midnight-split and DST-week data
+- **Exit criteria:** all views render suppression/replacement, midnight-split,
+  alternating/replay, and DST-week fixtures correctly while the existing
+  `/listen` V1 response remains compatible
 
 ### Phase 3C — Write-Capable Operator Scheduling
 
@@ -308,6 +321,12 @@ later UI/integration work.
 - Use the same approved duration selector in quick entry and Show Details. Persist
   editorial type, optional origin, station retention default, and show override
   through one typed Show adapter.
+- Protect published episode/show identity from later schedule edits. Preserve RSS
+  URLs, episode GUIDs, and audio enclosures; correct Apple-category fallback,
+  normalize `feedEpisodeLimit`, separate feed/archive/age-retention policies,
+  define cache refresh, and version import/export with version-1 restore support.
+- Keep `Ready to air` separate from `Ready for podcast distribution`. Feed
+  metadata can be required for distribution without becoming a schedule blocker.
 - Implement weekly, alternating-week, limited-run, and one-time patterns with
   explicit boundaries and multiple airtime/replay patterns per show. Alternating
   readiness audits the full repeating cycle.
@@ -363,6 +382,9 @@ later UI/integration work.
   `overrideOfSlotId`, slot timestamps, `ChangeSet`, editorial type/origin, and
   recording-retention settings), complete Show-field adapter, file copy map, and
   wiring points in radio-suite actions, public views, settings, and recorder.
+- Snapshot/diff public schedule, HTTP/WebSocket now-playing, public show/podcast/
+  recording APIs, global RSS, and per-show RSS. Preserve feed URLs, GUIDs,
+  enclosures, and historical show ownership through remove/replace/move/Undo.
 - Upgrade legacy type data without guessing ambiguous podcast classifications;
   implement exact age-based Music cleanup independently of feed limits.
 - Dry-run integration on a production-shaped radio-suite clone. Mount the new
