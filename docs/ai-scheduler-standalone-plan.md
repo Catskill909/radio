@@ -259,8 +259,11 @@ later UI/integration work.
   tentative end from typical show length without crossing booked time, and mirror
   the selected start in a keyboard-accessible assistant time control.
 - Carry that selected station-local date/day/time into `Create a new show
-  instead`, prefill its first pattern, and retain it through show review. Global
-  Add Show remains blank because it has no placement context.
+  instead`, open the larger Show Details modal, prefill its first pattern, and
+  retain it through show review. Lead with the five required fields, keep all
+  optional sections visible but secondary, and return to a compact assistant
+  summary without losing the synchronized draft. Global Add Show remains blank
+  because it has no placement context.
 - Keep optional artwork in quick show entry. Open the complete Show Details modal
   only on explicit request, with one synchronized draft and clearly separated
   listener, publishing, archive, contact, and recording sections.
@@ -298,6 +301,10 @@ later UI/integration work.
 - Add/Edit Show uses a full Show Details surface: name, host, category, typical
   length, and airtime are required; StationDock-compatible profile fields remain
   optional and progressively disclosed.
+- Implement one bidirectional assistant/modal draft boundary: explicit new-show
+  creation may enter the full modal, `Return to assistant` retains every field
+  and placement, and `Edit full show details` reopens the same draft with correct
+  focus return and unsaved-draft protection.
 - Use the same approved duration selector in quick entry and Show Details. Persist
   editorial type, optional origin, station retention default, and show override
   through one typed Show adapter.

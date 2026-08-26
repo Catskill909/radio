@@ -625,8 +625,13 @@ clear Show Details surface containing StationDock-compatible optional fields; it
 must not crowd the schedule-completion card or make optional profile enrichment
 look required. The current standalone prototype also offers optional artwork in
 quick entry, keeps that artwork and required fields synchronized with the full
-modal, and never opens the modal automatically. Persistence remains later
-write-capable workflow work.
+modal, and never opens the modal without explicit operator action. Selecting
+`Create a new show instead` beneath existing-show placement is such an explicit
+action and should open the larger modal directly. It carries the selected airtime,
+leads with the five required fields, and keeps all optional sections visible but
+secondary. `Return to assistant` preserves the single synchronized draft and
+shows a compact completion summary with a route back to full details. Persistence
+remains later write-capable workflow work.
 
 Baseline authoring must ultimately distinguish weekly, alternating-week,
 limited-run, and one-time patterns from dated occurrence overrides. An
@@ -687,8 +692,12 @@ If the operator chooses `Create a new show instead` from that gap, carry the
 station-local date, weekday, and selected start into show creation. Suggest a
 weekly pattern at that time while preserving the actual date for an alternating
 anchor, limited-run boundary, or one-time special if the operator changes the
-pattern. Global Add Show begins blank because it has no calendar context. Review
-must show every proposed airtime before conflict/recording consequences and save.
+pattern. That explicit action opens the larger Show Details modal, which places
+the five required fields first while keeping optional metadata visible and
+secondary. Returning to the assistant preserves the same draft and placement and
+shows a compact completion summary; reopening details must not reset either.
+Global Add Show begins blank because it has no calendar context. Review must show
+every proposed airtime before conflict/recording consequences and save.
 
 Pointer cues must describe the action actually available: default cursor for
 non-interactive calendar space, precise add/select cursor for open airtime, and a
