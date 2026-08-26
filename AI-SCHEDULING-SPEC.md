@@ -829,6 +829,21 @@ The active standalone phase details live in
 The following sequence remains the canonical safety order even where the
 standalone plan inserts an explicit experience-design gate before reusable views.
 
+### Beta product and AI discovery posture
+
+StationDock is a beta platform, not an immutable legacy contract. Existing code,
+data, and staff workflows are the integration baseline, but standalone findings
+may justify improving StationDock models and interaction design through safe
+migrations. Scheduling is the first bounded AI domain, not necessarily the last.
+Phase 7 begins with a product/architecture discovery pass to identify adjacent
+StationDock work where constrained AI assistance could reduce repetitive effort,
+guide completion, or surface operational context.
+
+Discovery does not automatically broaden authority. Each adopted capability must
+enter a prioritized backlog and define deterministic operations, authenticated
+permissions, preview/confirmation rules, audit history, Undo or recovery,
+failure isolation, and a complete manual fallback before implementation.
+
 ### Phase 1 — Inspect
 Read the repo and document:
 - current scheduling flow

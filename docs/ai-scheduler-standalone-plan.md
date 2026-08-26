@@ -352,6 +352,13 @@ later UI/integration work.
 - **Exit criteria:** spec §6 scenarios + undo for both
 
 ### Phase 7 — Integration Playbook (1–2 days, documentation + dry run)
+- Start with a beta-product discovery pass: identify standalone improvements that
+  should upgrade StationDock and adjacent staff workflows where constrained AI
+  assistance could add value beyond scheduling.
+- Put new AI opportunities into a prioritized backlog rather than expanding
+  scheduler scope implicitly. Require deterministic operations, authenticated
+  permissions, preview/confirmation, audit history, recovery/Undo, failure
+  isolation, and a manual fallback for every adopted capability.
 - Written migration guide: schema additions (`defaultDurationMinutes`, `status`,
   `overrideOfSlotId`, slot timestamps, `ChangeSet`, editorial type/origin, and
   recording-retention settings), complete Show-field adapter, file copy map, and
